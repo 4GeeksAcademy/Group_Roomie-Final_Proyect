@@ -2,17 +2,66 @@
 This module takes care of starting the API Server, Loading the DB and Adding the endpoints
 """
 from flask import Flask, request, jsonify, url_for, Blueprint
-from api.models import db, User
+from api.models import db, Roomie, Home, Expenses, RoomieDebts, ShoppingList, ShoppingItems, Task, File, Blog, Notifications
 from api.utils import generate_sitemap, APIException
+from flask_jwt_extended import create_access_token, get_jwt_identity, jwt_required
+
 
 api = Blueprint('api', __name__)
 
+#Ruta para creación de token
+@api.route('/token', methods=['POST'])
+def create_token():
+    email = request.json.get('email', None)
+    password = request.json.get('password', None)
+    roomie = Roomie.filter.query(email=email, password=password).first()
+    if Roomie is None:
+        return jsonify({'message':'El email o la contraseña no son correctos'}), 401
+    access_token = create_access_token(identity=roomie.id)
+    return jsonify({ 'token': access_token, 'roomie_id': roomie.id })
 
-@api.route('/hello', methods=['POST', 'GET'])
-def handle_hello():
+#Ruta para registrar nuevo roomie
+@api.route('/signup', methods=['POST'])
+def create_roomie():
+    data = request.get_json()
+    required_fields = ['email', 'password', 'first_name', 'last_name', 'phone_number']
+    for field in required_fields:
+        if field not in data:
+            return jsonify({'error': f'Falta {field} en los campos del formulario'}), 400
+    email = data['email']
+    password = data['password']
+    first_name = data['first_name']
+    last_name = data['last_name']
+    phone_number = data['phone_number']
+    avatar = data.get('avatar')
+    paypal_id = data.get('paypal_id')
+    existing_roomie = Roomie.query.filter_by(email=email).first()
+    if existing_roomie:
+        return jsonify({'error': 'Este roomie ya existe'}), 400
+    hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
+    new_roomie = Roomie(
+        email=email,
+        password=hashed_password,
+        first_name=first_name,
+        last_name=last_name,
+        phone_number=phone_number,
+        avatar=avatar,
+        paypal_id=paypal_id
+    )
+    db.session.add(new_roomie)
+    db.session.commit()
+    return jsonify({'message': 'Nuevo roomie creado correctamente'}), 201
 
-    response_body = {
-        "message": "Hello! I'm a message that came from the backend, check the network tab on the google inspector and you will see the GET request"
-    }
+#Ruta para inicio de sesión
+@api.route('/login', methods=['POST'])
+def login_roomie():
+    data = request.get_json()
+    email = data.get('email')
+    password = data.get('password')
+    roomie = Roomie.query.filter_by(email=email).first()
+    if not roomie or not bcrypt.check_password_hash(roomie.password, password):
+        return jsonify({'error': 'El email o la contraseña no son correctos'}), 401
+    create_token()
 
-    return jsonify(response_body), 200
+
+
