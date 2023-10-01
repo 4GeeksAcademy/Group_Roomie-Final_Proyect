@@ -5,9 +5,11 @@ from flask import Flask, request, jsonify, url_for, Blueprint
 from api.models import db, Roomie, Home, Expenses, RoomieDebts, ShoppingList, ShoppingItems, Task, File, Blog, Notifications
 from api.utils import generate_sitemap, APIException
 from flask_jwt_extended import create_access_token, get_jwt_identity, jwt_required
+from flask_bcrypt import Bcrypt
 
 
 api = Blueprint('api', __name__)
+bcrypt = Bcrypt()
 
 #Ruta para creación de token
 @api.route('/token', methods=['POST'])

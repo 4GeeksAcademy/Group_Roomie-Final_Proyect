@@ -13,7 +13,6 @@ from api.admin import setup_admin
 from api.commands import setup_commands
 from flask_jwt_extended import JWTManager
 import datetime
-from flask_bcrypt import Bcrypt
 
 #from models import Person
 
@@ -25,8 +24,6 @@ app.url_map.strict_slashes = False
 app.config["JWT_SECRET_KEY"] = "supercontraseña"
 app.config['JWT_ACCESS_TOKEN_EXPIRES'] = datetime.timedelta(minutes=30)
 jwt = JWTManager(app)
-
-bcrypt = Bcrypt(app)
 
 # database condiguration
 db_url = os.getenv("DATABASE_URL")
