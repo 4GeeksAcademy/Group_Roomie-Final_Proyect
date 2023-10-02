@@ -149,7 +149,7 @@ class Task(db.Model):
 class File(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     home_id = db.Column(db.Integer, db.ForeignKey('home.id'), nullable=False)
-    expense_id = db.Column(db.Integer, db.ForeignKey('expenses.expenseID'), nullable=False)
+    expense_id = db.Column(db.Integer, db.ForeignKey('expenses.id'), nullable=False)
     name = db.Column(db.String(200), nullable=False)
     date = db.Column(db.Date, nullable=False)
     url = db.Column(db.String(200), nullable=False)
@@ -189,7 +189,7 @@ class Blog(db.Model):
 
 class Notifications(db.Model):
     id = db.Column(db.Integer,primary_key=True,autoincrement=True)
-    phone_number = db.Column(db.Integer, db.ForeignKey('roomie.phoneNumber'), primary_key=True,unique=True)
+    phone_number = db.Column(db.Integer, db.ForeignKey('roomie.phone_number'), primary_key=True,unique=True)
     name = db.Column(db.String(20), nullable=False)
 
     def __repr__(self):

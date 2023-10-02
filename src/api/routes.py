@@ -5,11 +5,11 @@ from flask import Flask, request, jsonify, url_for, Blueprint
 from api.models import db, Roomie, Home, Expenses, RoomieDebts, ShoppingList, ShoppingItems, Task, File, Blog, Notifications
 from api.utils import generate_sitemap, APIException
 from flask_jwt_extended import create_access_token, get_jwt_identity, jwt_required
-from flask_bcrypt import Bcrypt
+#from flask_bcrypt import Bcrypt
 
 
 api = Blueprint('api', __name__)
-bcrypt = Bcrypt()
+#bcrypt = Bcrypt()
 
 #Ruta para creación de token
 @api.route('/token', methods=['POST'])
@@ -40,7 +40,7 @@ def create_roomie():
     existing_roomie = Roomie.query.filter_by(email=email).first()
     if existing_roomie:
         return jsonify({'error': 'Este roomie ya existe'}), 400
-    hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
+    #hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
     new_roomie = Roomie(
         email=email,
         password=hashed_password,
@@ -61,8 +61,8 @@ def login_roomie():
     email = data.get('email')
     password = data.get('password')
     roomie = Roomie.query.filter_by(email=email).first()
-    if not roomie or not bcrypt.check_password_hash(roomie.password, password):
-        return jsonify({'error': 'El email o la contraseña no son correctos'}), 401
+    #if not roomie or not bcrypt.check_password_hash(roomie.password, password):
+        #return jsonify({'error': 'El email o la contraseña no son correctos'}), 401
     create_token()
 
 
