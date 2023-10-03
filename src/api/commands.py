@@ -1,4 +1,3 @@
-
 import click
 from api.models import db, Roomie
 
@@ -22,7 +21,11 @@ def setup_commands(app):
             roomie = Roomie()
             roomie.email = "test_roomie" + str(x) + "@test.com"
             roomie.password = "123456"
-            roomie.is_active = True
+            roomie.first_name = "Juan"
+            roomie.last_name = "Plaza"
+            roomie.phone_number = "666777888"
+            roomie.avatar = ""
+            roomie.is_admin = True
             db.session.add(roomie)
             db.session.commit()
             print("Roomie: ", roomie.email, " created.")
