@@ -4,7 +4,7 @@ db = SQLAlchemy()
 
 class Roomie(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    is_admin = db.Column(db.Boolean, nullable=False)
+    is_admin = db.Column(db.Boolean, nullable=False, default=False)
     email = db.Column(db.String(20), unique=True, nullable=False)
     password = db.Column(db.String(8), nullable=False)
     first_name = db.Column(db.String(20), nullable=False)
@@ -13,7 +13,7 @@ class Roomie(db.Model):
     avatar = db.Column(db.String(200), nullable=False)
     paypal_id = db.Column(db.String(12), nullable=False)
 
-    #home_id = db.Column(db.Integer, db.ForeignKey('home.id'), nullable=False)
+    #home_id = db.Column(db.Integer, db.ForeignKey('home.id'), nullable=True)
 
     tasks = db.relationship('Task', backref='roomie')
     #blogs = db.relationship('Blog', backref='roomie')
@@ -38,6 +38,9 @@ class Roomie(db.Model):
 class Home(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(20), nullable=False)
+    is_active = db.Column(db.Boolean(), unique=False, nullable=True, default=True)
+    
+    #admin_id = db.Column(db.Integer, db.ForeignKey('roomie.id'), nullable=False)
 
     #files = db.relationship('File', backref='home')
     #roomies = db.relationship('Roomie', backref='home')

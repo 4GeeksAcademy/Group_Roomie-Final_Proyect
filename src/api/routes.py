@@ -16,8 +16,8 @@ def create_token():
     roomie = Roomie.filter.query(email=email, password=password).first()
     if Roomie is None:
         return jsonify({'message':'El email o la contraseña no son correctos'}), 401
-    access_token = create_access_token(identity=roomie.id)
-    return jsonify({ 'token': access_token, 'roomie_id': roomie.id })
+    access_token = create_access_token(identity={'roomie_id': roomie.id, 'is_admin': roomie.is_admin})
+    return jsonify({ 'token': access_token, 'roomie_id': roomie.id, 'is_admin': roomie.is_admin })
 
 #Ruta para registrar nuevo roomie
 @api.route('/signup', methods=['POST'])
@@ -34,8 +34,11 @@ def create_roomie():
     phone_number = data['phone_number']
     avatar = data.get('avatar')
     paypal_id = data.get('paypal_id')
-    existing_roomie = Roomie.query.filter_by(email=email).first()
-    if existing_roomie:
+    existing_email_roomie = Roomie.query.filter_by(email=email).first()
+    if existing_email_roomie:
+        return jsonify({'error': 'Este roomie ya existe'}), 400
+    existing_phone_roomie = Roomie.query.filter_by(phone_number=phone_number).first()
+    if existing_phone_roomie:
         return jsonify({'error': 'Este roomie ya existe'}), 400
     new_roomie = Roomie(
         email=email,
@@ -136,21 +139,79 @@ def get_one_home(home_id):
     return jsonify(chosen_home.serialize()), 200
 
 @api.route('/home', methods=['POST'])
+@jwt_required()
 def create_home():
     request_body_home = request.get_json()
     if 'name' not in request_body_home:
         return jsonify({'error': 'Es necesario introducir un nombre para la vivienda'}), 400
+    roomie_id = get_jwt_identity()
     name = request_body_home['name']
-    new_home = Home(name=name)
+    new_home = Home(name=name, roomie_id=roomie_id)
+    shopping_list = List(home=new_home)
     db.session.add(new_home)
+    db.session.add(shopping_list)
+    updated_access_token = create_access_token(identity={
+        'roomie_id': roomie_id,
+        'is_admin': True
+    })
     db.session.commit()
-    return jsonify({'message': 'Vivienda creada correctamente'}), 201
+    return jsonify({'message': 'Vivienda creada correctamente', 'access_token': updated_access_token}), 200
 
-@api.route('/home/<int:home_id>', methods=['DELETE'])
-def delete_home(home_id):
+@api.route('/home/<int:home_id>/add_roomie/<int:roomie_id>', methods=['POST'])
+@jwt_required()
+def add_roomie_to_home(home_id, roomie_id):
+    home = Home.query.get(home_id)
+    if home is None:
+        return jsonify({'error': 'Esta vivienda no existe'}), 404
+    if home.admin_id != get_jwt_identity():
+        return jsonify({'error': 'No tienes permiso para añadir roomies a esta vivienda'}), 404
+    roomie = Roomie.query.get(roomie_id)
+    if roomie is None:
+        return jsonify({'error': 'Este roomie no existe'}), 400
+    home.roomies.append(roomie)
+    db.session.commit()
+    return jsonify({'message': 'Roomie añadido a la vivienda correctamente'}), 201
+
+@api.route('/home/<int:home_id>/delete_roomie/<int:roomie_id>', methods=['DELETE'])
+@jwt_required()
+def delete_roomie_from_home(home_id, roomie_id):
+    current_roomie_id = get_jwt_identity()
+    home = Home.query.get(home_id)
+    if not home or home.admin_id != current_roomie_id:
+        return jsonify({'error': 'No tienes permiso para eliminar a este roomie'}), 404
+    roomie = Roomie.query.get(roomie_id)
+    if not roomie or roomie not in home.roomies:
+        return jsonify({'error': 'El roomie no pertenece a esta vivienda'}), 400
+    roomie.home_id = None
+    db.session.commit()
+    return jsonify({'message': 'Roomie eliminado de la vivienda correctamente'}), 200
+
+@api.route('/home/<int:home_id>', methods=['PUT'])
+def inactive_home(home_id):
     chosen_home = Home.query.get(home_id)
     if chosen_home is None:
         return jsonify({'error': 'Esta vivienda no existe'}), 404
-    db.session.delete(chosen_home)
+    roomies_in_home = Roomie.query.filter_by(home_id=home_id).all()
+    for roomie in roomies_in_home:
+        roomie.home_id = None
+    chosen_home.admin_id = None
+    chosen_home.is_active = False
     db.session.commit()
     return jsonify({'message': 'Vivienda eliminada correctamente'}), 200
+
+#Rutas para tasks
+@api.route('/task', methods=['GET'])
+def get_all_tasks():
+    tasks= Task.query.all()
+    all_tasks = list(map(lambda item: item.serialize(), tasks))
+    if all_tasks == []:
+         return jsonify({'error': 'No hay tareas registradas'}), 404
+    return jsonify(all_tasks), 200
+
+@api.route('/task/<int:task_id>', methods=['GET'])
+def get_one_task(task_id):
+    chosen_task = Task.query.filter_by(id=task_id).first()
+    if chosen_task is None:
+        return jsonify({'error': 'Esta tarea no existe'}), 404
+    return jsonify(chosen_task.serialize()), 200
+
