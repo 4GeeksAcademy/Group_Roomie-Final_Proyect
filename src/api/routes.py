@@ -61,9 +61,10 @@ def login_roomie():
         return jsonify({'error': 'El email o la contraseña no son correctos'}), 401
     create_token()
 
+
 #Rutas para roomies
 @api.route('/roomie', methods=['GET'])
-def get_roomies():
+def get_all_roomies():
     roomies= Roomie.query.all()
     all_roomies = list(map(lambda item: item.serialize(), roomies))
     if all_roomies == []:
@@ -118,3 +119,38 @@ def delete_roomie(roomie_id):
     return jsonify('Roomie eliminado correctamente'), 200
 
 
+#Rutas para home
+@api.route('/home', methods=['GET'])
+def get_all_homes():
+    homes= Home.query.all()
+    all_homes = list(map(lambda item: item.serialize(), homes))
+    if all_homes == []:
+         return jsonify({'error': 'No hay viviendas registradas'}), 404
+    return jsonify(all_homes), 200
+
+@api.route('/home/<int:home_id>', methods=['GET'])
+def get_one_home(home_id):
+    chosen_home = Home.query.filter_by(id=home_id).first()
+    if chosen_home is None:
+        return jsonify({'error': 'Esta vivienda no existe'}), 404
+    return jsonify(chosen_home.serialize()), 200
+
+@api.route('/home', methods=['POST'])
+def create_home():
+    request_body_home = request.get_json()
+    if 'name' not in request_body_home:
+        return jsonify({'error': 'Es necesario introducir un nombre para la vivienda'}), 400
+    name = request_body_home['name']
+    new_home = Home(name=name)
+    db.session.add(new_home)
+    db.session.commit()
+    return jsonify({'message': 'Vivienda creada correctamente'}), 201
+
+@api.route('/home/<int:home_id>', methods=['DELETE'])
+def delete_home(home_id):
+    chosen_home = Home.query.get(home_id)
+    if chosen_home is None:
+        return jsonify({'error': 'Esta vivienda no existe'}), 404
+    db.session.delete(chosen_home)
+    db.session.commit()
+    return jsonify({'message': 'Vivienda eliminada correctamente'}), 200
