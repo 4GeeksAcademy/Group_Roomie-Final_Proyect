@@ -151,27 +151,31 @@ def create_home():
     shopping_list = List(home=new_home)
     db.session.add(new_home)
     db.session.add(shopping_list)
+    db.session.commit()
+    roomie = Roomie.query.get(roomie_id)
+    if roomie:
+        roomie.is_admin = True
+        db.session.commit()
     updated_access_token = create_access_token(identity={
         'roomie_id': roomie_id,
         'is_admin': True
     })
-    db.session.commit()
     return jsonify({'message': 'Vivienda creada correctamente', 'access_token': updated_access_token}), 200
 
 @api.route('/home/<int:home_id>/<int:roomie_id>', methods=['POST'])
 @jwt_required()
-def add_roomie_to_home(home_id, roomie_id):
+def add_roomie_to_home(home_id, roomie_email):
     home = Home.query.get(home_id)
     if home is None:
         return jsonify({'error': 'Esta vivienda no existe'}), 404
     if home.admin_id != get_jwt_identity():
         return jsonify({'error': 'No tienes permiso para añadir roomies a esta vivienda'}), 404
-    roomie = Roomie.query.get(roomie_id)
+    roomie = Roomie.query.filter_by(email=roomie_email).first()
     if roomie is None:
         return jsonify({'error': 'Este roomie no existe'}), 400
     home.roomies.append(roomie)
     db.session.commit()
-    return jsonify({'message': 'Roomie añadido a la vivienda correctamente'}), 201
+    return jsonify({'message': 'Roomie añadido a la vivienda correctamente'}), 200
 
 @api.route('/home/<int:home_id>/<int:roomie_id>', methods=['DELETE'])
 @jwt_required()
