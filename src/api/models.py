@@ -77,24 +77,28 @@ class Expenses(db.Model):
         }
 
 class Debts(db.Model):
-    #roomie_id = db.Column(db.Integer, db.ForeignKey('roomie.id'), primary_key=True)
-    expense_id = db.Column(db.Integer, db.ForeignKey('expenses.id'), primary_key=True)
+    id = db.Column(db.Integer, primary_key=True)
     amount = db.Column(db.Integer, nullable=False)
     roomie_debtor = db.Column(db.String(20), nullable=False)
     status = db.Column(db.String(20), nullable=False)
     date = db.Column(db.Date, nullable=False)
 
+    #roomie_id = db.Column(db.Integer, db.ForeignKey('roomie.id'), nullable=False)
+    #expense_id = db.Column(db.Integer, db.ForeignKey('expenses.id'), nullable=False)
+
     def __repr__(self):
-        return '<Debts %r>' % self.roomie_id
+        return '<Debts %r>' % self.id
 
     def serialize(self):
         return {
-            "expenseID": self.expense_id,
-            #"roomieID": self.roomie_id,
+            "id": self.id
             "amount": self.amount,
             "roomie_debtor": self.roomie_debtor,
             "status": self.status,
-            "date": str(self.date)
+            "date": str(self.date),
+            #"roomieID": self.roomie_id,
+            #"expenseID": self.expense_id
+            
         }
 
 class List(db.Model):

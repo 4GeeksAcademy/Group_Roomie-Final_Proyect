@@ -5,6 +5,7 @@ from flask import Flask, request, jsonify, url_for, Blueprint
 from api.models import db, Roomie, Home, Expenses, Debts, List, Items, Task, File, Blog, Notifications
 from api.utils import generate_sitemap, APIException
 from flask_jwt_extended import create_access_token, get_jwt_identity, jwt_required
+from datetime import datetime, timedelta
 
 api = Blueprint('api', __name__)
 
@@ -157,7 +158,7 @@ def create_home():
     db.session.commit()
     return jsonify({'message': 'Vivienda creada correctamente', 'access_token': updated_access_token}), 200
 
-@api.route('/home/<int:home_id>/add_roomie/<int:roomie_id>', methods=['POST'])
+@api.route('/home/<int:home_id>/<int:roomie_id>', methods=['POST'])
 @jwt_required()
 def add_roomie_to_home(home_id, roomie_id):
     home = Home.query.get(home_id)
@@ -172,7 +173,7 @@ def add_roomie_to_home(home_id, roomie_id):
     db.session.commit()
     return jsonify({'message': 'Roomie añadido a la vivienda correctamente'}), 201
 
-@api.route('/home/<int:home_id>/delete_roomie/<int:roomie_id>', methods=['DELETE'])
+@api.route('/home/<int:home_id>/<int:roomie_id>', methods=['DELETE'])
 @jwt_required()
 def delete_roomie_from_home(home_id, roomie_id):
     current_roomie_id = get_jwt_identity()
@@ -199,6 +200,7 @@ def inactive_home(home_id):
     db.session.commit()
     return jsonify({'message': 'Vivienda eliminada correctamente'}), 200
 
+
 #Rutas para tasks
 @api.route('/task', methods=['GET'])
 def get_all_tasks():
@@ -221,7 +223,7 @@ def get_tasks_by_roomie_id(roomie_id):
     task_list = [task.serialize() for task in tasks]
     return jsonify(task_list), 200
 
-@api.route('/task/create', methods=['POST'])
+@api.route('/task', methods=['POST'])
 def create_task():
     request_data = request.get_json()
     roomie_id = request_data.get('roomie_id')
@@ -238,7 +240,7 @@ def create_task():
     db.session.commit()
     return jsonify({'message': 'Nueva tarea añadida correctamente' }), 200
 
-@api.route('/task/delete/<int:roomie_id>/<int:task_id>', methods=['DELETE'])
+@api.route('/task/<int:roomie_id>/<int:task_id>', methods=['DELETE'])
 def delete_task(roomie_id, task_id):
     task = Task.query.get(task_id)
     if task is None:
@@ -248,3 +250,92 @@ def delete_task(roomie_id, task_id):
     db.session.delete(task)
     db.session.commit()
     return jsonify({'message': 'Tarea eliminada correctamente'}), 200
+
+
+#Rutas para actualizaciones
+@api.route('/blog', methods=['GET'])
+def get_all_blogs():
+    blogs= Blog.query.all()
+    all_blogs = list(map(lambda item: item.serialize(), blogs))
+    if all_blogs == []:
+         return jsonify({'error': 'No hay actualizaciones registradas'}), 400
+    return jsonify(all_blogs), 200
+
+@api.route('/blog/<int:roomie_id>', methods=['GET'])
+def get_blogs_by_roomie(roomie_id):
+    blogs = Blog.query.filter_by(roomie_id=roomie_id).all()
+    if not blogs:
+        return jsonify({'error': 'No hay actualizaciones para este roomie'}), 400
+    serialized_blogs = [blog.serialize() for blog in blogs]
+    return jsonify(serialized_blogs), 200
+
+@api.route('/task/<int:task_id>', methods=['POST'])
+def complete_task(task_id):
+    task = Task.query.get(task_id)
+    if task:
+        task.done = True
+        db.session.commit()
+        new_blog = Blog(
+            roomie_id=task.roomie_id,
+            name=task.name,
+            date=datetime.now(),
+            status='Tarea completada',
+            amount=None
+        )
+        db.session.add(new_blog)
+        db.session.commit()
+        return jsonify({'message': 'Tarea completada'}), 200
+    else:
+        return jsonify({'error': 'No se encontró la tarea'}), 400
+
+@api.route('/list/<int:item_id>', methods=['POST'])
+def purchase_item(item_id):
+    item = Items.query.get(item_id)
+    if item:
+        item.checked = True
+        db.session.commit()
+        new_blog = Blog(
+            roomie_id=item.roomie_id,
+            name={item.name},
+            date=datetime.now(),
+            status='Comprado',
+            amount=None
+        )
+        db.session.add(new_blog)
+        db.session.commit()
+        return jsonify({'message': 'Item comprado'}), 200
+    else:
+        return jsonify({'error': 'No se encontró el item'}), 400
+    
+@api.route('/debts/<int:debt_id>', methods=['POST'])
+def pay_debt(debt_id):
+    debt = Debts.query.get(debt_id)
+    if debt:
+        debt.status = 'Pagado'
+        db.session.commit()
+        new_blog = Blog(
+            roomie_id=debt.roomie_id,
+            name={debt.name},
+            date=datetime.now(),
+            status='Pagado',
+            amount=debt.amount
+        )
+        db.session.add(new_blog)
+        db.session.commit()
+        return jsonify({'message': 'Deuda pagada'}), 200
+    else:
+        return jsonify({'error': 'No se encontró la deuda'}), 400
+
+#PENDIENTE DE AÑADIR RUTA PARA AVISO DE SUBIDA DE ARCHIVOS
+
+@api.route('/blog', methods=['POST'])
+def remove_old_blogs():
+    try:
+        seven_days_ago = datetime.now() - timedelta(days=7)
+        old_blogs = Blog.query.filter(Blog.date <= seven_days_ago).all()
+        for blog in old_blogs:
+            db.session.delete(blog)
+        db.session.commit()
+        return jsonify({'message': 'Las actualizaciones se borraron correctamente'}), 200
+    except Exception as error:
+        return jsonify({'error': str(error)}), 500
