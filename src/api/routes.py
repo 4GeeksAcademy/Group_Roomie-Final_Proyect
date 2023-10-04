@@ -6,9 +6,7 @@ from api.models import db, Roomie, Home, Expenses, Debts, List, Items, Task, Fil
 from api.utils import generate_sitemap, APIException
 from flask_jwt_extended import create_access_token, get_jwt_identity, jwt_required
 
-
 api = Blueprint('api', __name__)
-
 
 #Ruta para creación de token
 @api.route('/token', methods=['POST'])
@@ -63,5 +61,60 @@ def login_roomie():
         return jsonify({'error': 'El email o la contraseña no son correctos'}), 401
     create_token()
 
+#Rutas para roomies
+@api.route('/roomie', methods=['GET'])
+def get_roomies():
+    roomies= Roomie.query.all()
+    all_roomies = list(map(lambda item: item.serialize(), roomies))
+    if all_roomies == []:
+         return jsonify({'error': 'No hay roomies registrados'}), 404
+    return jsonify(all_roomies), 200
+
+@api.route('/roomie/<int:roomie_id>', methods=['GET'])
+def get_one_roomie(roomie_id):
+    chosen_roomie = Roomie.query.filter_by(id=roomie_id).first()
+    if chosen_roomie is None:
+        return jsonify({'error': 'Este roomie no existe'}), 404
+    return jsonify(chosen_roomie.serialize()), 200
+
+@api.route('/roomie/<int:roomie_id>', methods=['PUT'])
+def updated_roomie(roomie_id):
+    request_body_roomie = request.get_json()
+    chosen_roomie = Roomie.query.get(roomie_id)
+    if chosen_roomie is None:
+        return jsonify({'error': 'Este roomie no existe'}), 404
+    if 'email' in request_body_roomie:
+        new_email = request_body_roomie['email']
+        if Roomie.query.filter_by(email=new_email).first() is None:
+            chosen_roomie.email = new_email
+        else:
+            return jsonify({'error': 'Este email ya existe'}), 400
+    if 'password' in request_body_roomie:
+        chosen_roomie.password = request_body_roomie['password']
+    if 'first_name' in request_body_roomie:
+        chosen_roomie.first_name = request_body_roomie['first_name']
+    if 'last_name' in request_body_roomie:
+        chosen_roomie.last_name = request_body_roomie['last_name']
+    if 'phone_number' in request_body_roomie:
+        new_phone_number = request_body_roomie['phone_number']
+        if Roomie.query.filter_by(phone_number=new_phone_number).first() is None:
+            chosen_roomie.phone_number = new_phone_number
+        else:
+            return jsonify({'error': 'Este teléfono ya existe'}), 400
+    if 'avatar' in request_body_roomie:
+        chosen_roomie.avatar = request_body_roomie['avatar']
+    if 'paypal_id' in request_body_roomie:
+        chosen_roomie.paypal_id = request_body_roomie['paypal_id']
+    db.session.commit()
+    return jsonify('Roomie actualizado correctamente'), 200
+
+@api.route('/roomie/<int:roomie_id>', methods=['DELETE'])
+def delete_roomie(roomie_id):
+    chosen_roomie = Roomie.query.get(roomie_id)
+    if chosen_roomie is None:
+        return jsonify({'error': 'Este roomie no existe'}), 404
+    db.session.delete(chosen_roomie)
+    db.session.commit()
+    return jsonify('Roomie eliminado correctamente'), 200
 
 
