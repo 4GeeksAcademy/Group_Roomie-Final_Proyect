@@ -14,8 +14,8 @@ api = Blueprint('api', __name__)
 def create_token():
     email = request.json.get('email', None)
     password = request.json.get('password', None)
-    roomie = Roomie.filter.query(email=email, password=password).first()
-    if Roomie is None:
+    roomie = Roomie.query.filter_by(email=email, password=password).first()
+    if roomie is None:
         return jsonify({'message':'El email o la contraseña no son correctos'}), 401
     access_token = create_access_token(identity={'roomie_id': roomie.id, 'is_admin': roomie.is_admin})
     return jsonify({ 'token': access_token, 'roomie_id': roomie.id, 'is_admin': roomie.is_admin })
@@ -24,7 +24,7 @@ def create_token():
 @api.route('/signup', methods=['POST'])
 def create_roomie():
     data = request.get_json()
-    required_fields = ['email', 'password', 'first_name', 'last_name', 'phone_number']
+    required_fields = ['email', 'password', 'first_name', 'phone_number']
     for field in required_fields:
         if field not in data:
             return jsonify({'error': f'Falta {field} en los campos del formulario'}), 400
@@ -63,7 +63,7 @@ def login_roomie():
     roomie = Roomie.query.filter_by(email=email).first()
     if not roomie or roomie.password != password:
         return jsonify({'error': 'El email o la contraseña no son correctos'}), 401
-    create_token()
+    return create_token()
 
 
 #Rutas para roomies
@@ -82,30 +82,26 @@ def get_one_roomie(roomie_id):
         return jsonify({'error': 'Este roomie no existe'}), 404
     return jsonify(chosen_roomie.serialize()), 200
 
+@api.route('/roomie/home/<int:home_id>', methods=['GET'])
+def get_roomies_by_home_id(home_id):
+    roomies = Roomie.query.filter_by(home_id=home_id).all()
+    roomie_list = [roomie.serialize() for roomie in roomies]
+    return jsonify(roomie_list), 200
+
 @api.route('/roomie/<int:roomie_id>', methods=['PUT'])
 def updated_roomie(roomie_id):
     request_body_roomie = request.get_json()
     chosen_roomie = Roomie.query.get(roomie_id)
     if chosen_roomie is None:
         return jsonify({'error': 'Este roomie no existe'}), 404
-    if 'email' in request_body_roomie:
-        new_email = request_body_roomie['email']
-        if Roomie.query.filter_by(email=new_email).first() is None:
-            chosen_roomie.email = new_email
-        else:
-            return jsonify({'error': 'Este email ya existe'}), 400
+    if 'email' in request_body_roomie or 'phone_number' in request_body_roomie:
+        return jsonify({'error': 'No puedes actualizar el email o el número de teléfono'}), 400
     if 'password' in request_body_roomie:
         chosen_roomie.password = request_body_roomie['password']
     if 'first_name' in request_body_roomie:
         chosen_roomie.first_name = request_body_roomie['first_name']
     if 'last_name' in request_body_roomie:
         chosen_roomie.last_name = request_body_roomie['last_name']
-    if 'phone_number' in request_body_roomie:
-        new_phone_number = request_body_roomie['phone_number']
-        if Roomie.query.filter_by(phone_number=new_phone_number).first() is None:
-            chosen_roomie.phone_number = new_phone_number
-        else:
-            return jsonify({'error': 'Este teléfono ya existe'}), 400
     if 'avatar' in request_body_roomie:
         chosen_roomie.avatar = request_body_roomie['avatar']
     if 'paypal_id' in request_body_roomie:
@@ -145,34 +141,47 @@ def create_home():
     request_body_home = request.get_json()
     if 'name' not in request_body_home:
         return jsonify({'error': 'Es necesario introducir un nombre para la vivienda'}), 400
-    roomie_id = get_jwt_identity()
+    roomie_id = get_jwt_identity().get('roomie_id')
+    is_admin = get_jwt_identity().get('is_admin')
     name = request_body_home['name']
-    new_home = Home(name=name, roomie_id=roomie_id)
-    shopping_list = List(home=new_home)
-    db.session.add(new_home)
-    db.session.add(shopping_list)
-    db.session.commit()
+    new_home = Home(name=name, is_active=True)
     roomie = Roomie.query.get(roomie_id)
     if roomie:
+        new_home.roomies.append(roomie)
+    shopping_list_name = f"Shopping List de {name}"
+    shopping_list = List(name=shopping_list_name)
+    new_home.shopping_list = shopping_list
+    db.session.add(new_home)
+    db.session.commit()
+    if roomie and not is_admin:
         roomie.is_admin = True
         db.session.commit()
-    updated_access_token = create_access_token(identity={
-        'roomie_id': roomie_id,
-        'is_admin': True
-    })
-    return jsonify({'message': 'Vivienda creada correctamente', 'access_token': updated_access_token}), 200
+        updated_access_token = create_access_token(identity={
+            'roomie_id': roomie_id,
+            'is_admin': True
+        })
+    else:
+        updated_access_token = create_access_token(identity={
+            'roomie_id': roomie_id,
+            'is_admin': is_admin
+        })
+    return jsonify({'message': 'Vivienda creada correctamente', 'access_token': updated_access_token, 'roomie_id': roomie.id, 'is_admin': roomie.is_admin, 'shopping_list_name': shopping_list_name}), 200
 
 @api.route('/home/<int:home_id>/<int:roomie_id>', methods=['POST'])
 @jwt_required()
-def add_roomie_to_home(home_id, roomie_email):
+def add_roomie_to_home(home_id, roomie_id):
     home = Home.query.get(home_id)
     if home is None:
         return jsonify({'error': 'Esta vivienda no existe'}), 404
-    if home.admin_id != get_jwt_identity():
-        return jsonify({'error': 'No tienes permiso para añadir roomies a esta vivienda'}), 404
-    roomie = Roomie.query.filter_by(email=roomie_email).first()
+    current_roomie_id = get_jwt_identity().get('roomie_id')
+    is_admin = get_jwt_identity().get('is_admin')
+    if not is_admin:
+        return jsonify({'error': 'No tienes permiso para añadir roomies a esta vivienda o no eres un administrador'}), 403
+    roomie = Roomie.query.get(roomie_id)
     if roomie is None:
         return jsonify({'error': 'Este roomie no existe'}), 400
+    if roomie in home.roomies:
+        return jsonify({'error': 'Este roomie ya está en la vivienda'}), 400
     home.roomies.append(roomie)
     db.session.commit()
     return jsonify({'message': 'Roomie añadido a la vivienda correctamente'}), 200
@@ -180,10 +189,13 @@ def add_roomie_to_home(home_id, roomie_email):
 @api.route('/home/<int:home_id>/<int:roomie_id>', methods=['DELETE'])
 @jwt_required()
 def delete_roomie_from_home(home_id, roomie_id):
-    current_roomie_id = get_jwt_identity()
+    current_roomie_id = get_jwt_identity().get('roomie_id')
+    current_roomie_is_admin = get_jwt_identity().get('is_admin')
     home = Home.query.get(home_id)
-    if not home or home.admin_id != current_roomie_id:
-        return jsonify({'error': 'No tienes permiso para eliminar a este roomie'}), 404
+    if not home:
+        return jsonify({'error': 'Esta vivienda no existe'}), 404
+    if not current_roomie_is_admin:
+        return jsonify({'error': 'No tienes permiso para eliminar a este roomie o no eres un administrador'}), 403
     roomie = Roomie.query.get(roomie_id)
     if not roomie or roomie not in home.roomies:
         return jsonify({'error': 'El roomie no pertenece a esta vivienda'}), 400
@@ -199,7 +211,6 @@ def inactive_home(home_id):
     roomies_in_home = Roomie.query.filter_by(home_id=home_id).all()
     for roomie in roomies_in_home:
         roomie.home_id = None
-    chosen_home.admin_id = None
     chosen_home.is_active = False
     db.session.commit()
     return jsonify({'message': 'Vivienda eliminada correctamente'}), 200
@@ -221,7 +232,7 @@ def get_one_task(task_id):
         return jsonify({'error': 'Esta tarea no existe'}), 404
     return jsonify(chosen_task.serialize()), 200
 
-@api.route('/task/<int:roomie_id>', methods=['GET'])
+@api.route('/task/roomie/<int:roomie_id>', methods=['GET'])
 def get_tasks_by_roomie_id(roomie_id):
     tasks = Task.query.filter_by(roomie_id=roomie_id).all()
     task_list = [task.serialize() for task in tasks]
@@ -231,26 +242,25 @@ def get_tasks_by_roomie_id(roomie_id):
 def create_task():
     request_data = request.get_json()
     roomie_id = request_data.get('roomie_id')
-    if roomie_id is None:
-        return jsonify({'error': 'Es necesario asignar un roomie'}), 400
+    name = request_data.get('name')
+    date_assigned = request_data.get('date_assigned')
+    if roomie_id is None or name is None or date_assigned is None:
+        return jsonify({'error': 'Faltan campos por completar'}), 400
     new_task = Task(
-        name=request_data.get('name'),
-        date_added=request_data.get('date_added'),
+        name=name,
+        date_assigned=date_assigned,
         date_done=request_data.get('date_done'),
-        done=request_data.get('done'),
         roomie_id=roomie_id
     )
     db.session.add(new_task)
     db.session.commit()
-    return jsonify({'message': 'Nueva tarea añadida correctamente' }), 200
+    return jsonify({'message': 'Nueva tarea añadida correctamente'}), 200
 
-@api.route('/task/<int:roomie_id>/<int:task_id>', methods=['DELETE'])
-def delete_task(roomie_id, task_id):
+@api.route('/task/<int:task_id>', methods=['DELETE'])
+def delete_task(task_id):
     task = Task.query.get(task_id)
     if task is None:
         return jsonify({'error': 'La tarea no existe'}), 400
-    if task.roomie_id != roomie_id:
-        return jsonify({'error': 'Esta tarea no pertenece a este roomie'}), 400
     db.session.delete(task)
     db.session.commit()
     return jsonify({'message': 'Tarea eliminada correctamente'}), 200

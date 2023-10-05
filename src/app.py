@@ -22,7 +22,7 @@ app = Flask(__name__)
 app.url_map.strict_slashes = False
 
 app.config["JWT_SECRET_KEY"] = "supercontraseña"
-#app.config['JWT_ACCESS_TOKEN_EXPIRES'] = datetime.timedelta(minutes=30)
+app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(minutes=30)
 jwt = JWTManager(app)
 
 # database condiguration

@@ -25,7 +25,7 @@ def setup_commands(app):
             roomie.last_name = "Plaza"
             roomie.phone_number = "666777888"
             roomie.avatar = ""
-            roomie.is_admin = True
+            roomie.paypal_id = ""
             db.session.add(roomie)
             db.session.commit()
             print("Roomie: ", roomie.email, " created.")

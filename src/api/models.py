@@ -49,7 +49,8 @@ class Home(db.Model):
     def serialize(self):
         return {
             "id": self.id,
-            "name": self.name
+            "name": self.name,
+            "is_active": self.is_active
         }
 
 class Expenses(db.Model):
@@ -148,7 +149,6 @@ class Task(db.Model):
             "name": self.name,
             "date_assigned": str(self.date_assigned),
             "date_done": str(self.date_done),
-            "done": self.done,
             "roomie_id": self.roomie_id
         }
 
