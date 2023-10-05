@@ -37,10 +37,10 @@ class Home(db.Model):
     name = db.Column(db.String(20), nullable=False)
     is_active = db.Column(db.Boolean(), default=True)
 
-    files = db.relationship('File', backref='home')
     roomies = db.relationship('Roomie', backref='home')
+    files = db.relationship('File', backref='home')
     expenses = db.relationship('Expenses', backref='home')
-    shopping_list = db.relationship('List', backref='home')
+    shopping_list = db.relationship('List', backref='home', lazy=True, uselist=False)
     blogs = db.relationship('Blog', backref='home')
     
     def __repr__(self):
@@ -59,7 +59,7 @@ class Expenses(db.Model):
 
     debts = db.relationship('Debts', backref='expense')
     shopping_items = db.relationship('Items', backref='expense', lazy=True)
-    file = db.relationship('File', backref='expense', lazy=True)
+    file = db.relationship('File', backref='expense', lazy=True, uselist=False)
 
     def __repr__(self):
         return '<Expenses %r>' % self.id
@@ -74,14 +74,14 @@ class Expenses(db.Model):
 class Debts(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     amount = db.Column(db.Float, nullable=False)
-    roomie_debtor_id = db.Column(db.String(20), db.ForeignKey('roomie.id'), nullable=False)
-    roomie_paying_id = db.Column(db.String(20), db.ForeignKey('roomie.id'), nullable=False)
     status = db.Column(db.String(20), nullable=False)
     date = db.Column(db.Date, nullable=False)
+    roomie_debtor_id = db.Column(db.Integer, db.ForeignKey('roomie.id'), nullable=False)
+    roomie_paying_id = db.Column(db.Integer, db.ForeignKey('roomie.id'), nullable=False)
     expense_id = db.Column(db.Integer, db.ForeignKey('expenses.id'), nullable=False)
 
-    roomie_debtor = db.relationship('Roomie', foreign_keys=[roomie_debtor_id], backref='debts_debtor')
-    roomie_paying = db.relationship('Roomie', foreign_keys=[roomie_paying_id], backref='debts_paying')
+    roomie_debtor = db.relationship('Roomie', foreign_keys=[roomie_debtor_id])
+    roomie_paying = db.relationship('Roomie', foreign_keys=[roomie_paying_id])
 
     def __repr__(self):
         return '<Debts %r>' % self.id
@@ -160,7 +160,7 @@ class File(db.Model):
     url = db.Column(db.String(200), nullable=False)
 
     home_id = db.Column(db.Integer, db.ForeignKey('home.id'), nullable=False)
-    expense_id = db.Column(db.Integer, db.ForeignKey('expenses.id'), nullable=False)
+    expense_id = db.Column(db.Integer, db.ForeignKey('expenses.id'))
 
     def __repr__(self):
         return '<File %r>' % self.id
@@ -200,7 +200,7 @@ class Notifications(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
 
-    phone_number = db.Column(db.Integer, db.ForeignKey('roomie.phone_number'), nullable=False)
+    phone_number = db.Column(db.String(20), db.ForeignKey('roomie.phone_number'), nullable=False)
 
     def __repr__(self):
         return '<Notifications %r>' % self.id
