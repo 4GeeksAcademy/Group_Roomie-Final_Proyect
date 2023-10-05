@@ -118,9 +118,8 @@ class List(db.Model):
 class Item(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
-    checked = db.Column(db.Boolean, nullable=False)
     shopping_list_id = db.Column(db.Integer, db.ForeignKey('list.id'), nullable=False)
-    expense_id = db.Column(db.Integer, db.ForeignKey('expenses.id'), nullable=False)
+    expense_id = db.Column(db.Integer, db.ForeignKey('expenses.id'))
     
     def __repr__(self):
         return '<Item %r>' % self.id
@@ -129,8 +128,8 @@ class Item(db.Model):
         return {
             "id": self.id,
             "name": self.name,
-            "checked": self.checked,
             "shopping_list_id": self.shopping_list_id,
+            "expense_id": self.expense_id
         }
 
 class Task(db.Model):
@@ -176,6 +175,7 @@ class File(db.Model):
 class Blog(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     text = db.Column(db.String(200), nullable=False)
+    amount = db.Column(db.Float)
     date = db.Column(db.Date, nullable=False)
     status = db.Column(db.String(20), nullable=False)
     home_id = db.Column(db.Integer, db.ForeignKey('home.id'), nullable=False)
