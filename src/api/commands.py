@@ -13,9 +13,9 @@ def setup_commands(app):
     by typing: $ flask insert-test-users 5
     Note: 5 is the number of users to add
     """
-    @app.cli.command("insert-test-roomies") # name of our command
+    @app.cli.command("insert-test-data") # name of our command
     @click.argument("count") # argument of out command
-    def insert_test_roomies(count):
+    def insert_test_data(count):
         print("Creating test roomies")
         for x in range(1, int(count) + 1):
             roomie = Roomie()

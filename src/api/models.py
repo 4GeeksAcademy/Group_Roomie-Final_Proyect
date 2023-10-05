@@ -38,9 +38,9 @@ class Home(db.Model):
     is_active = db.Column(db.Boolean(), default=True)
 
     roomies = db.relationship('Roomie', backref='home')
-    files = db.relationship('File', backref='home')
     expenses = db.relationship('Expenses', backref='home')
     shopping_list = db.relationship('List', backref='home', lazy=True, uselist=False)
+    files = db.relationship('File', backref='home')
     blogs = db.relationship('Blog', backref='home')
     
     def __repr__(self):
@@ -57,8 +57,8 @@ class Expenses(db.Model):
     name = db.Column(db.String(50), nullable=False)
     home_id = db.Column(db.Integer, db.ForeignKey('home.id'), nullable=False)
 
-    debts = db.relationship('Debts', backref='expense')
-    shopping_items = db.relationship('Items', backref='expense', lazy=True)
+    roomie_debts = db.relationship('Debts', backref='expense')
+    shopping_items = db.relationship('Item', backref='expense', lazy=True)
     file = db.relationship('File', backref='expense', lazy=True, uselist=False)
 
     def __repr__(self):
@@ -94,7 +94,7 @@ class Debts(db.Model):
             "roomie_paying_id": self.roomie_paying_id,
             "status": self.status,
             "date": str(self.date),
-            "expenseID": self.expense_id
+            "expense_id": self.expense_id
         }
 
 class List(db.Model):
@@ -102,7 +102,7 @@ class List(db.Model):
     name = db.Column(db.String(50), nullable=False)
     home_id = db.Column(db.Integer, db.ForeignKey('home.id'), nullable=False)
     
-    shopping_items = db.relationship('Items', backref='list', lazy=True)
+    shopping_items = db.relationship('Item', backref='list')
 
     def __repr__(self):
         return '<List %r>' % self.id
@@ -114,7 +114,7 @@ class List(db.Model):
             "home_id": self.home_id
         }
 
-class Items(db.Model):
+class Item(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
     checked = db.Column(db.Boolean, nullable=False)
@@ -122,7 +122,7 @@ class Items(db.Model):
     expense_id = db.Column(db.Integer, db.ForeignKey('expenses.id'), nullable=False)
     
     def __repr__(self):
-        return '<Items %r>' % self.id
+        return '<Item %r>' % self.id
     
     def serialize(self):
         return {
@@ -137,7 +137,6 @@ class Task(db.Model):
     name = db.Column(db.String(50), nullable=False)
     date_assigned = db.Column(db.Date, nullable=False)
     date_done = db.Column(db.Date, nullable=True)
-
     roomie_id = db.Column(db.Integer, db.ForeignKey('roomie.id'),nullable=False)
 
     def __repr__(self):
@@ -155,11 +154,10 @@ class Task(db.Model):
 
 class File(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(200), nullable=False)
-    upload_date = db.Column(db.Date, nullable=False)
-    url = db.Column(db.String(200), nullable=False)
-
-    home_id = db.Column(db.Integer, db.ForeignKey('home.id'), nullable=False)
+    name = db.Column(db.String(200))
+    upload_date = db.Column(db.Date)
+    url = db.Column(db.String(200))
+    home_id = db.Column(db.Integer, db.ForeignKey('home.id'))
     expense_id = db.Column(db.Integer, db.ForeignKey('expenses.id'))
 
     def __repr__(self):
@@ -177,10 +175,9 @@ class File(db.Model):
 
 class Blog(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(200), nullable=False)
+    text = db.Column(db.String(200), nullable=False)
     date = db.Column(db.Date, nullable=False)
     status = db.Column(db.String(20), nullable=False)
-
     home_id = db.Column(db.Integer, db.ForeignKey('home.id'), nullable=False)
 
     def __repr__(self):
@@ -189,7 +186,7 @@ class Blog(db.Model):
     def serialize(self):
         return {
             "id": self.id,
-            "name": self.name,
+            "text": self.text,
             "status": self.status,
             "amount": self.amount,
             "date": str(self.date),
@@ -199,7 +196,6 @@ class Blog(db.Model):
 class Notifications(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
-
     phone_number = db.Column(db.String(20), db.ForeignKey('roomie.phone_number'), nullable=False)
 
     def __repr__(self):
