@@ -250,14 +250,20 @@ def get_tasks_by_roomie_id(roomie_id):
     task_list = [task.serialize() for task in tasks]
     return jsonify(task_list), 200
 
+from datetime import datetime
+
 @api.route('/task', methods=['POST'])
 def create_task():
     request_data = request.get_json()
     roomie_id = request_data.get('roomie_id')
     name = request_data.get('name')
-    date_assigned = request_data.get('date_assigned')
-    if roomie_id is None or name is None or date_assigned is None:
+    date_assigned_str = request_data.get('date_assigned')
+    if roomie_id is None or name is None or date_assigned_str is None:
         return jsonify({'error': 'Faltan campos por completar'}), 400
+    try:
+        date_assigned = datetime.strptime(date_assigned_str, '%d-%m-%Y')
+    except ValueError:
+        return jsonify({'error': 'Formato de fecha inválido. Utilice el formato DD-MM-YYYY'}), 400
     new_task = Task(
         name=name,
         date_assigned=date_assigned,
@@ -267,6 +273,27 @@ def create_task():
     db.session.add(new_task)
     db.session.commit()
     return jsonify({'message': 'Nueva tarea añadida correctamente'}), 200
+
+@api.route('/task/<int:task_id>', methods=['PUT'])
+def mark_task_as_done(task_id):
+    task = Task.query.get(task_id)
+    if task is None:
+        return jsonify({'error': 'La tarea no existe'}), 404
+    if task.date_done:
+        return jsonify({'message': 'La tarea ya está marcada como completada'}), 200
+    task.date_done = datetime.now()
+    db.session.commit()
+    home_id = task.roomie.home.id
+    text = f"Tarea completada: {task.name}"
+    new_blog = Blog(
+        home_id=home_id,
+        text=text,
+        date=datetime.now(),
+        status='Hecho',
+    )
+    db.session.add(new_blog)
+    db.session.commit()
+    return jsonify({'message': 'Tarea completada'}), 200
 
 @api.route('/task/<int:task_id>', methods=['DELETE'])
 def delete_task(task_id):
@@ -370,21 +397,22 @@ def get_blogs_by_home(home_id):
 @api.route('/blog/task/<int:task_id>', methods=['POST'])
 def complete_task(task_id):
     task = Task.query.get(task_id)
-    if task:
-        task.done = True
-        db.session.commit()
-        home_id = task.roomie.home.id
-        new_blog = Blog(
-            home_id=home_id,
-            text=task.name,
-            date=datetime.now(),
-            status='Tarea completada',
-        )
-        db.session.add(new_blog)
-        db.session.commit()
-        return jsonify({'message': 'Tarea completada'}), 200
-    else:
+    if task is None:
         return jsonify({'error': 'No se encontró la tarea'}), 400
+    if task.done:
+        return jsonify({'message': 'La tarea ya está marcada como completada'}), 200
+    task.done = True
+    db.session.commit()
+    home_id = task.roomie.home.id
+    new_blog = Blog(
+        home_id=home_id,
+        text=f"Tarea completada: {task.name}",
+        date=datetime.now(),
+        status='Hecho',
+    )
+    db.session.add(new_blog)
+    db.session.commit()
+    return jsonify({'message': 'Tarea completada'}), 200
 
 #PENDIENTE DE CREAR CODIGO CORRECTO PARA ESTA RUTA
 @api.route('/blog/list/<int:item_id>', methods=['POST'])
