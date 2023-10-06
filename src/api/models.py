@@ -6,7 +6,7 @@ class Roomie(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     is_admin = db.Column(db.Boolean, nullable=False, default=False)
     email = db.Column(db.String(100), unique=True, nullable=False)
-    password = db.Column(db.String(15), nullable=False)
+    password = db.Column(db.String(64), nullable=False)
     first_name = db.Column(db.String(20))
     last_name = db.Column(db.String(20))
     phone_number = db.Column(db.String(20), unique=True, nullable=False)

@@ -6,6 +6,7 @@ from api.models import db, Roomie, Home, Expenses, Debts, List, Item, Task, File
 from api.utils import generate_sitemap, APIException
 from flask_jwt_extended import create_access_token, get_jwt_identity, jwt_required
 from datetime import datetime, timedelta
+from api.custom_bcrypt import bcrypt
 
 api = Blueprint('api', __name__)
 
@@ -14,11 +15,12 @@ api = Blueprint('api', __name__)
 def create_token():
     email = request.json.get('email', None)
     password = request.json.get('password', None)
-    roomie = Roomie.query.filter_by(email=email, password=password).first()
-    if roomie is None:
-        return jsonify({'message':'El email o la contraseña no son correctos'}), 401
+    roomie = Roomie.query.filter_by(email=email).first()
+    if roomie is None or not bcrypt.check_password_hash(roomie.password, password):
+        return jsonify({'message': 'El email o la contraseña no son correctos'}), 401
     access_token = create_access_token(identity={'roomie_id': roomie.id, 'is_admin': roomie.is_admin})
-    return jsonify({ 'token': access_token, 'roomie_id': roomie.id, 'is_admin': roomie.is_admin })
+    return jsonify({'token': access_token, 'roomie_id': roomie.id, 'is_admin': roomie.is_admin})
+
 
 #Ruta para registrar nuevo roomie
 @api.route('/signup', methods=['POST'])
@@ -41,9 +43,10 @@ def create_roomie():
     existing_phone_roomie = Roomie.query.filter_by(phone_number=phone_number).first()
     if existing_phone_roomie:
         return jsonify({'error': 'Este roomie ya existe'}), 400
+    hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
     new_roomie = Roomie(
         email=email,
-        password=password,
+        password=hashed_password,
         first_name=first_name,
         last_name=last_name,
         phone_number=phone_number,
@@ -61,7 +64,9 @@ def login_roomie():
     email = data.get('email')
     password = data.get('password')
     roomie = Roomie.query.filter_by(email=email).first()
-    if not roomie or roomie.password != password:
+    if not roomie:
+        return jsonify({'error': 'El email o la contraseña no son correctos'}), 401
+    if not bcrypt.check_password_hash(roomie.password, password):
         return jsonify({'error': 'El email o la contraseña no son correctos'}), 401
     return create_token()
 
