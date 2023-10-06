@@ -175,6 +175,7 @@ class File(db.Model):
 class Blog(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     text = db.Column(db.String(200), nullable=False)
+    roomie_name = db.Column(db.String(20), nullable=False)
     amount = db.Column(db.Float)
     date = db.Column(db.Date, nullable=False)
     status = db.Column(db.String(20), nullable=False)
@@ -187,6 +188,7 @@ class Blog(db.Model):
         return {
             "id": self.id,
             "text": self.text,
+            "roomie_name": self.roomie_name,
             "status": self.status,
             "amount": self.amount,
             "date": str(self.date),
