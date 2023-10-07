@@ -12,6 +12,7 @@ class Roomie(db.Model):
     phone_number = db.Column(db.String(20), unique=True, nullable=False)
     avatar = db.Column(db.String(200))
     paypal_id = db.Column(db.String(12))
+    is_active = db.Column(db.Boolean(), default=True)
     home_id = db.Column(db.Integer, db.ForeignKey('home.id'), nullable=True)
 
     tasks = db.relationship('Task', backref='roomie')
@@ -29,6 +30,7 @@ class Roomie(db.Model):
             "phone_number": self.phone_number,
             "avatar": self.avatar,
             "admin": self.is_admin,
+            "is_active": self.is_active,
             "home_id": self.home_id
         }
 
