@@ -114,13 +114,15 @@ def updated_roomie(roomie_id):
     db.session.commit()
     return jsonify('Roomie actualizado correctamente'), 200
 
-@api.route('/roomie/<int:roomie_id>', methods=['DELETE'])
+@api.route('/roomie/<int:roomie_id>', methods=['PUT'])
 @jwt_required()
-def deactivate_roomie(roomie_id):
+def inactivate_roomie(roomie_id):
     current_roomie_id = get_jwt_identity().get('roomie_id')
     roomie = Roomie.query.get(roomie_id)
     if roomie is None:
         return jsonify({'error': 'Roomie no encontrado'}), 404
+    if roomie_id != current_roomie_id:
+        return jsonify({'error': 'No tienes permiso para desactivar a este roomie'}), 403
     if roomie.home_id is not None:
         return jsonify({'error': 'No puedes desactivar a un roomie asociado a una vivienda'}), 403
     roomie.email = f'roomieeliminado{roomie.id}@roomieconnect.com'
@@ -131,7 +133,6 @@ def deactivate_roomie(roomie_id):
     roomie.avatar = f'roomieeliminado{roomie.id}'
     roomie.paypal_id = f'roomieeliminado{roomie.id}'
     roomie.is_active = False
-    current_roomie = Roomie.query.filter_by(id=current_roomie_id).first()
     db.session.commit()
     return jsonify({'message': 'Roomie eliminado correctamente'}), 200
 
@@ -207,14 +208,14 @@ def add_roomie_to_home_by_email(home_id):
     current_roomie = Roomie.query.filter_by(id=current_roomie_id).first()
     new_blog = Blog(
         home_id=home.id,
-        text=f'Nuevo roomie añadido: {roomie.first_name}',
+        text=f'Nuevo roomie agregado: {roomie.first_name}',
         roomie_name=current_roomie.first_name,
         date=datetime.now(),
         status='Hecho',
     )
     db.session.add(new_blog)
     db.session.commit()
-    return jsonify({'message': 'Roomie añadido a la vivienda correctamente'}), 200
+    return jsonify({'message': 'Roomie agregado a la vivienda correctamente'}), 200
 
 @api.route('/home/<int:home_id>/<int:roomie_id>', methods=['DELETE'])
 @jwt_required()
@@ -418,37 +419,6 @@ def create_item():
     db.session.commit()
     return jsonify({'message': 'Nuevo elemento añadido correctamente'}), 200
 
-@api.route('/item/<int:item_id>', methods=['PUT'])
-@jwt_required()
-def mark_item_as_purchased(item_id):
-    item = Item.query.get(item_id)
-    if item is None:
-        return jsonify({'error': 'El elemento no existe'}), 404
-    if item.expense_id is not None:
-        return jsonify({'message': 'El elemento ya está marcado como comprado'}), 200
-    shopping_list = List.query.filter_by(id=item.shopping_list_id).first()
-    new_expense = Expenses(
-        name=f'Compra de {item.name}',
-        home_id=shopping_list.home.id
-    )
-    db.session.add(new_expense)
-    db.session.commit()
-    item.expense_id = new_expense.id
-    db.session.commit()
-    current_roomie_id = get_jwt_identity().get('roomie_id')
-    current_roomie = Roomie.query.filter_by(id=current_roomie_id).first()
-    new_blog = Blog(
-        home_id=shopping_list.home.id,
-        text=f'Se ha comprado: {item.name}',
-        roomie_name=current_roomie.first_name,
-        date=datetime.now(),
-        status='Hecho',
-    )
-    db.session.add(new_blog)
-    db.session.commit()
-    return jsonify({'message': 'Elemento marcado como comprado'}), 200
-
-
 @api.route('/item/<int:item_id>', methods=['DELETE'])
 def delete_item(item_id):
     item = Item.query.get(item_id)
@@ -481,6 +451,45 @@ def get_expenses_by_home_id(home_id):
     expenses_list = [item.serialize() for item in expenses]
     return jsonify(expenses_list), 200
 
+@api.route('/expense', methods=['POST'])
+@jwt_required()
+def create_expense():
+    request_data = request.get_json()
+    if not request_data or 'expense_name' not in request_data or 'item_ids' not in request_data:
+        return jsonify({'error': 'Faltan campos por completar'}), 400
+    item_ids = request_data.get('item_ids')
+    for item_id in item_ids:
+        item = Item.query.get(item_id)
+        if item is None:
+            return jsonify({'error': 'El elemento no existe'}), 404
+        if item.expense_id is not None:
+            return jsonify({'error': 'El elemento ya está marcado como comprado'}), 400
+    expense_name = request_data.get('expense_name')
+    item = Item.query.get(item_ids[0])
+    shopping_list = List.query.get(item.shopping_list_id)
+    new_expense = Expenses(
+        name=expense_name,
+        home_id=shopping_list.home_id
+    )
+    db.session.add(new_expense)
+    db.session.commit()
+    for item_id in item_ids:
+        item = Item.query.get(item_id)
+        item.expense_id = new_expense.id
+    db.session.commit()
+    current_roomie_id = get_jwt_identity().get('roomie_id')
+    current_roomie = Roomie.query.filter_by(id=current_roomie_id).first()
+    new_blog = Blog(
+        home_id=shopping_list.home_id,
+        text=f'Se ha generado nuevo gasto: {expense_name}',
+        roomie_name=current_roomie.first_name,
+        date=datetime.now(),
+        status='Hecho',
+    )
+    db.session.add(new_blog)
+    db.session.commit()
+    return jsonify({'message': 'Gasto generado'}), 200
+
 
 #Rutas para deudas
 @api.route('/debts', methods=['GET'])
@@ -498,32 +507,33 @@ def get_one_debt(debts_id):
         return jsonify({'error': 'Este gasto no existe'}), 404
     return jsonify(chosen_debt.serialize()), 200
 
-@api.route('/debts/<int:expense_id>', methods=['POST'])
+@api.route('/debts', methods=['POST'])
 @jwt_required()
-def generate_debts_for_expense(expense_id):
-    expense = Expenses.query.get(expense_id)
-    if expense is None:
-        return jsonify({'error': 'El gasto no existe'}), 404
+def generate_debt():
+    request_data = request.get_json()
+    expense_id = request_data.get('expense_id')
+    debtor_ids = request_data.get('debtor_ids')
+    total_amount = request_data.get('total_amount')
+    if not all([expense_id, debtor_ids, total_amount]):
+        return jsonify({'error': 'Missing required fields'}), 400
     current_roomie_id = get_jwt_identity().get('roomie_id')
     current_roomie = Roomie.query.filter_by(id=current_roomie_id).first()
     if current_roomie is None:
-        return jsonify({'error': 'Roomie no encontrado'}), 404
-    payer_id = expense.roomie_paying_id
-    if current_roomie_id != payer_id:
-        return jsonify({'error': 'No tienes permiso para crear esta deuda'}), 403
-    total_debt_amount = expense.amount
-    debtor_ids = [roomie.id for roomie in expense.debtors if roomie.id != payer_id]
-    individual_debt_amount = total_debt_amount / len(debtor_ids)
+        return jsonify({'error': 'Roomie not found'}), 404
+    expense = Expenses.query.get(expense_id)
+    if expense is None:
+        return jsonify({'error': 'Expense not found'}), 404
+    individual_debt_amount = total_amount / (len(debtor_ids) + 1)
     debts = []
     for debtor_id in debtor_ids:
         debtor_instance = Roomie.query.get(debtor_id)
-        debt_text = f'{current_roomie.first_name} te debe {individual_debt_amount}'
+        debt_text = f'{current_roomie.first_name} te debe {individual_debt_amount}€'
         debt = Debts(
             amount=individual_debt_amount,
             status='Pendiente',
             date=datetime.now().date(),
             roomie_debtor_id=debtor_id,
-            roomie_paying_id=payer_id,
+            roomie_paying_id=current_roomie_id,
             expense_id=expense.id
         )
         db.session.add(debt)
@@ -537,46 +547,32 @@ def generate_debts_for_expense(expense_id):
         )
         db.session.add(new_blog)
     db.session.commit()
-    payer_instance = Roomie.query.get(payer_id)
-    payment_text = f'{payer_instance.first_name} ha realizado un pago de {total_debt_amount}'
-    payment_blog = Blog(
-        home_id=expense.home_id,
-        text=payment_text,
-        roomie_name=payer_instance.first_name,
-        date=datetime.now(),
-        status='Hecho',
-    )
-    db.session.add(payment_blog)
-    db.session.commit()
     return jsonify({'message': 'Deuda creada correctamente', 'debts': [debt.serialize() for debt in debts]}), 200
 
-@api.route('/debts/<int:debt_id>', methods=['PUT'])
+@api.route('/debts/<int:debt_id>', methods=['POST'])
 @jwt_required()
-def mark_debt_as_paid(debt_id):
+def pay_debt(debt_id):
+    current_roomie_id = get_jwt_identity().get('roomie_id')
     debt = Debts.query.get(debt_id)
     if debt is None:
-        return jsonify({'error': 'La deuda no existe'}), 404
-    current_roomie_id = get_jwt_identity().get('roomie_id')
-    current_roomie = Roomie.query.filter_by(id=current_roomie_id).first()
-    if current_roomie is None:
-        return jsonify({'error': 'Roomie no encontrado'}), 404
-    if current_roomie.id not in [debt.roomie_debtor_id, debt.roomie_paying_id]:
+        return jsonify({'error': 'Deuda no encontrada'}), 404
+    if current_roomie_id != debt.roomie_debtor_id and current_roomie_id != debt.roomie_paying_id:
         return jsonify({'error': 'No tienes permiso para marcar esta deuda como pagada'}), 403
-    if debt.status == 'Pagado':
-        return jsonify({'message': 'La deuda ya está marcada como pagada'}), 200
-    debt.status = 'Pagado'
+    if debt.status == 'Pagada':
+        return jsonify({'message': 'La deuda ya está pagada'}), 200
+    debt.status = 'Pagada'
     db.session.commit()
-    blog_text = f'{current_roomie.first_name} ha marcado como pagada la deuda de {debt.roomie_debtor.first_name}'
+    payment_text = f'{debt.roomie_debtor.first_name} ha pagado {debt.amount} a {debt.roomie_paying.first_name}'
     new_blog = Blog(
         home_id=debt.expense.home_id,
-        text=blog_text,
-        roomie_name=current_roomie.first_name,
+        text=payment_text,
+        roomie_name=debt.roomie_debtor.first_name,
         date=datetime.now(),
         status='Hecho',
     )
     db.session.add(new_blog)
     db.session.commit()
-    return jsonify({'message': 'Deuda marcada como pagada correctamente'}), 200
+    return jsonify({'message': 'Deuda pagada correctamente'}), 200
 
 
 #Rutas para archivos
