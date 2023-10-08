@@ -64,7 +64,7 @@ Revisar los anuncios y actualizaciones generados de temas importantes relacionad
 
 💻 Este proyecto está desarrollado utilizando las siguientes tecnologías:
 
-- Frontend: HTML, CSS, JavaScript, Tailwind
+- Frontend: HTML, CSS, JavaScript, React, Tailwind
 - Backend: Python, Flask
 - Base de Datos: PostgreSQL
 
