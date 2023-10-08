@@ -1,6 +1,8 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const LogoutButton = () => {
+  const navigate = useNavigate();
   const handleLogout = async () => {
     try {
       
@@ -20,7 +22,7 @@ const LogoutButton = () => {
         localStorage.removeItem('token');
 
     
-        window.location.href = '/'; 
+        navigate('/'); 
       }
     } catch (error) {
       console.error('Error al cerrar sesión:', error);
