@@ -72,8 +72,8 @@ Revisar los anuncios y actualizaciones generados de temas importantes relacionad
 
 ✨ Este proyecto está siendo desarrollado por el equipo de Roomie Connect:
 
-- [Miguel Pérez](https://github.com/MPMiguel)
-- [Remug Smith](https://github.com/Remug)
+- [Miguel Ángel Martínez](https://github.com/MPMiguel)
+- [Rémulo Castro](https://github.com/Remug)
 - [Johanna Alamo](https://github.com/johannaalamo)
 - [Sandra Rodríguez](https://github.com/srdgz)
 
