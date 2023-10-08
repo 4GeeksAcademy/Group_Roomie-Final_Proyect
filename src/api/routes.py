@@ -76,7 +76,7 @@ def login_roomie():
 @api.route('/logout', methods=['POST'])
 def logout_roomie():
     #Se limpia el local storage desde front
-    response = jsonify({'message': 'Roomie logged out successfully'})
+    response = jsonify({'message': 'El roomie ha salido correctamente'})
     return response
 
 
