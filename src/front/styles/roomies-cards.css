@@ -1,17 +1,29 @@
+.card-container {
+  height: 100vh;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between; 
+}
+
 .card {
-    margin-top: 150px;
-    margin-left: 50px;
-    width: 250px;
-    height: 500px;
-    border-top-right-radius: 50px;
-    border-top-left-radius: 50px;
-    align-items: center;
+  width: calc(33.33% - 20px); 
+  margin-top: 30%;
+  margin-right: 20px;
+  width: 250px;
+  height: 500px;
+  border-top-right-radius: 50px;
+  border-top-left-radius: 50px;
+  align-items: center;
+  }
+
+  .card-body {
+    margin-top: 70px;
   }
 
   .card-img {
     border-radius: 50%;
     width: 200px;
-    margin-top: 10px;
+    margin-top: 50px;
   }
   
   .card-title {

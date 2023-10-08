@@ -1,16 +1,18 @@
-/* Estilos para el contenedor del botón de logout */
+
 .container {
-    display: inline-block;
+    display: inline-flex;
+    align-items: center;
     background-color: #AEB8FE;
     height: 50px;
     width: 300px;
     border-radius: 20px;
-
+    margin-right: 30px;
+    margin-top: 10px;
+    
   }
 
   .logout-button {
-    margin-left: 20px;
-    margin-top: 10px;
+    margin-left: 10px;
     display: flex;
     width: 100px;
     height: 30px;
@@ -18,20 +20,20 @@
     background: #758BFD;
     border-radius: 20px;
     border:none;
-}
-
-  .button-text {
+    justify-content: center; 
     color: white;
-    font-size: 20px;
-    font-family: Arial, Helvetica, sans-serif;
-    word-wrap: break-word;
+    transition: background-color 0.3s ease;
+  }
+  
+  .logout-button:hover {
+    background: #5d73c7;
+    color: #fff;
   }
 
-  /* .user-name {
-    color: #FFF;
-    font-family: Inter;
-    font-size: 10px;
-    font-style: normal;
-    font-weight: 700px;
-    line-height: normal;
-  } */
+.user-name{
+  color: white;
+  display: flex;
+  margin-left: 80px;
+  font-size: large;
+}
+ 
