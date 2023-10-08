@@ -1,0 +1,25 @@
+  
+.navbar {
+    max-width:200px;   
+    height: 100%;
+    position: relative;
+    background:#FFFFFF;
+    border-top-right-radius: 21.69px;
+    margin-top: 10px;
+    align-items: start;
+  }
+
+  .navbar a {
+    display: block;
+    margin-top: 20px; 
+    font-size: 20px;
+    font-family: Arial, Helvetica, sans-serif;
+    color: #6C6C6C;
+    text-decoration: none;
+    font-weight: bold;
+  }
+
+  .navbar a.active {
+    color:#758BFD;
+  }
+  

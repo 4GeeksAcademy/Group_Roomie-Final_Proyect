@@ -1,0 +1,25 @@
+.card {
+    margin-top: 150px;
+    margin-left: 50px;
+    width: 250px;
+    height: 500px;
+    border-top-right-radius: 50px;
+    border-top-left-radius: 50px;
+    align-items: center;
+  }
+
+  .card-img {
+    border-radius: 50%;
+    width: 200px;
+    margin-top: 10px;
+  }
+  
+  .card-title {
+    font-size: 1.25rem; 
+    font-weight: bold; 
+  }
+  
+  .card-text {
+    font-size: 1rem; 
+  }
+  

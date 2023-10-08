@@ -1,0 +1,37 @@
+/* Estilos para el contenedor del botón de logout */
+.container {
+    display: inline-block;
+    background-color: #AEB8FE;
+    height: 50px;
+    width: 300px;
+    border-radius: 20px;
+
+  }
+
+  .logout-button {
+    margin-left: 20px;
+    margin-top: 10px;
+    display: flex;
+    width: 100px;
+    height: 30px;
+    position: relative;
+    background: #758BFD;
+    border-radius: 20px;
+    border:none;
+}
+
+  .button-text {
+    color: white;
+    font-size: 20px;
+    font-family: Arial, Helvetica, sans-serif;
+    word-wrap: break-word;
+  }
+
+  /* .user-name {
+    color: #FFF;
+    font-family: Inter;
+    font-size: 10px;
+    font-style: normal;
+    font-weight: 700px;
+    line-height: normal;
+  } */
