@@ -15,6 +15,7 @@ class Roomie(db.Model):
     is_active = db.Column(db.Boolean(), default=True)
     home_id = db.Column(db.Integer, db.ForeignKey('home.id'), nullable=True)
 
+    expenses = db.relationship('Expenses', backref='roomie')
     tasks = db.relationship('Task', backref='roomie')
     notifications = db.relationship('Notifications', backref='roomie')
     
@@ -59,6 +60,7 @@ class Expenses(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(50), nullable=False)
     home_id = db.Column(db.Integer, db.ForeignKey('home.id'), nullable=False)
+    roomie_id = db.Column(db.Integer, db.ForeignKey('roomie.id'), nullable=False)
 
     roomie_debts = db.relationship('Debts', backref='expense')
     shopping_items = db.relationship('Item', backref='expense', lazy=True)

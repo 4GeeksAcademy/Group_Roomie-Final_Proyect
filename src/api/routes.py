@@ -57,6 +57,7 @@ def create_roomie():
     db.session.commit()
     return jsonify({'message': 'Nuevo roomie creado correctamente'}), 201
 
+
 #Ruta para inicio de sesión
 @api.route('/login', methods=['POST'])
 def login_roomie():
@@ -69,6 +70,14 @@ def login_roomie():
     if not bcrypt.check_password_hash(roomie.password, password):
         return jsonify({'error': 'El email o la contraseña no son correctos'}), 401
     return create_token()
+
+
+#Ruta para cerrar sesión
+@api.route('/logout', methods=['POST'])
+def logout_roomie():
+    #Se limpia el local storage desde front
+    response = jsonify({'message': 'Roomie logged out successfully'})
+    return response
 
 
 #Rutas para roomies
@@ -166,7 +175,7 @@ def create_home():
     roomie = Roomie.query.get(roomie_id)
     if roomie:
         new_home.roomies.append(roomie)
-    shopping_list_name = f"Shopping List de {name}"
+    shopping_list_name = f"Lista de la compra de {name}"
     shopping_list = List(name=shopping_list_name)
     new_home.shopping_list = shopping_list
     db.session.add(new_home)
@@ -248,16 +257,25 @@ def delete_roomie_from_home(home_id, roomie_id):
 
 
 @api.route('/home/<int:home_id>', methods=['PUT'])
+@jwt_required()
 def inactive_home(home_id):
+    current_roomie_id = get_jwt_identity().get('roomie_id')
+    current_roomie_is_admin = get_jwt_identity().get('is_admin')
     chosen_home = Home.query.get(home_id)
     if chosen_home is None:
         return jsonify({'error': 'Esta vivienda no existe'}), 404
-    roomies_in_home = Roomie.query.filter_by(home_id=home_id).all()
+    if not current_roomie_is_admin:
+        return jsonify({'error': 'No tienes permiso para desactivar esta vivienda'}), 403
+    roomies_in_home = Roomie.query.filter_by(home_id=home_id, is_admin=False).all()
     for roomie in roomies_in_home:
         roomie.home_id = None
     chosen_home.is_active = False
+    if current_roomie_id in [roomie.id for roomie in roomies_in_home]:
+        current_roomie = Roomie.query.get(current_roomie_id)
+        current_roomie.home_id = None
+        current_roomie.is_admin = False
     db.session.commit()
-    return jsonify({'message': 'Vivienda eliminada correctamente'}), 200
+    return jsonify({'message': 'Vivienda desactivada correctamente'}), 200
 
 
 #Rutas para tasks
@@ -339,13 +357,56 @@ def mark_task_as_done(task_id):
     db.session.commit()
     return jsonify({'message': 'Tarea completada'}), 200
 
+@api.route('/task/<int:task_id>', methods=['PUT'])
+def update_task_date(task_id):
+    task = Task.query.get(task_id)
+    if task is None:
+        return jsonify({'error': 'La tarea no existe'}), 404
+    request_data = request.get_json()
+    new_date_assigned_str = request_data.get('new_date_assigned')
+    if new_date_assigned_str is None:
+        return jsonify({'error': 'Falta el campo new_date_assigned en el cuerpo de la solicitud'}), 400
+    try:
+        new_date_assigned = datetime.strptime(new_date_assigned_str, '%d-%m-%Y')
+        roomie = Roomie.query.get(task.roomie_id)
+        text = f'La fecha de la tarea "{task.name}" ha sido actualizada a {new_date_assigned_str}'
+        new_blog = Blog(
+            home_id=roomie.home.id,
+            text=text,
+            roomie_name=roomie.first_name,
+            date=new_date_assigned,
+            status='Hecho',
+        )
+        task.date_assigned = new_date_assigned
+        db.session.add(new_blog)
+        db.session.commit()
+        return jsonify({'message': 'Fecha de tarea actualizada correctamente'}), 200
+    except ValueError:
+        return jsonify({'error': 'Formato de fecha inválido. Utilice el formato DD-MM-YYYY'}), 400
+
+
 @api.route('/task/<int:task_id>', methods=['DELETE'])
 def delete_task(task_id):
     task = Task.query.get(task_id)
     if task is None:
         return jsonify({'error': 'La tarea no existe'}), 400
+    roomie = Roomie.query.get(task.roomie_id)
+    if roomie is None:
+        return jsonify({'error': 'No se encontró al roomie asociado a la tarea'}), 404
+    task_name = task.name
     db.session.delete(task)
     db.session.commit()
+    text = f"Tarea eliminada: {task_name}"
+    if roomie.home:
+        new_blog = Blog(
+            home_id=roomie.home.id,
+            text=text,
+            roomie_name=roomie.first_name,
+            date=datetime.now(),
+            status='Hecho',
+        )
+        db.session.add(new_blog)
+        db.session.commit()
     return jsonify({'message': 'Tarea eliminada correctamente'}), 200
 
 
@@ -420,12 +481,26 @@ def create_item():
     return jsonify({'message': 'Nuevo elemento añadido correctamente'}), 200
 
 @api.route('/item/<int:item_id>', methods=['DELETE'])
+@jwt_required()
 def delete_item(item_id):
     item = Item.query.get(item_id)
     if item is None:
         return jsonify({'error': 'El elemento no existe'}), 400
+    home_id = item.shopping_list.home_id
     db.session.delete(item)
     db.session.commit()
+    current_roomie_id = get_jwt_identity().get('roomie_id')
+    current_roomie = Roomie.query.filter_by(id=current_roomie_id).first()
+    if home_id:
+        new_blog = Blog(
+            home_id=home_id,
+            text=f'Elemento eliminado por {current_roomie.first_name}: {item.name}',
+            roomie_name=current_roomie.first_name,
+            date=datetime.now(),
+            status='Hecho',
+        )
+        db.session.add(new_blog)
+        db.session.commit()
     return jsonify({'message': 'Elemento eliminado correctamente'}), 200
 
 
@@ -465,9 +540,11 @@ def create_expense():
         if item.expense_id is not None:
             return jsonify({'error': 'El elemento ya está marcado como comprado'}), 400
     expense_name = request_data.get('expense_name')
+    current_roomie_id = get_jwt_identity().get('roomie_id')
     item = Item.query.get(item_ids[0])
     shopping_list = List.query.get(item.shopping_list_id)
     new_expense = Expenses(
+        roomie_id=current_roomie_id,
         name=expense_name,
         home_id=shopping_list.home_id
     )
@@ -477,11 +554,10 @@ def create_expense():
         item = Item.query.get(item_id)
         item.expense_id = new_expense.id
     db.session.commit()
-    current_roomie_id = get_jwt_identity().get('roomie_id')
     current_roomie = Roomie.query.filter_by(id=current_roomie_id).first()
     new_blog = Blog(
         home_id=shopping_list.home_id,
-        text=f'Se ha generado nuevo gasto: {expense_name}',
+        text=f'{current_roomie.first_name} ha generado nuevo gasto por: {expense_name}',
         roomie_name=current_roomie.first_name,
         date=datetime.now(),
         status='Hecho',
@@ -515,14 +591,16 @@ def generate_debt():
     debtor_ids = request_data.get('debtor_ids')
     total_amount = request_data.get('total_amount')
     if not all([expense_id, debtor_ids, total_amount]):
-        return jsonify({'error': 'Missing required fields'}), 400
+        return jsonify({'error': 'Faltan campos por completar'}), 400
     current_roomie_id = get_jwt_identity().get('roomie_id')
     current_roomie = Roomie.query.filter_by(id=current_roomie_id).first()
     if current_roomie is None:
-        return jsonify({'error': 'Roomie not found'}), 404
+        return jsonify({'error': 'Roomie no encontrado'}), 404
     expense = Expenses.query.get(expense_id)
     if expense is None:
-        return jsonify({'error': 'Expense not found'}), 404
+        return jsonify({'error': 'Gasto no encontrado'}), 404
+    if expense.roomie_id != current_roomie_id:
+        return jsonify({'error': 'No tienes permiso para crear esta deuda'})
     individual_debt_amount = total_amount / (len(debtor_ids) + 1)
     debts = []
     for debtor_id in debtor_ids:
@@ -600,7 +678,7 @@ def get_files_by_home_id(home_id):
 #CLOUDINARY SE USA DESDE FRONT PARA SUBIDA DE ARCHIVOS Y PREVISUALIZACION,
 #NO NECESITA RUTA EN BACK
 
-@api.route('/file/upload', methods=['POST'])
+@api.route('/file', methods=['POST'])
 @jwt_required()
 def upload_file():
     request_data = request.get_json()
@@ -635,14 +713,23 @@ def upload_file():
     db.session.commit()
     return jsonify({'message': 'Archivo subido correctamente'}), 200
 
+@api.route('/file/<int:file_id>', methods=['DELETE'])
+def delete_file(file_id):
+    file = File.query.get(file_id)
+    if file is None:
+        return jsonify({'error': 'El archivo no existe'}), 400
+    db.session.delete(file)
+    db.session.commit()
+    return jsonify({'message': 'Archivo eliminado correctamente'}), 200
+
 
 #Rutas para noticias
 @api.route('/blog', methods=['GET'])
 def get_all_blogs():
-    blogs= Blog.query.all()
-    all_blogs = list(map(lambda item: item.serialize(), blogs))
-    if all_blogs == []:
-         return jsonify({'error': 'No hay actualizaciones registradas'}), 400
+    blogs = Blog.query.order_by(Blog.date.desc()).limit(20).all()
+    if not blogs:
+        return jsonify({'error': 'No hay actualizaciones registradas'}), 400
+    all_blogs = [blog.serialize() for blog in blogs]
     return jsonify(all_blogs), 200
 
 @api.route('/blog/home/<int:home_id>', methods=['GET'])
@@ -652,17 +739,3 @@ def get_blogs_by_home(home_id):
         return jsonify({'error': 'No hay actualizaciones para esta vivienda'}), 400
     serialized_blogs = [blog.serialize() for blog in blogs]
     return jsonify(serialized_blogs), 200
-
-"""
-@api.route('/blog', methods=['POST'])
-def remove_old_blogs():
-    try:
-        seven_days_ago = datetime.now() - timedelta(days=7)
-        old_blogs = Blog.query.filter(Blog.date <= seven_days_ago).all()
-        for blog in old_blogs:
-            db.session.delete(blog)
-        db.session.commit()
-        return jsonify({'message': 'Las actualizaciones se borraron correctamente'}), 200
-    except Exception as error:
-        return jsonify({'error': str(error)}), 500
-"""
