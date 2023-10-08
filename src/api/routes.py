@@ -739,3 +739,20 @@ def get_blogs_by_home(home_id):
         return jsonify({'error': 'No hay actualizaciones para esta vivienda'}), 400
     serialized_blogs = [blog.serialize() for blog in blogs]
     return jsonify(serialized_blogs), 200
+
+
+#Rutas para calendario
+@api.route('/calendar', methods=['GET'])
+def calendar_view():
+    tasks = Task.query.filter(Task.date_assigned.isnot(None)).all()
+    calendar_data = []
+    for task in tasks:
+        calendar_event = {
+            "id": task.id,
+            "title": task.name,
+            "start": task.date_assigned.strftime('%d-%m-%Y'),
+            "end": task.date_done.strftime('%Y-%m-%d') if task.date_done else None,
+            "type": "task"
+        }
+        calendar_data.append(calendar_event)
+    return jsonify(calendar_data)
