@@ -1,12 +1,10 @@
 # Roomie Connect
 
-![Roomie Connect](smartmockups_lnhp928n.jpg)
-
 ## Descripción del Proyecto
 
 Roomie Connect es una aplicación de gestión de tareas y gastos compartidos diseñada para compañeros de piso. Facilita la colaboración y la organización en la vida compartida, permitiendo a los usuarios llevar un registro de las tareas pendientes y los gastos compartidos de manera eficiente.
 
-Características Clave:
+🖊️ Características Clave:
 
 Gestión de Tareas: Roomie Connect facilita la creación y asignación de tareas en el hogar. Cada compañero de piso puede crear tareas, asignarlas a otros miembros y realizar un seguimiento de su estado de finalización. Esto garantiza que las responsabilidades en el hogar estén claras y equitativamente distribuidas.
 
@@ -22,13 +20,13 @@ Roomie Connect está en constante desarrollo y mejora para satisfacer las necesi
 
 ## Estado del Proyecto
 
-:construction: Proyecto en construcción :construction:
+🚧 Proyecto en construcción 🚧
 
 Estamos trabajando arduamente para desarrollar todas las funciones y características que hacen que Roomie Connect sea una herramienta útil y práctica para la vida en compañía.
 
 ## Funcionalidades del proyecto
 
-:hammer:Las principales funciones que estamos desarrollando incluyen:
+🔨 Las principales funciones que estamos desarrollando incluyen:
 
 Gestión de Tareas
 La función de gestión de tareas de Roomie Connect permite a los usuarios:
