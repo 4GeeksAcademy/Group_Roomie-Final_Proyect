@@ -12,6 +12,7 @@ import ErrorPage from "../pages/Error.jsx";
 import Login from "../pages/Login.jsx";
 import Debts from "../pages/Debts.jsx";
 import Blog from "../pages/Blog.jsx";
+import ShoppList from "../pages/ShoppList.jsx";
 
 
 const Router = () => {
@@ -26,6 +27,7 @@ const Router = () => {
                         <Route element={<Roomies />} path="/Roomies" />
                         <Route element={<Calendar />} path="/Calendar" />
                         <Route element={<Tasks />} path="/Tasks" />
+                        <Route element={<ShoppList />} path="/ShoppList" />
                         <Route element={<Debts />} path="/Debts" />
                         <Route element={<Expenses />} path="/Expenses" />
                         <Route element={<Blog />} path="/Blog" />
