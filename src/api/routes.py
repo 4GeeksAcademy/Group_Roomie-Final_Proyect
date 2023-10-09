@@ -743,16 +743,36 @@ def get_blogs_by_home(home_id):
 
 #Rutas para calendario
 @api.route('/calendar', methods=['GET'])
+@jwt_required()
 def calendar_view():
-    tasks = Task.query.filter(Task.date_assigned.isnot(None)).all()
+    current_roomie_id = get_jwt_identity().get('roomie_id')
+    current_month = int(request.args.get('month'))
+    all_debts = Debts.query.filter(
+        (Debts.roomie_debtor_id == current_roomie_id) | (Debts.roomie_paying_id == current_roomie_id)
+    ).all()
+    all_tasks = Task.query.filter(Task.date_assigned.isnot(None)).all()
     calendar_data = []
-    for task in tasks:
-        calendar_event = {
-            "id": task.id,
-            "title": task.name,
-            "start": task.date_assigned.strftime('%d-%m-%Y'),
-            "end": task.date_done.strftime('%Y-%m-%d') if task.date_done else None,
-            "type": "task"
-        }
-        calendar_data.append(calendar_event)
+    for debt in all_debts:
+        if debt.date.month == current_month:
+            if debt.roomie_debtor_id == current_roomie_id:
+                title = f"Debes a {debt.roomie_paying.first_name}: {debt.amount} €"
+            else:
+                title = f"Pago de {debt.roomie_debtor.first_name}: {debt.amount} €"
+            calendar_event = {
+                "id": debt.id,
+                "title": title,
+                "start": debt.date.strftime('%d-%m-%Y'),
+                "type": "debt"
+            }
+            calendar_data.append(calendar_event)
+    for task in all_tasks:
+        if task.date_assigned.month == current_month:
+            calendar_event = {
+                "id": task.id,
+                "title": task.name,
+                "start": task.date_assigned.strftime('%d-%m-%Y'),
+                "end": task.date_done.strftime('%Y-%m-%d') if task.date_done else None,
+                "type": "task"
+            }
+            calendar_data.append(calendar_event)
     return jsonify(calendar_data)
