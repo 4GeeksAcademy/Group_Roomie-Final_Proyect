@@ -2,7 +2,7 @@
 This module takes care of starting the API Server, Loading the DB and Adding the endpoints
 """
 import os
-from flask import Flask, request, jsonify, url_for, send_from_directory
+from flask import Flask, request, jsonify, url_for, send_from_directory, render_template
 from flask_migrate import Migrate
 from flask_swagger import swagger
 from flask_cors import CORS
@@ -14,6 +14,7 @@ from api.commands import setup_commands
 from flask_jwt_extended import JWTManager
 from datetime import datetime, timedelta
 from api.custom_bcrypt import bcrypt
+from flask_mail import Mail, Message
 
 #from models import Person
 
@@ -25,6 +26,25 @@ app.url_map.strict_slashes = False
 app.config["JWT_SECRET_KEY"] = "supercontraseña"
 app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(minutes=30)
 jwt = JWTManager(app)
+
+#mail config
+app.config['MAIL_SERVER']='smtp.gmail.com'
+app.config['MAIL_PORT'] = 465
+app.config['MAIL_USE_TLS'] = False
+app.config['MAIL_USE_SSL'] = True
+app.config['MAIL_USERNAME'] = 'roomieconnectapp@gmail.com'
+app.config['MAIL_PASSWORD'] = 'bqmaqtkkzdfqeegn'
+
+mail = Mail(app)
+@app.route("/send", methods=['GET'])
+def send_email():
+    msg = Message('¡Notificación de Actualizaciones!', sender='roomieconnectapp@gmail.com', recipients=['rreyes.sandra@gmail.com'])
+    msg.html = "<p>Estimado usuario de RoomieConnect,<br>Queremos informarte que hay nuevas actualizaciones importantes en tu vivienda. ¡No te pierdas las últimas novedades!<br>Puedes revisar todas las actualizaciones iniciando sesión en tu cuenta en RoomieConnect.<br>¡Gracias por ser parte de nuestra comunidad y por tu continuo apoyo!<br>Atentamente,<br>El equipo de RoomieConnect</p>"
+    try:
+        mail.send(msg)
+        return "Correo electrónico enviado con éxito."
+    except Exception as error:
+        return str(error)
 
 # database condiguration
 db_url = os.getenv("DATABASE_URL")
