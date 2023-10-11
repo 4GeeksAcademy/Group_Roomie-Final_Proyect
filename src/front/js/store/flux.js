@@ -21,16 +21,46 @@ const getState = ({ getStore, getActions, setStore }) => {
 				getActions().changeColor(0, "green");
 			},
 
-			getMessage: async () => {
+			login: async () => {
 				try{
-					// fetching data from the backend
-					const resp = await fetch(process.env.BACKEND_URL + "/api/hello")
+					const resp = await fetch(process.env.BACKEND_URL + "/api/login")
 					const data = await resp.json()
 					setStore({ message: data.message })
-					// don't forget to return something, that is how the async resolves
 					return data;
 				}catch(error){
 					console.log("Error loading message from backend", error)
+				}
+			},
+			syncTokenFromSessionStore: () => {
+				const token = sessionStorage.getItem("token");
+				if(token && token !="" && token != undefined) setStore({ token: token})
+			},
+	
+			signup: async (email,password,firstName,lastName) => {
+				const opts = {
+					method: "POST",
+					headers: {
+						"Content-Type": "application/json"
+					},
+					body: JSON.stringify({
+						first_name: firstName,
+						last_name: lastName,
+						email: email,
+						password: password,
+					})
+				};
+			try{	
+				const resp = await fetch(process.env.BACKEND_URL + "/api/signup",opts)
+					if(resp.status !== 200  !== 201){ alert("Ha ocurrido un error");
+					return false;
+				}
+				const data = await resp.json();
+					console.log("this came from backend",data)
+					sessionStorage.setItem("token", data.access_token);
+				}	
+			catch(error){
+					console.log("Ha ocurrido un error",error);
+	
 				}
 			},
 			changeColor: (index, color) => {
