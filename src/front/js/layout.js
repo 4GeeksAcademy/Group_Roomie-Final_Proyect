@@ -4,8 +4,6 @@ import injectContext from "./store/appContext";
 
 import Router from "./routes/Router.jsx";
 
-import "../../index.css";
-
 //create your first component
 const Layout = () => {
   //the basename is used when your project is published in a subdirectory and not in the root of the domain
