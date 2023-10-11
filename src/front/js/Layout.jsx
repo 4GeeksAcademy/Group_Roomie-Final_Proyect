@@ -4,7 +4,7 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 import injectContext from "./store/appContext";
 
 
-import { Roomies } from "./components/Roomies.jsx";
+import Roomies from "./components/Roomies.jsx";
 
 
 //create your first component
