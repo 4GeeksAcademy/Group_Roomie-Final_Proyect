@@ -2,7 +2,7 @@
 This module takes care of starting the API Server, Loading the DB and Adding the endpoints
 """
 from flask import Flask, request, jsonify, url_for, Blueprint
-from api.models import db, Roomie, Home, Expenses, Debts, List, Item, Task, File, Blog, Notifications
+from api.models import db, Roomie, Home, Expenses, Debts, List, Item, Task, File, Blog
 from api.utils import generate_sitemap, APIException
 from flask_jwt_extended import create_access_token, get_jwt_identity, jwt_required
 from datetime import datetime, timedelta
@@ -26,7 +26,7 @@ def create_token():
 @api.route('/signup', methods=['POST'])
 def create_roomie():
     data = request.get_json()
-    required_fields = ['email', 'password', 'first_name', 'phone_number']
+    required_fields = ['email', 'password', 'first_name']
     for field in required_fields:
         if field not in data:
             return jsonify({'error': f'Falta {field} en los campos del formulario'}), 400
@@ -34,14 +34,10 @@ def create_roomie():
     password = data.get('password')
     first_name = data.get('first_name')
     last_name = data.get('last_name')
-    phone_number = data.get('phone_number')
     avatar = data.get('avatar')
     paypal_id = data.get('paypal_id')
     existing_email_roomie = Roomie.query.filter_by(email=email).first()
     if existing_email_roomie:
-        return jsonify({'error': 'Este roomie ya existe'}), 400
-    existing_phone_roomie = Roomie.query.filter_by(phone_number=phone_number).first()
-    if existing_phone_roomie:
         return jsonify({'error': 'Este roomie ya existe'}), 400
     hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
     new_roomie = Roomie(
@@ -49,7 +45,6 @@ def create_roomie():
         password=hashed_password,
         first_name=first_name,
         last_name=last_name,
-        phone_number=phone_number,
         avatar=avatar,
         paypal_id=paypal_id
     )
@@ -108,8 +103,8 @@ def updated_roomie(roomie_id):
     chosen_roomie = Roomie.query.get(roomie_id)
     if chosen_roomie is None:
         return jsonify({'error': 'Este roomie no existe'}), 404
-    if 'email' in request_body_roomie or 'phone_number' in request_body_roomie:
-        return jsonify({'error': 'No puedes actualizar el email o el número de teléfono'}), 400
+    if 'email' in request_body_roomie:
+        return jsonify({'error': 'No puedes actualizar el email'}), 400
     if 'password' in request_body_roomie:
         chosen_roomie.password = request_body_roomie['password']
     if 'first_name' in request_body_roomie:
@@ -138,7 +133,6 @@ def inactivate_roomie(roomie_id):
     roomie.password = f'roomieeliminado{roomie.id}'
     roomie.first_name = f'roomieeliminado{roomie.id}'
     roomie.last_name = f'roomieeliminado{roomie.id}'
-    roomie.phone_number = f'roomieeliminado{roomie.id}'
     roomie.avatar = f'roomieeliminado{roomie.id}'
     roomie.paypal_id = f'roomieeliminado{roomie.id}'
     roomie.is_active = False
@@ -330,7 +324,7 @@ def create_task():
             home_id=roomie.home.id,
             text=text,
             roomie_name=roomie.first_name,
-            date=date_assigned,
+            date=datetime.now(),
             status='Pendiente',
         )
         db.session.add(new_blog)
@@ -374,7 +368,7 @@ def update_task_date(task_id):
             home_id=roomie.home.id,
             text=text,
             roomie_name=roomie.first_name,
-            date=new_date_assigned,
+            date=datetime.now(),
             status='Hecho',
         )
         task.date_assigned = new_date_assigned

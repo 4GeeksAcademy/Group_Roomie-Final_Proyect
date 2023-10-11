@@ -9,7 +9,6 @@ class Roomie(db.Model):
     password = db.Column(db.String(64), nullable=False)
     first_name = db.Column(db.String(20))
     last_name = db.Column(db.String(20))
-    phone_number = db.Column(db.String(20), unique=True, nullable=False)
     avatar = db.Column(db.String(200))
     paypal_id = db.Column(db.String(12))
     is_active = db.Column(db.Boolean(), default=True)
@@ -17,7 +16,6 @@ class Roomie(db.Model):
 
     expenses = db.relationship('Expenses', backref='roomie')
     tasks = db.relationship('Task', backref='roomie')
-    notifications = db.relationship('Notifications', backref='roomie')
     
     def __repr__(self):
         return '<Roomie %r>' % self.id
@@ -28,7 +26,6 @@ class Roomie(db.Model):
             "email": self.email,
             "first_name": self.first_name,
             "last_name": self.last_name,
-            "phone_number": self.phone_number,
             "avatar": self.avatar,
             "admin": self.is_admin,
             "is_active": self.is_active,
@@ -197,19 +194,4 @@ class Blog(db.Model):
             "amount": self.amount,
             "date": str(self.date),
             "home_id": self.home_id,
-        }
-
-class Notifications(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(100), nullable=False)
-    phone_number = db.Column(db.String(20), db.ForeignKey('roomie.phone_number'), nullable=False)
-
-    def __repr__(self):
-        return '<Notifications %r>' % self.id
-    
-    def serialize(self):
-        return {
-            "id": self.id,
-            "name": self.name,
-            "phone_number": self.phone_number,
         }
