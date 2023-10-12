@@ -51,7 +51,9 @@ const Signup = () => {
     <div className="min-h-screen flex items-center justify-center mt-5 bg-gradient-to-t from-indigo-500 to-slate-100">
       <div className="w-96">
         <div className="bg-slate-100 shadow-md rounded-md p-6">
-          <h2 className="text-center text-2xl font-bold mb-5">Crea tu cuenta</h2>
+          <h2 className="text-center text-2xl font-bold mb-5">
+            Crea tu cuenta
+          </h2>
           <form className="flex flex-col pt-3 md:pt-8" onSubmit={handleSubmit}>
             <div className="flex flex-col pt-4">
               <label htmlFor="text" className="text-lg">
@@ -60,7 +62,7 @@ const Signup = () => {
               <input
                 type="text"
                 id="first_name"
-                placeholder="nombre"
+                placeholder="Nombre"
                 className="shadow appearance-none border rounded w-full py-3 px-3 text-gray-900 mt-1 leading-tight focus:outline-none focus:shadow-outline"
                 onChange={handleChangeFirstName}
               />
