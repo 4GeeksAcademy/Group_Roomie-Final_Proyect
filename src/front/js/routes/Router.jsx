@@ -15,7 +15,6 @@ import Blog from "../pages/Blog.jsx";
 import ShoppList from "../pages/ShoppList.jsx";
 
 import Sidebar from "../component/Sidebar.jsx";
-import LogoutButton from "../component/LogoutButton.jsx";
 
 const Router = () => {
   return (
@@ -29,7 +28,6 @@ const Router = () => {
             element={
               <>
                 <Sidebar />
-                <LogoutButton />
                 <Routes>
                   <Route element={<Home />} path="/home" />
                   <Route element={<Roomies />} path="/roomies" />

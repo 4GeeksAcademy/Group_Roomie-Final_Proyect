@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { useMediaQuery } from "react-responsive";
 
+import LogoutButton from "./LogoutButton.jsx";
+
 import logo from "../../img/logo.png";
 
 const Sidebar = () => {
@@ -24,7 +26,7 @@ const Sidebar = () => {
               <img className="w-60 h-18 pb-10" src={logo} alt="logo" />
             </Link>
           </section>
-          <ul className="space-y-8">
+          <ul className="space-y-4">
             <li>
               <Link
                 to="/"
@@ -89,6 +91,21 @@ const Sidebar = () => {
                 <i className="fa-regular fa-newspaper"></i> Actualizaciones
               </Link>
             </li>
+            <li>
+              <hr className="border-t border-gray-300 my-4" />{" "}
+              {/* Línea separadora */}
+            </li>
+            <li>
+              <Link
+                to="/perfil"
+                className="text-indigo-900 hover:text-indigo-300 block"
+              >
+                <i className="fa-solid fa-user"></i> Perfil
+              </Link>
+            </li>
+            <li>
+              <LogoutButton />
+            </li>
           </ul>
         </nav>
       </div>
@@ -111,7 +128,7 @@ const Sidebar = () => {
         </div>
         {isMenuVisible && (
           <div className="sidebar-content">
-            <ul className="space-y-5 ps-6">
+            <ul className="space-y-4 ps-6">
               <li>
                 <Link
                   to="/"
@@ -168,13 +185,28 @@ const Sidebar = () => {
                   <i className="fa-regular fa-folder-open"></i> Archivos
                 </Link>
               </li>
-              <li className="pb-6">
+              <li className="pb-4">
                 <Link
                   to="/"
                   className="text-gray-600 hover:text-indigo-300 block"
                 >
                   <i className="fa-regular fa-newspaper"></i> Actualizaciones
                 </Link>
+              </li>
+              <li>
+                <hr className="border-t border-gray-300 my-4" />{" "}
+                {/* Línea separadora */}
+              </li>
+              <li>
+                <Link
+                  to="/perfil"
+                  className="text-indigo-900 hover:text-indigo-300 block"
+                >
+                  <i className="fa-solid fa-user"></i> Perfil
+                </Link>
+              </li>
+              <li className="pb-4">
+                <LogoutButton />
               </li>
             </ul>
           </div>
@@ -206,7 +238,7 @@ const Sidebar = () => {
                 <img className="w-60 h-18 pb-10" src={logo} alt="logo" />
               </Link>
             </section>
-            <ul className="space-y-8">
+            <ul className="space-y-4">
               <li>
                 <Link
                   to="/"
@@ -270,6 +302,21 @@ const Sidebar = () => {
                 >
                   <i className="fa-regular fa-newspaper"></i> Actualizaciones
                 </Link>
+              </li>
+              <li>
+                <hr className="border-t border-gray-300 my-4" />{" "}
+                {/* Línea separadora */}
+              </li>
+              <li>
+                <Link
+                  to="/perfil"
+                  className="text-indigo-900 hover:text-indigo-300 block"
+                >
+                  <i className="fa-solid fa-user"></i> Perfil
+                </Link>
+              </li>
+              <li>
+                <LogoutButton />
               </li>
             </ul>
           </nav>

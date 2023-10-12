@@ -28,7 +28,7 @@ export const AppContextProvider = ({ children }) => {
     }
   };
 
-  const logout = () => {
+  const logout = (navigate) => {
     try {
       localStorage.removeItem("token");
       localStorage.removeItem("roomieId");
