@@ -15,29 +15,31 @@ import Blog from "../pages/Blog.jsx";
 import ShoppList from "../pages/ShoppList.jsx";
 
 import Sidebar from "../component/Sidebar.jsx";
+import LogoutButton from "../component/LogoutButton.jsx";
 
 const Router = () => {
   return (
     <div>
       <BrowserRouter basename="">
         <Routes>
-          <Route element={<SignUp />} path="/Signup" />
-          <Route element={<Login />} path="/Login" />
+          <Route element={<SignUp />} path="/signup" />
+          <Route element={<Login />} path="/" />
           <Route
             path="/*"
             element={
               <>
                 <Sidebar />
+                <LogoutButton />
                 <Routes>
-                  <Route element={<Home />} path="/" />
-                  <Route element={<Roomies />} path="/Roomies" />
-                  <Route element={<Calendar />} path="/Calendar" />
-                  <Route element={<Tasks />} path="/Tasks" />
-                  <Route element={<ShoppList />} path="/ShoppList" />
-                  <Route element={<Debts />} path="/Debts" />
-                  <Route element={<Expenses />} path="/Expenses" />
-                  <Route element={<Blog />} path="/Blog" />
-                  <Route element={<Files />} path="/Files" />
+                  <Route element={<Home />} path="/home" />
+                  <Route element={<Roomies />} path="/roomies" />
+                  <Route element={<Calendar />} path="/calendar" />
+                  <Route element={<Tasks />} path="/tasks" />
+                  <Route element={<ShoppList />} path="/shoppList" />
+                  <Route element={<Debts />} path="/debts" />
+                  <Route element={<Expenses />} path="/expenses" />
+                  <Route element={<Blog />} path="/blog" />
+                  <Route element={<Files />} path="/files" />
                   <Route element={<ErrorPage />} path="*" />
                 </Routes>
               </>
