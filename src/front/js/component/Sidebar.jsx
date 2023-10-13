@@ -225,7 +225,6 @@ const Sidebar = () => {
             />
           </div>
         )}
-        */
       </nav>
     );
   }

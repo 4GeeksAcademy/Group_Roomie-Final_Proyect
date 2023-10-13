@@ -29,7 +29,7 @@ export const AppContextProvider = ({ children }) => {
       navigate("/home");
     } catch (error) {
       console.error("El inicio de sesión falló: ", error);
-      toast.error("Algo ha fallado. Comprueba tu email y password.", {
+      toast.error("Algo ha fallado. Comprueba que tus datos sean correctos.", {
         duration: 4000,
       });
     }
@@ -96,9 +96,21 @@ export const AppContextProvider = ({ children }) => {
     }
   };
 
-  const updateRoomieData = (roomieId, first_name, last_name, password) => {
+  const updateRoomieData = (first_name, last_name, password) => {
+    const storedRoomieId = localStorage.getItem("roomieId");
+    let roomieId;
+    if (storedRoomieId) {
+      const parsedRoomieId = JSON.parse(storedRoomieId);
+      roomieId = parsedRoomieId.roomieId;
+    } else {
+      console.error(
+        "No se encontró el ID del Roomie en el almacenamiento local"
+      );
+      return;
+    }
+    console.log(first_name, last_name, password, roomieId);
     authProfile
-      .updateRoomie(roomieId, first_name, last_name, password)
+      .updateRoomie(roomieId, password, first_name, last_name)
       .then((data) => {
         console.log("Datos del Roomie actualizados:", data);
         toast.success("Datos actualizados correctamente", {

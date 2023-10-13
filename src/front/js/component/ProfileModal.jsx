@@ -30,6 +30,7 @@ const ProfileModal = ({ isOpen, onClose }) => {
   };
 
   const handleUpdate = () => {
+    console.log(formData);
     actions.updateRoomieData(formData);
     onClose();
   };
