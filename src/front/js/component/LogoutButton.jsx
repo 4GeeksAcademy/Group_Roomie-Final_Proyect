@@ -13,7 +13,7 @@ const LogoutButton = () => {
   return (
     <Link
       to="/"
-      className="text-indigo-400 hover:text-indigo-900 block"
+      className="text-orange-300 hover:text-orange-600 block"
       onClick={handleLogout}
     >
       <i className="fa-solid fa-sign-out-alt"></i>Cerrar sesión

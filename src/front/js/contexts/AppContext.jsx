@@ -41,8 +41,17 @@ export const AppContextProvider = ({ children }) => {
   };
 
   const signup = async (email, password, first_name, navigate) => {
-    if (!email || !password || !first_name) {
+    const emailRegex = /\S+@\S+\.\S+/;
+    if (!email || !emailRegex.test(email)) {
+      console.error("El email no es válido");
+      return;
+    }
+    if (!email || !first_name) {
       console.error("Algún campo no es correcto");
+      return;
+    }
+    if (password.length < 8) {
+      console.error("La contraseña debe tener al menos 8 caracteres");
       return;
     }
     try {

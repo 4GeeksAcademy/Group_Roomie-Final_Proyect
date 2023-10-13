@@ -1,5 +1,6 @@
 import React from "react";
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom";
+import useAppContext from "../contexts/AppContext.jsx";
 
 import Home from "../pages/Home.jsx";
 import SignUp from "../pages/Signup.jsx";
@@ -12,32 +13,40 @@ import ErrorPage from "../pages/Error.jsx";
 import Login from "../pages/Login.jsx";
 import Debts from "../pages/Debts.jsx";
 import Blog from "../pages/Blog.jsx";
-import ShoppList from "../pages/ShoppList.jsx";
+import ShopList from "../pages/ShopList.jsx";
 
 import Sidebar from "../component/Sidebar.jsx";
 
 const Router = () => {
+  const { store } = useAppContext();
+
   return (
     <div>
       <BrowserRouter basename="">
         <Routes>
-          <Route element={<SignUp />} path="/signup" />
-          <Route element={<Login />} path="/" />
+          {!store.token && <Route element={<SignUp />} path="/signup" />}
+          {!store.token && <Route element={<Login />} path="/" />}
           <Route
             path="/*"
             element={
               <>
-                <Sidebar />
+                {store.token && <Sidebar />}
                 <Routes>
-                  <Route element={<Home />} path="/home" />
-                  <Route element={<Roomies />} path="/roomies" />
-                  <Route element={<Calendar />} path="/calendar" />
-                  <Route element={<Tasks />} path="/tasks" />
-                  <Route element={<ShoppList />} path="/shoppList" />
-                  <Route element={<Debts />} path="/debts" />
-                  <Route element={<Expenses />} path="/expenses" />
-                  <Route element={<Blog />} path="/blog" />
-                  <Route element={<Files />} path="/files" />
+                  {store.token ? (
+                    <>
+                      <Route element={<Home />} path="/home" />
+                      <Route element={<Roomies />} path="/roomies" />
+                      <Route element={<Calendar />} path="/calendar" />
+                      <Route element={<Tasks />} path="/tasks" />
+                      <Route element={<ShopList />} path="/shoplist" />
+                      <Route element={<Debts />} path="/debts" />
+                      <Route element={<Expenses />} path="/expenses" />
+                      <Route element={<Blog />} path="/blog" />
+                      <Route element={<Files />} path="/files" />
+                    </>
+                  ) : (
+                    <Navigate to="/" />
+                  )}
                   <Route element={<ErrorPage />} path="*" />
                 </Routes>
               </>

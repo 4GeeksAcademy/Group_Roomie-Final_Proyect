@@ -3,6 +3,8 @@ import { Link, useNavigate } from "react-router-dom";
 
 import useAppContext from "../contexts/AppContext.jsx";
 
+import bgregister from "../../img/bgregister.png";
+
 const Signup = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
@@ -48,10 +50,17 @@ const Signup = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center mt-5 bg-gradient-to-t from-indigo-500 to-slate-100">
+    <div
+      className="min-h-screen flex items-center justify-center p-0 m-0"
+      style={{
+        backgroundImage: `url(${bgregister})`,
+        backgroundSize: "100% 100%",
+        height: "100vh",
+      }}
+    >
       <div className="w-96">
         <div className="bg-slate-100 shadow-md rounded-md p-6">
-          <h2 className="text-center text-2xl font-bold mb-5">
+          <h2 className="text-center text-2xl font-bold mb-2 pt-5 text-gray-700">
             Crea tu cuenta
           </h2>
           <form className="flex flex-col pt-3 md:pt-8" onSubmit={handleSubmit}>
@@ -115,7 +124,7 @@ const Signup = () => {
           <div className="text-center my-4">
             <div>
               <span>¿Ya tienes cuenta? </span>
-              <Link to="/" className="text-indigo-900 font-semibold">
+              <Link to="/" className="text-indigo-900 font-semibold rounded-lg">
                 Entrar
               </Link>
             </div>
