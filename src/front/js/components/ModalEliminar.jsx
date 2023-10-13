@@ -46,7 +46,7 @@ export default function ModalEliminar() {
                       </Dialog.Title>
                       <div className="mt-2">
                         <p className="text-sm text-gray-500">
-                          Estas seguro de querer eliminar este roomie?
+                          Estas seguro que deseas eliminar este roomie?
                         </p>
                       </div>
                     </div>

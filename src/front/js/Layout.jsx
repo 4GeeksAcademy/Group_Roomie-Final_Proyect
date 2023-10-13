@@ -5,7 +5,7 @@ import injectContext from "./store/appContext";
 
 
 import Roomies from "./components/Roomies.jsx";
-
+// import Sidebar from "./components/SideBar.jsx";
 
 //create your first component
 const Layout = () => {
@@ -18,9 +18,7 @@ const Layout = () => {
     return (
         <div className="bg-slate-100">
           <BrowserRouter basename={basename}>
-          
           <Roomies />
-           
           </BrowserRouter>
         </div>
       );
