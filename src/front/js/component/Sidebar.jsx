@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { useMediaQuery } from "react-responsive";
 
 import LogoutButton from "./LogoutButton.jsx";
+import ProfileModal from "./ProfileModal.jsx";
 
 import logo from "../../img/logo.png";
 
@@ -12,9 +13,14 @@ const Sidebar = () => {
   const isSmallScreen = useMediaQuery({ query: "(max-width: 639px)" });
 
   const [isMenuVisible, setIsMenuVisible] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const toggleMenu = () => {
     setIsMenuVisible(!isMenuVisible);
+  };
+
+  const handleProfileClick = () => {
+    setIsModalOpen(true);
   };
 
   if (isLargeScreen) {
@@ -29,10 +35,10 @@ const Sidebar = () => {
           <ul className="space-y-4">
             <li>
               <Link
-                to="/"
+                to="/home"
                 className="text-gray-600 hover:text-indigo-300 block"
               >
-                <i className="fa-solid fa-house"></i> Inicio
+                <i className="fa-solid fa-house pr-1"></i> Inicio
               </Link>
             </li>
             <li>
@@ -40,7 +46,7 @@ const Sidebar = () => {
                 to="/roomies"
                 className="text-gray-600 hover:text-indigo-300 block"
               >
-                <i className="fa-solid fa-people-roof"></i> Roomies
+                <i className="fa-solid fa-people-roof pr-1"></i> Roomies
               </Link>
             </li>
             <li>
@@ -48,7 +54,7 @@ const Sidebar = () => {
                 to="/tasks"
                 className="text-gray-600 hover:text-indigo-300 block"
               >
-                <i className="fa-solid fa-list-check"></i> Tareas
+                <i className="fa-solid fa-list-check pr-1"></i> Tareas
               </Link>
             </li>
             <li>
@@ -56,7 +62,7 @@ const Sidebar = () => {
                 to="/shoplist"
                 className="text-gray-600 hover:text-indigo-300 block"
               >
-                <i className="fa-solid fa-basket-shopping"></i> Compra
+                <i className="fa-solid fa-basket-shopping pr-1"></i> Compra
               </Link>
             </li>
             <li>
@@ -64,7 +70,7 @@ const Sidebar = () => {
                 to="/expenses"
                 className="text-gray-600 hover:text-indigo-300 block"
               >
-                <i className="fa-solid fa-hand-holding-dollar"></i> Gastos
+                <i className="fa-solid fa-hand-holding-dollar pr-1"></i> Gastos
               </Link>
             </li>
             <li>
@@ -72,7 +78,7 @@ const Sidebar = () => {
                 to="/calendar"
                 className="text-gray-600 hover:text-indigo-300 block"
               >
-                <i className="fa-solid fa-calendar-days"></i> Calendario
+                <i className="fa-solid fa-calendar-days pr-1"></i> Calendario
               </Link>
             </li>
             <li>
@@ -80,7 +86,7 @@ const Sidebar = () => {
                 to="/files"
                 className="text-gray-600 hover:text-indigo-300 block"
               >
-                <i className="fa-regular fa-folder-open"></i> Archivos
+                <i className="fa-regular fa-folder-open pr-1"></i> Archivos
               </Link>
             </li>
             <li>
@@ -88,7 +94,7 @@ const Sidebar = () => {
                 to="/blog"
                 className="text-gray-600 hover:text-indigo-300 block"
               >
-                <i className="fa-regular fa-newspaper"></i> Actualizaciones
+                <i className="fa-regular fa-newspaper pr-1"></i> Actualizaciones
               </Link>
             </li>
             <li>
@@ -96,17 +102,21 @@ const Sidebar = () => {
               {/* Línea separadora */}
             </li>
             <li>
-              <Link
-                to="/perfil"
-                className="text-indigo-900 hover:text-indigo-300 block"
+              <button
+                onClick={handleProfileClick} // Maneja la apertura del modal al hacer clic en el botón "Perfil"
+                className="text-gray-600 hover:text-indigo-300 block"
               >
-                <i className="fa-solid fa-user"></i> Perfil
-              </Link>
+                <i className="fa-solid fa-user pr-1"></i> Perfil
+              </button>
             </li>
             <li>
               <LogoutButton />
             </li>
           </ul>
+          <ProfileModal
+            isOpen={isModalOpen}
+            onClose={() => setIsModalOpen(false)}
+          />
         </nav>
       </div>
     );
@@ -198,17 +208,21 @@ const Sidebar = () => {
                 {/* Línea separadora */}
               </li>
               <li>
-                <Link
-                  to="/perfil"
-                  className="text-indigo-900 hover:text-indigo-300 block"
+                <button
+                  onClick={handleProfileClick} // Maneja la apertura del modal al hacer clic en el botón "Perfil"
+                  className="text-gray-600 hover:text-indigo-300 block"
                 >
-                  <i className="fa-solid fa-user"></i> Perfil
-                </Link>
+                  <i className="fa-solid fa-user pr-1"></i> Perfil
+                </button>
               </li>
               <li className="pb-4">
                 <LogoutButton />
               </li>
             </ul>
+            <ProfileModal
+              isOpen={isModalOpen}
+              onClose={() => setIsModalOpen(false)}
+            />
           </div>
         )}
       </nav>
@@ -308,17 +322,21 @@ const Sidebar = () => {
                 {/* Línea separadora */}
               </li>
               <li>
-                <Link
-                  to="/perfil"
-                  className="text-indigo-900 hover:text-indigo-300 block"
+                <button
+                  onClick={handleProfileClick}
+                  className="text-gray-600 hover:text-indigo-300 block"
                 >
-                  <i className="fa-solid fa-user"></i> Perfil
-                </Link>
+                  <i className="fa-solid fa-user pr-1"></i> Perfil
+                </button>
               </li>
               <li>
                 <LogoutButton />
               </li>
             </ul>
+            <ProfileModal
+              isOpen={isModalOpen}
+              onClose={() => setIsModalOpen(false)}
+            />
           </nav>
         </div>
       </div>
