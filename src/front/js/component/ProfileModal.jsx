@@ -1,17 +1,22 @@
 import React, { useState } from "react";
 
+import useAppContext from "../contexts/AppContext.jsx";
+
 const ProfileModal = ({ isOpen, onClose }) => {
   const [formData, setFormData] = useState({
     nombre: "",
     apellido: "",
     password: "",
   });
+  const {
+    actions: { actions },
+  } = useAppContext();
 
   const handleInputChange = (e) => {
-    const { nombre, value } = e.target;
+    const { name, value } = e.target;
     setFormData({
       ...formData,
-      [nombre]: value,
+      [name]: value,
     });
   };
 
@@ -24,6 +29,11 @@ const ProfileModal = ({ isOpen, onClose }) => {
     onClose();
   };
 
+  const handleUpdate = () => {
+    actions.updateRoomieData(formData);
+    onClose();
+  };
+
   return (
     <>
       {isOpen ? (
@@ -33,7 +43,7 @@ const ProfileModal = ({ isOpen, onClose }) => {
               <div className="absolute inset-0 bg-gray-500 opacity-75"></div>
             </div>
             <span
-              className="inline-block align-middle bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all my-8 align-middle w-2/3 sm:w-3/4 md:w-1/2 lg:w-1/3"
+              className="inline-block align-middle bg-white rounded-[50px] text-left overflow-hidden shadow-xl transform transition-all my-8 align-middle w-2/3 sm:w-3/4 md:w-1/2 lg:w-1/3"
               role="dialog"
               aria-modal="true"
               aria-labelledby="modal-headline"
@@ -43,7 +53,7 @@ const ProfileModal = ({ isOpen, onClose }) => {
                   className="text-xl md:text-2xl lg:text-2xl font-bold leading-6 text-gray-700 text-center"
                   id="modal-headline"
                 >
-                  Actualizar información de perfil
+                  Actualizar perfil
                 </h2>
                 <form className="mt-4">
                   <div className="mb-4">
@@ -97,15 +107,15 @@ const ProfileModal = ({ isOpen, onClose }) => {
                   <div className="text-right mt-4">
                     <button
                       type="button"
-                      className="bg-indigo-100 hover:bg-indigo-300 text-gray-600 font-bold py-2 px-4 rounded mr-2"
+                      className="bg-indigo-100 hover:bg-indigo-300 text-gray-600 font-bold py-2 px-4 rounded-xl mr-2"
                       onClick={handleClose}
                     >
                       Cerrar
                     </button>
                     <button
                       type="button"
-                      className="bg-orange-600 hover:bg-orange-300 text-white font-bold py-2 px-4 rounded"
-                      onClick={onClose}
+                      className="bg-orange-600 hover:bg-orange-300 text-white font-bold py-2 px-4 rounded-xl"
+                      onClick={handleUpdate}
                     >
                       Actualizar
                     </button>

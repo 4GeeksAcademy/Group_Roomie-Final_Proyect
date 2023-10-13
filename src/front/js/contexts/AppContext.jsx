@@ -11,6 +11,7 @@ export const AppContextProvider = ({ children }) => {
   const token = localStorage.getItem("token");
   const roomieId = localStorage.getItem("roomie_id");
   const [authenticated, setAuthenticated] = useState(false);
+  const [roomieData, setRoomieData] = useState(null);
 
   useEffect(() => {
     if (token && token !== "" && token !== undefined) {
@@ -95,6 +96,20 @@ export const AppContextProvider = ({ children }) => {
     }
   };
 
+  const updateRoomieData = (roomieId, first_name, last_name, password) => {
+    authProfile
+      .updateRoomie(roomieId, first_name, last_name, password)
+      .then((data) => {
+        console.log("Datos del Roomie actualizados:", data);
+        toast.success("Datos actualizados correctamente", {
+          duration: 5000,
+        });
+      })
+      .catch((error) => {
+        console.error("Error al actualizar datos del Roomie:", error);
+      });
+  };
+
   const getNameShopList = async (home_id) => {
     try {
       const response = await authShop.getNameShopList(home_id);
@@ -116,6 +131,7 @@ export const AppContextProvider = ({ children }) => {
     signup,
     logout,
     getNameShopList,
+    updateRoomieData,
   };
 
   return (

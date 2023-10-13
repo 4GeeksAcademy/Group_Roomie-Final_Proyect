@@ -28,7 +28,7 @@ const Sidebar = () => {
       <div className="fixed left-0 top-20 h-full bg-white w-64 rounded-tr-[50px] transition-all duration-300">
         <nav className="p-8">
           <section className="flex items-center">
-            <Link to="/" className="text-indigo-900">
+            <Link to="/home" className="text-indigo-900">
               <img className="w-60 h-18 pb-10" src={logo} alt="logo" />
             </Link>
           </section>
@@ -132,7 +132,7 @@ const Sidebar = () => {
               <i className="fa-solid fa-bars" />
             )}
           </button>
-          <Link to="/" className="logo">
+          <Link to="/home" className="logo">
             <img src={logo} alt="Logo" className="w-30 h-10" />
           </Link>
         </div>
@@ -225,6 +225,7 @@ const Sidebar = () => {
             />
           </div>
         )}
+        */
       </nav>
     );
   }

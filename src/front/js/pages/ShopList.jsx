@@ -25,7 +25,7 @@ const ShopList = () => {
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
-      <div className="bg-white rounded-lg p-6 md:p-12 w-full md:max-w-xl">
+      <div className="bg-white rounded-[50px] p-6 md:p-12 w-full md:max-w-xl">
         <h1 className="text-2xl text-gray-700 font-bold mb-4 text-center">
           Lista de la compra
         </h1>
@@ -45,7 +45,7 @@ const ShopList = () => {
               <button
                 type="button"
                 onClick={handleAddItem}
-                className="w-12 h-12 rounded-full bg-orange-600 flex items-center justify-center ml-5"
+                className="w-12 h-12 rounded-full bg-indigo-300 hover:bg-indigo-500 flex items-center justify-center ml-5"
               >
                 <span className="text-white text-4xl font-bold pb-2">+</span>
               </button>
@@ -73,6 +73,14 @@ const ShopList = () => {
             </li>
           ))}
         </ul>
+        <div className="flex justify-end mt-4">
+          <button
+            className="bg-orange-600 hover:bg-orange-300 text-white font-bold py-3 px-4 rounded-xl"
+            //onClick={handleAddExpense}
+          >
+            Añadir gasto
+          </button>
+        </div>
       </div>
     </div>
   );
