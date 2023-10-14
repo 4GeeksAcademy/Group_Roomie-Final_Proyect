@@ -97,7 +97,7 @@ def get_roomies_by_home_id(home_id):
     roomie_list = [roomie.serialize() for roomie in roomies]
     return jsonify(roomie_list), 200
 
-@api.route('/roomie/<int:roomie_id>', methods=['PUT'])
+@api.route('/roomie/<int:roomie_id>', methods=['POST'])
 def updated_roomie(roomie_id):
     request_body_roomie = request.get_json()
     chosen_roomie = Roomie.query.get(roomie_id)
@@ -106,17 +106,17 @@ def updated_roomie(roomie_id):
     if 'email' in request_body_roomie:
         return jsonify({'error': 'No puedes actualizar el email'}), 400
     if 'password' in request_body_roomie:
-        chosen_roomie.password = request_body_roomie['password']
+        chosen_roomie.password = request_body_roomie.get('password')
     if 'first_name' in request_body_roomie:
-        chosen_roomie.first_name = request_body_roomie['first_name']
+        chosen_roomie.first_name = request_body_roomie.get('first_name')
     if 'last_name' in request_body_roomie:
-        chosen_roomie.last_name = request_body_roomie['last_name']
+        chosen_roomie.last_name = request_body_roomie.get('last_name')
     if 'avatar' in request_body_roomie:
-        chosen_roomie.avatar = request_body_roomie['avatar']
+        chosen_roomie.avatar = request_body_roomie.get('avatar')
     if 'paypal_id' in request_body_roomie:
-        chosen_roomie.paypal_id = request_body_roomie['paypal_id']
+        chosen_roomie.paypal_id = request_body_roomie.get('paypal_id')
     db.session.commit()
-    return jsonify('Roomie actualizado correctamente'), 200
+    return jsonify(chosen_roomie.serialize()), 200
 
 @api.route('/roomie/<int:roomie_id>', methods=['PUT'])
 @jwt_required()

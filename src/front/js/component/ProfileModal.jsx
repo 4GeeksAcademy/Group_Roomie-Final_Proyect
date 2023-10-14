@@ -4,12 +4,12 @@ import useAppContext from "../contexts/AppContext.jsx";
 
 const ProfileModal = ({ isOpen, onClose }) => {
   const [formData, setFormData] = useState({
-    nombre: "",
-    apellido: "",
+    first_name: "",
+    last_name: "",
     password: "",
   });
   const {
-    actions: { actions },
+    actions: { updateRoomieData },
   } = useAppContext();
 
   const handleInputChange = (e) => {
@@ -22,8 +22,8 @@ const ProfileModal = ({ isOpen, onClose }) => {
 
   const handleClose = () => {
     setFormData({
-      nombre: "",
-      apellido: "",
+      first_name: "",
+      last_name: "",
       password: "",
     });
     onClose();
@@ -31,7 +31,7 @@ const ProfileModal = ({ isOpen, onClose }) => {
 
   const handleUpdate = () => {
     console.log(formData);
-    actions.updateRoomieData(formData);
+    updateRoomieData(formData);
     onClose();
   };
 
@@ -66,9 +66,9 @@ const ProfileModal = ({ isOpen, onClose }) => {
                     </label>
                     <input
                       type="text"
-                      name="nombre"
+                      name="first_name"
                       placeholder="Nuevo nombre"
-                      value={formData.nombre}
+                      value={formData.first_name}
                       onChange={handleInputChange}
                       className="border border-gray-300 focus:border-gray-300 rounded-lg p-3 w-full"
                     />
@@ -82,9 +82,9 @@ const ProfileModal = ({ isOpen, onClose }) => {
                     </label>
                     <input
                       type="text"
-                      name="apellido"
+                      name="last_name"
                       placeholder="Nuevo apellido"
-                      value={formData.apellido}
+                      value={formData.last_name}
                       onChange={handleInputChange}
                       className="border border-gray-300 focus:border-gray-300 rounded-lg p-3 w-full"
                     />

@@ -1,15 +1,16 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 
 import authProfile from "../services/authProfile";
+import authShop from "../services/authShop";
 
 import toast from "react-hot-toast";
-import authShop from "../services/authShop";
 
 const AppContext = createContext();
 
 export const AppContextProvider = ({ children }) => {
   const token = localStorage.getItem("token");
-  const roomieId = localStorage.getItem("roomie_id");
+  const roomie_id = localStorage.getItem("roomie_id");
+  const is_admin = localStorage.getItem("is_admin");
   const [authenticated, setAuthenticated] = useState(false);
   const [roomieData, setRoomieData] = useState(null);
 
@@ -23,8 +24,8 @@ export const AppContextProvider = ({ children }) => {
     try {
       const response = await authProfile.login(email, password);
       localStorage.setItem("token", response.token);
-      localStorage.setItem("roomieId", response.roomie_id);
-      localStorage.setItem("isAdmin", response.is_admin);
+      localStorage.setItem("roomie_id", response.roomie_id);
+      localStorage.setItem("is_admin", response.is_admin);
       setAuthenticated(true);
       navigate("/home");
     } catch (error) {
@@ -38,13 +39,13 @@ export const AppContextProvider = ({ children }) => {
   const logout = async (navigate) => {
     try {
       localStorage.removeItem("token");
-      localStorage.removeItem("roomieId");
-      localStorage.removeItem("isAdmin");
+      localStorage.removeItem("roomie_id");
+      localStorage.removeItem("is_admin");
       setAuthenticated(false);
-      navigate("/");
       toast.success("Vuelve pronto, ¡te esperamos!", {
         duration: 5000,
       });
+      navigate("/");
     } catch (error) {
       console.error("Logout failed: ", error);
     }
@@ -97,29 +98,25 @@ export const AppContextProvider = ({ children }) => {
   };
 
   const updateRoomieData = (first_name, last_name, password) => {
-    const storedRoomieId = localStorage.getItem("roomieId");
-    let roomieId;
-    if (storedRoomieId) {
-      const parsedRoomieId = JSON.parse(storedRoomieId);
-      roomieId = parsedRoomieId.roomieId;
-    } else {
+    if (!roomie_id) {
       console.error(
         "No se encontró el ID del Roomie en el almacenamiento local"
       );
       return;
     }
-    console.log(first_name, last_name, password, roomieId);
-    authProfile
-      .updateRoomie(roomieId, password, first_name, last_name)
-      .then((data) => {
-        console.log("Datos del Roomie actualizados:", data);
-        toast.success("Datos actualizados correctamente", {
-          duration: 5000,
+    console.log(first_name, last_name, password, roomie_id);
+    try {
+      authProfile
+        .updateRoomie(roomie_id, password, first_name, last_name)
+        .then((data) => {
+          console.log("Datos del Roomie actualizados:", data);
+          toast.success("Datos actualizados correctamente", {
+            duration: 5000,
+          });
         });
-      })
-      .catch((error) => {
-        console.error("Error al actualizar datos del Roomie:", error);
-      });
+    } catch (error) {
+      console.error("Error al actualizar datos del Roomie:", error);
+    }
   };
 
   const getNameShopList = async (home_id) => {
@@ -136,7 +133,8 @@ export const AppContextProvider = ({ children }) => {
 
   const store = {
     token,
-    roomieId,
+    roomie_id,
+    is_admin,
   };
   const actions = {
     login,

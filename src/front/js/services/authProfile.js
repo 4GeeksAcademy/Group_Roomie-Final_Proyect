@@ -48,31 +48,27 @@ const login = (email, password) => {
   });
 };
 
-const updateRoomie = (roomieId, password, first_name, last_name) => {
+const updateRoomie = (roomie_id, password, firstName, lastName) => {
   return fetch(
-    `https://laughing-space-goldfish-jxgw66jr5ppc57qx-3001.app.github.dev/api/roomie/${roomieId}`,
+    `https://laughing-space-goldfish-jxgw66jr5ppc57qx-3001.app.github.dev/api/roomie/${roomie_id}`,
     {
-      method: "PUT",
+      method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
         password: password,
-        nombre: first_name,
-        apellido: last_name,
+        first_name: firstName,
+        last_name: lastName,
       }),
     }
-  )
-    .then((response) => {
-      if (response.ok) {
-        return response.json();
-      } else {
-        throw new Error("La actualización del Roomie falló");
-      }
-    })
-    .catch((error) => {
-      console.error("Error en la actualización del Roomie:", error);
-    });
+  ).then((response) => {
+    if (response.ok) {
+      return response.json();
+    } else {
+      throw new Error(`Error al actualizar el roomie: ${errorMessage}`);
+    }
+  });
 };
 
 const getCurrentRoomie = () => {
