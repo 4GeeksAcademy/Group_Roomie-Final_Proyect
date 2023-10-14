@@ -31,8 +31,12 @@ const ProfileModal = ({ isOpen, onClose }) => {
 
   const handleUpdate = () => {
     console.log(formData);
-    updateRoomieData(formData);
-    onClose();
+    if (formData.password.length >= 8) {
+      updateRoomieData(formData);
+      onClose();
+    } else {
+      console.error("La contraseña debe tener al menos 8 caracteres");
+    }
   };
 
   return (
@@ -118,7 +122,7 @@ const ProfileModal = ({ isOpen, onClose }) => {
                       className="bg-orange-600 hover:bg-orange-300 text-white font-bold py-2 px-4 rounded-xl"
                       onClick={handleUpdate}
                     >
-                      Actualizar
+                      Guardar
                     </button>
                   </div>
                 </form>

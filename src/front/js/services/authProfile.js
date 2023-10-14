@@ -48,6 +48,30 @@ const login = (email, password) => {
   });
 };
 
+const getRoomieData = async (roomie_id) => {
+  try {
+    const response = await fetch(
+      `https://laughing-space-goldfish-jxgw66jr5ppc57qx-3001.app.github.dev/api/roomie/${roomie_id}`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    if (!response.ok) {
+      throw new Error(
+        `Error al obtener los datos del roomie: ${response.statusText}`
+      );
+    }
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error al obtener los datos del Roomie:", error);
+    throw error;
+  }
+};
+
 const updateRoomie = (roomie_id, password, firstName, lastName) => {
   return fetch(
     `https://laughing-space-goldfish-jxgw66jr5ppc57qx-3001.app.github.dev/api/roomie/${roomie_id}`,
@@ -79,6 +103,7 @@ const authProfile = {
   signup,
   login,
   getCurrentRoomie,
+  getRoomieData,
   updateRoomie,
 };
 

@@ -5,6 +5,7 @@ import useAppContext from "../contexts/AppContext.jsx";
 import Home from "../pages/Home.jsx";
 import SignUp from "../pages/Signup.jsx";
 import Roomies from "../pages/Roomies.jsx";
+import Profile from "../pages/Profile.jsx";
 import Calendar from "../pages/Calendar.jsx";
 import Tasks from "../pages/Tasks.jsx";
 import Expenses from "../pages/Expenses.jsx";
@@ -35,6 +36,7 @@ const Router = () => {
                   {store.token ? (
                     <>
                       <Route element={<Home />} path="/home" />
+                      <Route element={<Profile />} path="/profile" />
                       <Route element={<Roomies />} path="/roomies" />
                       <Route element={<Calendar />} path="/calendar" />
                       <Route element={<Tasks />} path="/tasks" />

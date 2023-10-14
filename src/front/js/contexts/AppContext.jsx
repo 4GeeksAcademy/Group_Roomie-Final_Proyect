@@ -97,6 +97,17 @@ export const AppContextProvider = ({ children }) => {
     }
   };
 
+  const getRoomieData = async () => {
+    const roomieId = localStorage.getItem("roomie_id");
+    try {
+      const data = await authProfile.getRoomieData(roomieId);
+      console.log(data);
+      setRoomieData(data);
+    } catch (error) {
+      console.error("Error al obtener los datos del Roomie:", error);
+    }
+  };
+
   const updateRoomieData = (first_name, last_name, password) => {
     if (!roomie_id) {
       console.error(
@@ -141,6 +152,7 @@ export const AppContextProvider = ({ children }) => {
     signup,
     logout,
     getNameShopList,
+    getRoomieData,
     updateRoomieData,
   };
 

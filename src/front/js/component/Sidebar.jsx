@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { useMediaQuery } from "react-responsive";
 
 import LogoutButton from "./LogoutButton.jsx";
-import ProfileModal from "./ProfileModal.jsx";
+import Profile from "../pages/Profile.jsx";
 
 import logo from "../../img/logo.png";
 
@@ -17,10 +17,6 @@ const Sidebar = () => {
 
   const toggleMenu = () => {
     setIsMenuVisible(!isMenuVisible);
-  };
-
-  const handleProfileClick = () => {
-    setIsModalOpen(true);
   };
 
   if (isLargeScreen) {
@@ -102,21 +98,17 @@ const Sidebar = () => {
               {/* Línea separadora */}
             </li>
             <li>
-              <button
-                onClick={handleProfileClick} // Maneja la apertura del modal al hacer clic en el botón "Perfil"
+              <Link
+                to="/profile"
                 className="text-gray-600 hover:text-indigo-300 block"
               >
-                <i className="fa-solid fa-user pr-1"></i> Perfil
-              </button>
+                <i className="fa-regular fa-circle-user"></i> Perfil
+              </Link>
             </li>
             <li>
               <LogoutButton />
             </li>
           </ul>
-          <ProfileModal
-            isOpen={isModalOpen}
-            onClose={() => setIsModalOpen(false)}
-          />
         </nav>
       </div>
     );
@@ -208,21 +200,17 @@ const Sidebar = () => {
                 {/* Línea separadora */}
               </li>
               <li>
-                <button
-                  onClick={handleProfileClick} // Maneja la apertura del modal al hacer clic en el botón "Perfil"
+                <Link
+                  to="/profile"
                   className="text-gray-600 hover:text-indigo-300 block"
                 >
-                  <i className="fa-solid fa-user pr-1"></i> Perfil
-                </button>
+                  <i className="fa-regular fa-circle-user"></i> Perfil
+                </Link>
               </li>
               <li className="pb-4">
                 <LogoutButton />
               </li>
             </ul>
-            <ProfileModal
-              isOpen={isModalOpen}
-              onClose={() => setIsModalOpen(false)}
-            />
           </div>
         )}
       </nav>
@@ -322,21 +310,17 @@ const Sidebar = () => {
                 {/* Línea separadora */}
               </li>
               <li>
-                <button
-                  onClick={handleProfileClick}
+                <Link
+                  to="/profile"
                   className="text-gray-600 hover:text-indigo-300 block"
                 >
-                  <i className="fa-solid fa-user pr-1"></i> Perfil
-                </button>
+                  <i className="fa-regular fa-circle-user"></i> Perfil
+                </Link>
               </li>
               <li>
                 <LogoutButton />
               </li>
             </ul>
-            <ProfileModal
-              isOpen={isModalOpen}
-              onClose={() => setIsModalOpen(false)}
-            />
           </nav>
         </div>
       </div>
