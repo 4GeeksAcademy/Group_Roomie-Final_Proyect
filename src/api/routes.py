@@ -97,7 +97,7 @@ def get_roomies_by_home_id(home_id):
     roomie_list = [roomie.serialize() for roomie in roomies]
     return jsonify(roomie_list), 200
 
-@api.route('/roomie/<int:roomie_id>', methods=['POST'])
+@api.route('/roomie/<int:roomie_id>', methods=['PUT'])
 def updated_roomie(roomie_id):
     request_body_roomie = request.get_json()
     chosen_roomie = Roomie.query.get(roomie_id)

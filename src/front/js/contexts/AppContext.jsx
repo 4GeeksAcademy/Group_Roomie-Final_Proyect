@@ -100,9 +100,8 @@ export const AppContextProvider = ({ children }) => {
   const getRoomieData = async () => {
     const roomieId = localStorage.getItem("roomie_id");
     try {
-      const data = await authProfile.getRoomieData(roomieId);
-      console.log(data);
-      setRoomieData(data);
+      const profile_data = await authProfile.getRoomieData(roomieId);
+      return setRoomieData(profile_data);
     } catch (error) {
       console.error("Error al obtener los datos del Roomie:", error);
     }
@@ -119,8 +118,8 @@ export const AppContextProvider = ({ children }) => {
     try {
       authProfile
         .updateRoomie(roomie_id, password, first_name, last_name)
-        .then((data) => {
-          console.log("Datos del Roomie actualizados:", data);
+        .then((profile_data) => {
+          console.log("Datos del Roomie actualizados:", profile_data);
           toast.success("Datos actualizados correctamente", {
             duration: 5000,
           });

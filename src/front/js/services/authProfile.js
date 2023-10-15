@@ -76,7 +76,7 @@ const updateRoomie = (roomie_id, password, firstName, lastName) => {
   return fetch(
     `https://laughing-space-goldfish-jxgw66jr5ppc57qx-3001.app.github.dev/api/roomie/${roomie_id}`,
     {
-      method: "POST",
+      method: "PUT",
       headers: {
         "Content-Type": "application/json",
       },

@@ -102,7 +102,7 @@ const Sidebar = () => {
                 to="/profile"
                 className="text-gray-600 hover:text-indigo-300 block"
               >
-                <i className="fa-regular fa-circle-user"></i> Perfil
+                <i className="fa-regular fa-circle-user pr-1"></i> Perfil
               </Link>
             </li>
             <li>
