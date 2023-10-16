@@ -1,4 +1,4 @@
-const getNameShopList = (home_id) => {
+const getShopList = (home_id) => {
   return fetch(
     `https://laughing-space-goldfish-jxgw66jr5ppc57qx-3001.app.github.dev/api/list/home/${home_id}`,
     {
@@ -10,7 +10,7 @@ const getNameShopList = (home_id) => {
   )
     .then((response) => response.json())
     .then((data) => {
-      return data[0].name;
+      return data;
     })
     .catch((error) => {
       console.error("Error:", error);
@@ -19,21 +19,22 @@ const getNameShopList = (home_id) => {
 };
 
 const getAllItems = async (list_id) => {
-  try {
-    const response = await fetch(
-      `https://laughing-space-goldfish-jxgw66jr5ppc57qx-3001.app.github.dev/api/item/list/${list_id}`,
-      {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }
-    );
-    const data = await response.json();
-    console.log(data);
-  } catch (error) {
-    console.error("Error while fetching all items:", error);
-  }
+  return fetch(
+    `https://laughing-space-goldfish-jxgw66jr5ppc57qx-3001.app.github.dev/api/item/list/${list_id}`,
+    {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  )
+    .then((response) => response.json())
+    .then((data) => {
+      return data;
+    })
+    .catch((error) => {
+      console.error("Error al obtener todos los items:", error);
+    });
 };
 
 const createNewItem = async (name, shopping_list_id) => {
@@ -52,34 +53,35 @@ const createNewItem = async (name, shopping_list_id) => {
     );
     const data = await response.json();
     console.log(data);
+    return data;
   } catch (error) {
-    console.error("Error while creating a new item:", error);
+    console.error("Error al añadir nuevo item:", error);
   }
 };
 
 const deleteItem = async (item_id) => {
   const token = localStorage.getItem("token");
-
-  try {
-    const response = await fetch(
-      `https://laughing-space-goldfish-jxgw66jr5ppc57qx-3001.app.github.dev/api/item/${item_id}`,
-      {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
-    const data = await response.json();
-    console.log(data);
-  } catch (error) {
-    console.error("Error while deleting the item:", error);
-  }
+  return fetch(
+    `https://laughing-space-goldfish-jxgw66jr5ppc57qx-3001.app.github.dev/api/item/${item_id}`,
+    {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  )
+    .then((response) => response.json())
+    .then((data) => {
+      return data;
+    })
+    .catch((error) => {
+      console.error("Error al eliminar el item:", error);
+    });
 };
 
 const authShop = {
-  getNameShopList,
+  getShopList,
   getAllItems,
   createNewItem,
   deleteItem,

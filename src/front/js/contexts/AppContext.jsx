@@ -140,17 +140,54 @@ export const AppContextProvider = ({ children }) => {
     }
   };
 
-  const getNameShopList = async () => {
+  const getShopList = async () => {
     try {
-      const response = await authShop.getNameShopList(home_id);
-      console.log(response);
+      const response = await authShop.getShopList(home_id);
       return response;
     } catch (error) {
+      console.error("Error obteniendo la lista de la compra", error);
+      return null;
+    }
+  };
+
+  const getAllItems = async (list_id) => {
+    try {
+      const response = await authShop.getAllItems(list_id);
+      if (response == undefined) {
+        return [];
+      } else {
+        return response;
+      }
+    } catch (error) {
       console.error(
-        "Error obteniendo el nombre de la lista de la compra",
+        "Error al obtener los elementos de la lista de la compra",
         error
       );
       return null;
+    }
+  };
+
+  const createNewItem = async (name, shopping_list_id) => {
+    try {
+      const response = await authShop.createNewItem(name, shopping_list_id);
+      return response;
+    } catch (error) {
+      console.error("Error al añadir nuevo item:", error);
+      return null;
+    }
+  };
+
+  const deleteItem = async (item_id) => {
+    try {
+      const response = await authShop.deleteItem(item_id);
+      if (response && response.message === "Elemento eliminado correctamente") {
+        return response;
+      } else {
+        throw new Error(response.error || "Error al eliminar el item");
+      }
+    } catch (error) {
+      console.error("Error al eliminar el item:", error.message);
+      throw error;
     }
   };
 
@@ -158,6 +195,7 @@ export const AppContextProvider = ({ children }) => {
     token,
     roomie_id,
     is_admin,
+    home_id,
     roomieData,
     authenticated,
   };
@@ -165,9 +203,12 @@ export const AppContextProvider = ({ children }) => {
     login,
     signup,
     logout,
-    getNameShopList,
     getRoomieData,
     updateRoomieData,
+    getShopList,
+    getAllItems,
+    createNewItem,
+    deleteItem,
   };
 
   return (

@@ -5,13 +5,43 @@ import useAppContext from "../contexts/AppContext.jsx";
 const ShopList = () => {
   const [items, setItems] = useState([]);
   const [newItem, setNewItem] = useState("");
-  const [shopListName, setShopListName] = useState("");
+  const [shopList, setShopList] = useState({});
   const { actions } = useAppContext();
 
-  const handleAddItem = () => {
+  if (!localStorage.getItem("home_id")) {
+    return (
+      <h1 className="mt-4 text-2xl font-bold tracking-tight text-gray-900 sm:text-4xl">
+        No estás vinculado a ninguna vivienda. Crea una o pide a un
+        administrador que te añada.
+      </h1>
+    );
+  }
+
+  const handleAddItem = async () => {
     if (newItem !== "") {
-      setItems([...items, { name: newItem, completed: false }]);
+      const newItemObject = { name: newItem, completed: false };
+      const updatedItems = [...items, newItemObject];
+      setItems(updatedItems);
       setNewItem("");
+      try {
+        await actions.createNewItem(newItem, shopList.id);
+      } catch (error) {
+        console.error("Error al añadir nuevo item:", error);
+      }
+    }
+  };
+
+  const handleDeleteItem = async () => {
+    try {
+      for (const item of items) {
+        if (item.completed) {
+          await actions.deleteItem(item.id);
+        }
+      }
+      const updatedItems = await actions.getAllItems(shopList.id);
+      setItems(updatedItems);
+    } catch (error) {
+      console.error("Error al eliminar el item:", error);
     }
   };
 
@@ -27,18 +57,28 @@ const ShopList = () => {
     setItems(updatedItems);
   };
 
-  // Replace the hard-coded string with the actual name from the API response
   useEffect(() => {
-    actions.getNameShopList().then((response) => {
-      setShopListName(response);
-    });
-  }, []);
+    const fetchData = async () => {
+      try {
+        const shopListResponse = await actions.getShopList();
+        setShopList(shopListResponse);
+
+        const itemsResponse = await actions.getAllItems(shopListResponse.id);
+        setItems(itemsResponse);
+        console.log(itemsResponse);
+      } catch (error) {
+        console.error("Error al obtener los datos", error);
+      }
+    };
+
+    fetchData();
+  }, [actions]);
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
       <div className="bg-white rounded-[50px] p-6 md:p-12 w-full md:max-w-xl">
-        <h1 className="text-2xl text-gray-700 font-bold mb-4 text-center">
-          {shopListName}
+        <h1 className="text-2xl text-gray-700 font-bold mb-6 text-center">
+          {shopList.name}
         </h1>
         <form onSubmit={(e) => e.preventDefault()}>
           <div className="mb-4 flex">
@@ -86,10 +126,14 @@ const ShopList = () => {
         </ul>
         <div className="flex justify-end mt-5">
           <button
-            className="bg-orange-600 hover:bg-orange-300 text-white font-bold py-3 px-4 rounded-xl"
-            //onClick={handleAddExpense}
+            type="button"
+            className="bg-indigo-100 hover:bg-indigo-300 text-gray-600 font-bold py-2 px-4 rounded-xl mr-2"
+            onClick={handleDeleteItem}
           >
-            Crear gasto
+            Eliminar
+          </button>
+          <button className="bg-orange-600 hover:bg-orange-300 text-white font-bold py-2 px-4 rounded-xl">
+            Crear Gasto
           </button>
         </div>
       </div>

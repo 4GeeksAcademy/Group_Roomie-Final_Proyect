@@ -415,11 +415,10 @@ def get_all_list():
 
 @api.route('/list/home/<int:home_id>', methods=['GET'])
 def get_list_by_home(home_id):
-    shopping_lists = List.query.filter_by(home_id=home_id).all()
-    if not shopping_lists:
+    shopping_list = List.query.filter_by(home_id=home_id).first()
+    if not shopping_list:
         return jsonify({'error': 'No hay lista de la compra para esta vivienda'}), 404
-    serialized_shopping_lists = [shopping_list.serialize() for shopping_list in shopping_lists]
-    return jsonify(serialized_shopping_lists), 200
+    return jsonify(shopping_list.serialize()), 200
 
 
 #Rutas para elementos de la lista de la compra
@@ -480,12 +479,14 @@ def delete_item(item_id):
     item = Item.query.get(item_id)
     if item is None:
         return jsonify({'error': 'El elemento no existe'}), 400
-    home_id = item.shopping_list.home_id
+    shopping_list_id = item.shopping_list_id
     db.session.delete(item)
     db.session.commit()
     current_roomie_id = get_jwt_identity().get('roomie_id')
     current_roomie = Roomie.query.filter_by(id=current_roomie_id).first()
-    if home_id:
+    if shopping_list_id:
+        shopping_list = List.query.get(shopping_list_id)
+        home_id = shopping_list.home_id
         new_blog = Blog(
             home_id=home_id,
             text=f'Elemento eliminado por {current_roomie.first_name}: {item.name}',
@@ -496,6 +497,7 @@ def delete_item(item_id):
         db.session.add(new_blog)
         db.session.commit()
     return jsonify({'message': 'Elemento eliminado correctamente'}), 200
+
 
 
 #Rutas para gastos
