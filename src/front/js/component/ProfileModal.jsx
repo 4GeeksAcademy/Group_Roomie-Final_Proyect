@@ -7,6 +7,9 @@ const ProfileModal = ({ isOpen, onClose }) => {
     first_name: "",
     last_name: "",
     password: "",
+    repeat_password: "",
+    paypal_id: "",
+    avatar: "",
   });
   const {
     actions: { updateRoomieData },
@@ -21,22 +24,31 @@ const ProfileModal = ({ isOpen, onClose }) => {
   };
 
   const handleClose = () => {
-    setFormData({
-      first_name: "",
-      last_name: "",
-      password: "",
-    });
+    const resetData = {};
+    if (formData.first_name) resetData.first_name = "";
+    if (formData.last_name) resetData.last_name = "";
+    if (formData.password) resetData.password = "";
+    if (formData.repeat_password) resetData.repeat_password = "";
+    if (formData.paypal_id) resetData.paypal_id = "";
+    if (formData.avatar) resetData.avatar = "";
+    setFormData({ ...formData, ...resetData });
     onClose();
   };
 
   const handleUpdate = () => {
-    console.log(formData);
-    if (formData.password.length >= 8) {
-      updateRoomieData(formData);
-      onClose();
-    } else {
-      console.error("La contraseña debe tener al menos 8 caracteres");
+    if (formData.password.length > 0) {
+      if (formData.password.length < 8) {
+        console.error("La contraseña debe tener al menos 8 caracteres");
+        return;
+      } else if (formData.password != formData.repeat_password) {
+        console.error("Las contraseñas no coinciden");
+        return;
+      }
     }
+    const { repeat_password, ...updatedData } = formData;
+    updateRoomieData(updatedData, () => {
+      onClose();
+    });
   };
 
   return (
@@ -101,10 +113,58 @@ const ProfileModal = ({ isOpen, onClose }) => {
                       Password
                     </label>
                     <input
-                      type="text"
+                      type="password"
                       name="password"
                       placeholder="Nueva password"
                       value={formData.password}
+                      onChange={handleInputChange}
+                      className="border border-gray-300 focus:border-gray-300 rounded-lg p-3 w-full"
+                    />
+                  </div>
+                  <div className="mb-4">
+                    <label
+                      className="block text-gray-700 text-base md:text-lg lg:text-base mb-2"
+                      htmlFor="password"
+                    >
+                      Repite password
+                    </label>
+                    <input
+                      type="password"
+                      name="repeat_password"
+                      placeholder="Repite nueva password"
+                      value={formData.repeat_password}
+                      onChange={handleInputChange}
+                      className="border border-gray-300 focus:border-gray-300 rounded-lg p-3 w-full"
+                    />
+                  </div>
+                  <div className="mb-4">
+                    <label
+                      className="block text-gray-700 text-base md:text-lg lg:text-base mb-2"
+                      htmlFor="paypal_id"
+                    >
+                      PayPal ID
+                    </label>
+                    <input
+                      type="text"
+                      name="paypal_id"
+                      placeholder="Nuevo PayPal ID"
+                      value={formData.paypal_id}
+                      onChange={handleInputChange}
+                      className="border border-gray-300 focus:border-gray-300 rounded-lg p-3 w-full"
+                    />
+                  </div>
+                  <div className="mb-4">
+                    <label
+                      className="block text-gray-700 text-base md:text-lg lg:text-base mb-2"
+                      htmlFor="avatar"
+                    >
+                      Avatar
+                    </label>
+                    <input
+                      type="text"
+                      name="avatar"
+                      placeholder="Nuevo Avatar"
+                      value={formData.avatar}
                       onChange={handleInputChange}
                       className="border border-gray-300 focus:border-gray-300 rounded-lg p-3 w-full"
                     />

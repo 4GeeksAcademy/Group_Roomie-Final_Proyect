@@ -12,11 +12,12 @@ export const AppContextProvider = ({ children }) => {
   const roomie_id = localStorage.getItem("roomie_id");
   const is_admin = localStorage.getItem("is_admin");
   const [authenticated, setAuthenticated] = useState(false);
-  const [roomieData, setRoomieData] = useState(null);
+  const [roomieData, setRoomieData] = useState({});
 
   useEffect(() => {
     if (token && token !== "" && token !== undefined) {
       setAuthenticated(true);
+      getRoomieData();
     }
   }, [token]);
 
@@ -98,32 +99,40 @@ export const AppContextProvider = ({ children }) => {
   };
 
   const getRoomieData = async () => {
-    const roomieId = localStorage.getItem("roomie_id");
     try {
-      const profile_data = await authProfile.getRoomieData(roomieId);
-      return setRoomieData(profile_data);
+      const profile_data = await authProfile.getRoomieData(roomie_id);
+      setRoomieData(profile_data);
     } catch (error) {
       console.error("Error al obtener los datos del Roomie:", error);
     }
   };
 
-  const updateRoomieData = (first_name, last_name, password) => {
+  const updateRoomieData = async (roomieData) => {
     if (!roomie_id) {
-      console.error(
-        "No se encontró el ID del Roomie en el almacenamiento local"
-      );
+      console.error("No se encontró el ID del Roomie");
       return;
     }
-    console.log(first_name, last_name, password, roomie_id);
     try {
-      authProfile
-        .updateRoomie(roomie_id, password, first_name, last_name)
-        .then((profile_data) => {
-          console.log("Datos del Roomie actualizados:", profile_data);
-          toast.success("Datos actualizados correctamente", {
-            duration: 5000,
-          });
-        });
+      const updatedData = await authProfile.updateRoomie(
+        roomie_id,
+        roomieData.first_name,
+        roomieData.last_name,
+        roomieData.password,
+        roomieData.paypal_id,
+        roomieData.avatar
+      );
+      setRoomieData({
+        ...roomieData,
+        first_name: updatedData.first_name || roomieData.first_name,
+        last_name: updatedData.last_name || roomieData.last_name,
+        password: updatedData.password || roomieData.password,
+        paypal_id: updatedData.paypal_id || roomieData.paypal_id,
+        avatar: updatedData.avatar || roomieData.avatar,
+      });
+      console.log("Datos del Roomie actualizados:", updatedData);
+      toast.success("Datos actualizados correctamente", {
+        duration: 5000,
+      });
     } catch (error) {
       console.error("Error al actualizar datos del Roomie:", error);
     }
@@ -145,6 +154,8 @@ export const AppContextProvider = ({ children }) => {
     token,
     roomie_id,
     is_admin,
+    roomieData,
+    authenticated,
   };
   const actions = {
     login,

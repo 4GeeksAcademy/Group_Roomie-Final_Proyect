@@ -18,8 +18,8 @@ def create_token():
     roomie = Roomie.query.filter_by(email=email).first()
     if roomie is None or not bcrypt.check_password_hash(roomie.password, password):
         return jsonify({'message': 'El email o la contraseña no son correctos'}), 401
-    access_token = create_access_token(identity={'roomie_id': roomie.id, 'is_admin': roomie.is_admin})
-    return jsonify({'token': access_token, 'roomie_id': roomie.id, 'is_admin': roomie.is_admin})
+    access_token = create_access_token(identity={'roomie_id': roomie.id, 'is_admin': roomie.is_admin, 'home_id': roomie.home_id})
+    return jsonify({'token': access_token, 'roomie_id': roomie.id, 'is_admin': roomie.is_admin, 'home_id': roomie.home_id})
 
 
 #Ruta para registrar nuevo roomie
