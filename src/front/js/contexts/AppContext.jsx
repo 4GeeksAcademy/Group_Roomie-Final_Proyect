@@ -4,6 +4,7 @@ import authProfile from "../services/authProfile";
 import authShop from "../services/authShop";
 
 import toast from "react-hot-toast";
+import authExpenses from "../services/authExpenses";
 
 const AppContext = createContext();
 
@@ -191,6 +192,16 @@ export const AppContextProvider = ({ children }) => {
     }
   };
 
+  const createExpense = async (expense_name, item_ids) => {
+    try {
+      const response = await authExpenses.createExpense(expense_name, item_ids);
+      return response;
+    } catch (error) {
+      console.error("Ha habido un error al crear el gasto:", error.message);
+      throw error;
+    }
+  };
+
   const store = {
     token,
     roomie_id,
@@ -209,6 +220,7 @@ export const AppContextProvider = ({ children }) => {
     getAllItems,
     createNewItem,
     deleteItem,
+    createExpense,
   };
 
   return (

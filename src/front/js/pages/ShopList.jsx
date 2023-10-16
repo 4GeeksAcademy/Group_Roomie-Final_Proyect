@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from "react";
 
 import useAppContext from "../contexts/AppContext.jsx";
+import ExpensesModal from "../component/ExpensesModal.jsx";
 
 const ShopList = () => {
   const [items, setItems] = useState([]);
   const [newItem, setNewItem] = useState("");
   const [shopList, setShopList] = useState({});
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const { actions } = useAppContext();
 
   if (!localStorage.getItem("home_id")) {
@@ -15,7 +17,7 @@ const ShopList = () => {
         administrador que te añada.
       </h1>
     );
-  }
+  };
 
   const handleAddItem = async () => {
     if (newItem !== "") {
@@ -56,6 +58,17 @@ const ShopList = () => {
     const updatedItems = [...items];
     updatedItems[index].completed = !updatedItems[index].completed;
     setItems(updatedItems);
+  };
+
+  const handleOpenModal = () => {
+    const hasSelectedItem = items.some((item) => item.completed);
+    if (hasSelectedItem) {
+      setIsModalOpen(true);
+    }
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
   };
 
   useEffect(() => {
@@ -133,10 +146,14 @@ const ShopList = () => {
           >
             Eliminar
           </button>
-          <button className="bg-orange-600 hover:bg-orange-300 text-white font-bold py-2 px-4 rounded-xl">
+          <button
+            className="bg-orange-600 hover:bg-orange-300 text-white font-bold py-2 px-4 rounded-xl"
+            onClick={handleOpenModal}
+          >
             Crear Gasto
           </button>
         </div>
+        <ExpensesModal isOpen={isModalOpen} onClose={handleCloseModal} />
       </div>
     </div>
   );
