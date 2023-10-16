@@ -11,6 +11,7 @@ export const AppContextProvider = ({ children }) => {
   const token = localStorage.getItem("token");
   const roomie_id = localStorage.getItem("roomie_id");
   const is_admin = localStorage.getItem("is_admin");
+  const home_id = localStorage.getItem("home_id");
   const [authenticated, setAuthenticated] = useState(false);
   const [roomieData, setRoomieData] = useState({});
 
@@ -27,6 +28,7 @@ export const AppContextProvider = ({ children }) => {
       localStorage.setItem("token", response.token);
       localStorage.setItem("roomie_id", response.roomie_id);
       localStorage.setItem("is_admin", response.is_admin);
+      localStorage.setItem("home_id", response.home_id);
       setAuthenticated(true);
       navigate("/home");
     } catch (error) {
@@ -37,16 +39,16 @@ export const AppContextProvider = ({ children }) => {
     }
   };
 
-  const logout = async (navigate) => {
+  const logout = async () => {
     try {
       localStorage.removeItem("token");
       localStorage.removeItem("roomie_id");
       localStorage.removeItem("is_admin");
+      localStorage.removeItem("home_id");
       setAuthenticated(false);
       toast.success("Vuelve pronto, ¡te esperamos!", {
         duration: 5000,
       });
-      navigate("/");
     } catch (error) {
       console.error("Logout failed: ", error);
     }
@@ -138,15 +140,17 @@ export const AppContextProvider = ({ children }) => {
     }
   };
 
-  const getNameShopList = async (home_id) => {
+  const getNameShopList = async () => {
     try {
       const response = await authShop.getNameShopList(home_id);
       console.log(response);
+      return response;
     } catch (error) {
       console.error(
         "Error obteniendo el nombre de la lista de la compra",
         error
       );
+      return null;
     }
   };
 

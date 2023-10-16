@@ -106,7 +106,7 @@ def updated_roomie(roomie_id):
     if 'email' in request_body_roomie:
         return jsonify({'error': 'No puedes actualizar el email'}), 400
     if 'password' in request_body_roomie:
-        chosen_roomie.password = request_body_roomie.get('password')
+        chosen_roomie.password = bcrypt.generate_password_hash(request_body_roomie.get('password')).decode('utf-8')
     if 'first_name' in request_body_roomie:
         chosen_roomie.first_name = request_body_roomie.get('first_name')
     if 'last_name' in request_body_roomie:

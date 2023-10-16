@@ -1,8 +1,12 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+
+import useAppContext from "../contexts/AppContext.jsx";
 
 const ShopList = () => {
   const [items, setItems] = useState([]);
   const [newItem, setNewItem] = useState("");
+  const [shopListName, setShopListName] = useState("");
+  const { actions } = useAppContext();
 
   const handleAddItem = () => {
     if (newItem !== "") {
@@ -23,11 +27,18 @@ const ShopList = () => {
     setItems(updatedItems);
   };
 
+  // Replace the hard-coded string with the actual name from the API response
+  useEffect(() => {
+    actions.getNameShopList().then((response) => {
+      setShopListName(response);
+    });
+  }, []);
+
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
       <div className="bg-white rounded-[50px] p-6 md:p-12 w-full md:max-w-xl">
         <h1 className="text-2xl text-gray-700 font-bold mb-4 text-center">
-          Lista de la compra
+          {shopListName}
         </h1>
         <form onSubmit={(e) => e.preventDefault()}>
           <div className="mb-4 flex">
@@ -73,12 +84,12 @@ const ShopList = () => {
             </li>
           ))}
         </ul>
-        <div className="flex justify-end mt-4">
+        <div className="flex justify-end mt-5">
           <button
             className="bg-orange-600 hover:bg-orange-300 text-white font-bold py-3 px-4 rounded-xl"
             //onClick={handleAddExpense}
           >
-            Añadir gasto
+            Crear gasto
           </button>
         </div>
       </div>
