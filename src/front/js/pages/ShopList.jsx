@@ -33,9 +33,10 @@ const ShopList = () => {
 
   const handleDeleteItem = async () => {
     try {
-      for (const item of items) {
-        if (item.completed) {
-          await actions.deleteItem(item.id);
+      const completedItems = items.filter((item) => item.completed);
+      for (const completedItem of completedItems) {
+        if (completedItem.id) {
+          await actions.deleteItem(completedItem.id);
         }
       }
       const updatedItems = await actions.getAllItems(shopList.id);
