@@ -3,7 +3,8 @@ import { Fragment, useRef, useState } from 'react'
 import { Dialog, Transition } from '@headlessui/react'
 import { ExclamationTriangleIcon } from '@heroicons/react/24/outline'
 
-export default function ModalEliminar() {
+export default function ModalEliminar({ onClose }) {
+  
   const [open, setOpen] = useState(true)
 
   const cancelButtonRef = useRef(null)
@@ -63,7 +64,7 @@ export default function ModalEliminar() {
                   <button
                     type="button"
                     className="mt-3 inline-flex w-full justify-center rounded-md bg-indigo-100  hover:bg-indigo-200 px-4 py-2 text-sm font-bold text-gray-600 shadow-sm sm:mt-0 sm:w-auto"
-                    onClick={() => setOpen(false)}
+                    onClick={onClose} 
                     ref={cancelButtonRef}
                   >
                     Cancel

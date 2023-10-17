@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 
-const ModalBuscar = () => {
+const ModalBuscar = ({ onClose }) => {
   return (
     <div className="fixed z-10 inset-0 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
       <div className="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
@@ -30,20 +30,24 @@ const ModalBuscar = () => {
               />
             </div>
           </div>
-         <div className="bg-white px-8 pb-9 sm:p-6 sm:pb-4 sm:flex sm:flex-row-reverse">
-            <button
-              type="button"
-              className="inline-flex w-full justify-center rounded-md bg-orange-600 px-4 py-2 text-sm font-bold text-white shadow-sm hover:bg-orange-500 sm:ml-3 sm:w-auto"
-            >
-              Buscar
-            </button>
-            <button
-              type="button"
-              className="mt-3 inline-flex w-full justify-center rounded-md bg-indigo-100  hover:bg-indigo-200 px-4 py-2 text-sm font-bold text-gray-600 shadow-sm sm:mt-0 sm:w-auto"
-            >
-              Cancelar
-            </button>
-          </div>
+          <div className="bg-white px-8 pb-9 sm:p-6 sm:pb-4 sm:flex sm:flex-row-reverse">
+
+      <button
+        type="button"
+        className="inline-flex w-full justify-center rounded-md bg-orange-600 px-4 py-2 text-sm font-bold text-white shadow-sm hover:bg-orange-500 sm:ml-3 sm:w-auto"
+      >
+        Buscar
+      </button>
+
+      <button
+      type="button"
+      onClick={onClose} 
+      className="mt-2 inline-flex w-full justify-center rounded-md bg-indigo-100 hover:bg-indigo-200 px-4 py-2 text-sm font-bold text-gray-600 shadow-sm sm:mt-0 sm:w-auto"
+    >
+      Cancelar
+    </button>
+    
+    </div>
         </div>
       </div>
     </div>

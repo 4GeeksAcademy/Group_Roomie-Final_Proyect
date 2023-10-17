@@ -1,81 +1,80 @@
-# WebApp boilerplate with React JS and Flask API
+# Roomie Connect
 
-Build web applications using React.js for the front end and python/flask for your backend API.
+## Descripción del Proyecto
 
-- Documentation can be found here: https://start.4geeksacademy.com/starters/react-flask
-- Here is a video on [how to use this template](https://www.loom.com/share/f37c6838b3f1496c95111e515e83dd9b)
-- Integrated with Pipenv for package managing.
-- Fast deployment to heroku [in just a few steps here](https://start.4geeksacademy.com/backend/deploy-heroku-posgres).
-- Use of .env file.
-- SQLAlchemy integration for database abstraction.
+Roomie Connect es una aplicación de gestión de tareas y gastos compartidos diseñada para compañeros de piso. Facilita la colaboración y la organización en la vida compartida, permitiendo a los usuarios llevar un registro de las tareas pendientes y los gastos compartidos de manera eficiente.
 
-### 1) Installation:
+💡 Características Clave:
 
-> If you use Github Codespaces (recommended) or Gitpod this template will already come with Python, Node and the Posgres Database installed. If you are working locally make sure to install Python 3.10, Node 
+Gestión de Tareas: Roomie Connect facilita la creación y asignación de tareas en el hogar. Cada compañero de piso puede crear tareas, asignarlas a otros miembros y realizar un seguimiento de su estado de finalización. Esto garantiza que las responsabilidades en el hogar estén claras y equitativamente distribuidas.
 
-It is recomended to install the backend first, make sure you have Python 3.8, Pipenv and a database engine (Posgress recomended)
+Registro de Gastos Compartidos: La aplicación permite a los usuarios registrar los gastos compartidos de manera eficiente. Al ingresar los gastos, Roomie Connect calcula automáticamente las contribuciones equitativas de cada compañero de piso, simplificando así la contabilidad y la división de gastos.
 
-1. Install the python packages: `$ pipenv install`
-2. Create a .env file based on the .env.example: `$ cp .env.example .env`
-3. Install your database engine and create your database, depending on your database you have to create a DATABASE_URL variable with one of the possible values, make sure you replace the valudes with your database information:
+Listas de Compras Compartidas: Con la función de listas de compras compartidas, los compañeros de piso pueden crear y gestionar listas de compras de forma colaborativa. Esto garantiza que no falte nada en casa y evita compras innecesarias.
 
-| Engine    | DATABASE_URL                                        |
-| --------- | --------------------------------------------------- |
-| SQLite    | sqlite:////test.db                                  |
-| MySQL     | mysql://username:password@localhost:port/example    |
-| Postgress | postgres://username:password@localhost:5432/example |
+Notificaciones Personalizadas: Roomie Connect mantiene a todos los compañeros de piso informados a través de notificaciones personalizadas. Recibe recordatorios sobre tareas pendientes, gastos compartidos y otras actualizaciones importantes.
 
-4. Migrate the migrations: `$ pipenv run migrate` (skip if you have not made changes to the models on the `./src/api/models.py`)
-5. Run the migrations: `$ pipenv run upgrade`
-6. Run the application: `$ pipenv run start`
+Noticias: Se publican anuncios y actualizaciones de temas importantes relacionados con la convivencia.
 
-> Note: Codespaces users can connect to psql by typing: `psql -h localhost -U gitpod example`
+Roomie Connect está en constante desarrollo y mejora para satisfacer las necesidades cambiantes de los compañeros de piso modernos. Nuestro objetivo es simplificar la convivencia y fomentar un ambiente armonioso en el hogar compartido.
 
-### Undo a migration
+## Estado del Proyecto
 
-You are also able to undo a migration by running
+🚧 Proyecto en construcción 🚧
 
-```sh
-$ pipenv run downgrade
-```
+Estamos trabajando arduamente para desarrollar todas las funciones y características que hacen que Roomie Connect sea una herramienta útil y práctica para la vida en compañía.
 
-### Backend Populate Table Users
+## Funcionalidades del proyecto
 
-To insert test users in the database execute the following command:
+🔨 Las principales funciones que estamos desarrollando incluyen:
 
-```sh
-$ flask insert-test-users 5
-```
+Gestión de Tareas
+La función de gestión de tareas de Roomie Connect permite a los usuarios:
+Crear tareas con detalles y fechas de vencimiento.
+Asignar tareas a otros compañeros de piso.
+Marcar tareas como completadas o pendientes.
+Recibir notificaciones sobre tareas pendientes.
 
-And you will see the following message:
+Registro de Gastos Compartidos
+La función de registro de gastos compartidos de Roomie Connect incluye:
+Registrar gastos con descripción y monto.
+Calcular automáticamente las contribuciones equitativas de cada compañero de piso.
+Visualizar un historial de gastos compartidos.
 
-```
-  Creating test users
-  test_user1@test.com created.
-  test_user2@test.com created.
-  test_user3@test.com created.
-  test_user4@test.com created.
-  test_user5@test.com created.
-  Users created successfully!
-```
+Listas de Compras Compartidas
+Las listas de compras compartidas permiten a los usuarios:
+Crear y gestionar listas de compras colaborativas.
+Marcar elementos como comprados o pendientes.
+Evitar compras duplicadas y asegurarse de que nunca falte nada en casa.
 
-### **Important note for the database and the data inside it**
+Notificaciones Personalizadas
+Roomie Connect envía notificaciones para:
+Informar sobre nuevos gastos compartidos y actualizaciones en las listas de compras.
+Mantener a los compañeros de piso al tanto de las novedades en la vivienda.
 
-Every Github codespace environment will have **its own database**, so if you're working with more people eveyone will have a different database and different records inside it. This data **will be lost**, so don't spend too much time manually creating records for testing, instead, you can automate adding records to your database by editing ```commands.py``` file inside ```/src/api``` folder. Edit line 32 function ```insert_test_data``` to insert the data according to your model (use the function ```insert_test_users``` above as an example). Then, all you need to do is run ```pipenv run insert-test-data```.
+Noticias
+La función de blogs internos permite a los miembros de la vivienda:
+Revisar los anuncios y actualizaciones generados de temas importantes relacionados con la convivencia.
 
-### Front-End Manual Installation:
+## Acceso al Proyecto
 
--   Make sure you are using node version 14+ and that you have already successfully installed and runned the backend.
+📁 Puedes acceder al proyecto en el siguiente enlace: [Roomie Connect en GitHub](https://github.com/4GeeksAcademy/Group_Roomie-Final_Proyect).
 
-1. Install the packages: `$ npm install`
-2. Start coding! start the webpack dev server `$ npm run start`
+## Tecnologías Utilizadas
 
-## Publish your website!
+💻 Este proyecto está desarrollado utilizando las siguientes tecnologías:
 
-This boilerplate it's 100% read to deploy with Render.com and Heroku in a matter of minutes. Please read the [official documentation about it](https://start.4geeksacademy.com/deploy).
+- Frontend: HTML, CSS, JavaScript, React, Tailwind
+- Backend: Python, Flask
+- Base de Datos: PostgreSQL
 
-### Contributors
+## Personas Desarrolladoras del Proyecto
 
-This template was built as part of the 4Geeks Academy [Coding Bootcamp](https://4geeksacademy.com/us/coding-bootcamp) by [Alejandro Sanchez](https://twitter.com/alesanchezr) and many other contributors. Find out more about our [Full Stack Developer Course](https://4geeksacademy.com/us/coding-bootcamps/part-time-full-stack-developer), and [Data Science Bootcamp](https://4geeksacademy.com/us/coding-bootcamps/datascience-machine-learning).
+✨ Este proyecto está siendo desarrollado por el equipo de Roomie Connect:
 
-You can find other templates and resources like this at the [school github page](https://github.com/4geeksacademy/).
+- [Miguel Ángel Martínez](https://github.com/MPMiguel)
+- [Rémulo Castro](https://github.com/Remug)
+- [Johanna Alamo](https://github.com/johannaalamo)
+- [Sandra Rodríguez](https://github.com/srdgz)
+
+¡Gracias por tu interés en Roomie Connect!
