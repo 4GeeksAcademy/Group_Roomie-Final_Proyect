@@ -2,7 +2,7 @@
 This module takes care of starting the API Server, Loading the DB and Adding the endpoints
 """
 from flask import Flask, request, jsonify, url_for, Blueprint
-from api.models import db, Roomie, Home, Expenses, Debts, List, Item, Task, File, Blog, Notifications
+from api.models import db, Roomie, Home, Expenses, Debts, List, Item, Task, File, Blog
 from api.utils import generate_sitemap, APIException
 from flask_jwt_extended import create_access_token, get_jwt_identity, jwt_required
 from datetime import datetime, timedelta
@@ -18,15 +18,15 @@ def create_token():
     roomie = Roomie.query.filter_by(email=email).first()
     if roomie is None or not bcrypt.check_password_hash(roomie.password, password):
         return jsonify({'message': 'El email o la contraseña no son correctos'}), 401
-    access_token = create_access_token(identity={'roomie_id': roomie.id, 'is_admin': roomie.is_admin})
-    return jsonify({'token': access_token, 'roomie_id': roomie.id, 'is_admin': roomie.is_admin})
+    access_token = create_access_token(identity={'roomie_id': roomie.id, 'is_admin': roomie.is_admin, 'home_id': roomie.home_id})
+    return jsonify({'token': access_token, 'roomie_id': roomie.id, 'is_admin': roomie.is_admin, 'home_id': roomie.home_id})
 
 
 #Ruta para registrar nuevo roomie
 @api.route('/signup', methods=['POST'])
 def create_roomie():
     data = request.get_json()
-    required_fields = ['email', 'password', 'first_name', 'phone_number']
+    required_fields = ['email', 'password', 'first_name']
     for field in required_fields:
         if field not in data:
             return jsonify({'error': f'Falta {field} en los campos del formulario'}), 400
@@ -34,14 +34,10 @@ def create_roomie():
     password = data.get('password')
     first_name = data.get('first_name')
     last_name = data.get('last_name')
-    phone_number = data.get('phone_number')
     avatar = data.get('avatar')
     paypal_id = data.get('paypal_id')
     existing_email_roomie = Roomie.query.filter_by(email=email).first()
     if existing_email_roomie:
-        return jsonify({'error': 'Este roomie ya existe'}), 400
-    existing_phone_roomie = Roomie.query.filter_by(phone_number=phone_number).first()
-    if existing_phone_roomie:
         return jsonify({'error': 'Este roomie ya existe'}), 400
     hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
     new_roomie = Roomie(
@@ -49,7 +45,6 @@ def create_roomie():
         password=hashed_password,
         first_name=first_name,
         last_name=last_name,
-        phone_number=phone_number,
         avatar=avatar,
         paypal_id=paypal_id
     )
@@ -108,20 +103,20 @@ def updated_roomie(roomie_id):
     chosen_roomie = Roomie.query.get(roomie_id)
     if chosen_roomie is None:
         return jsonify({'error': 'Este roomie no existe'}), 404
-    if 'email' in request_body_roomie or 'phone_number' in request_body_roomie:
-        return jsonify({'error': 'No puedes actualizar el email o el número de teléfono'}), 400
+    if 'email' in request_body_roomie:
+        return jsonify({'error': 'No puedes actualizar el email'}), 400
     if 'password' in request_body_roomie:
-        chosen_roomie.password = request_body_roomie['password']
+        chosen_roomie.password = bcrypt.generate_password_hash(request_body_roomie.get('password')).decode('utf-8')
     if 'first_name' in request_body_roomie:
-        chosen_roomie.first_name = request_body_roomie['first_name']
+        chosen_roomie.first_name = request_body_roomie.get('first_name')
     if 'last_name' in request_body_roomie:
-        chosen_roomie.last_name = request_body_roomie['last_name']
+        chosen_roomie.last_name = request_body_roomie.get('last_name')
     if 'avatar' in request_body_roomie:
-        chosen_roomie.avatar = request_body_roomie['avatar']
+        chosen_roomie.avatar = request_body_roomie.get('avatar')
     if 'paypal_id' in request_body_roomie:
-        chosen_roomie.paypal_id = request_body_roomie['paypal_id']
+        chosen_roomie.paypal_id = request_body_roomie.get('paypal_id')
     db.session.commit()
-    return jsonify('Roomie actualizado correctamente'), 200
+    return jsonify(chosen_roomie.serialize()), 200
 
 @api.route('/roomie/<int:roomie_id>', methods=['PUT'])
 @jwt_required()
@@ -138,7 +133,6 @@ def inactivate_roomie(roomie_id):
     roomie.password = f'roomieeliminado{roomie.id}'
     roomie.first_name = f'roomieeliminado{roomie.id}'
     roomie.last_name = f'roomieeliminado{roomie.id}'
-    roomie.phone_number = f'roomieeliminado{roomie.id}'
     roomie.avatar = f'roomieeliminado{roomie.id}'
     roomie.paypal_id = f'roomieeliminado{roomie.id}'
     roomie.is_active = False
@@ -330,7 +324,7 @@ def create_task():
             home_id=roomie.home.id,
             text=text,
             roomie_name=roomie.first_name,
-            date=date_assigned,
+            date=datetime.now(),
             status='Pendiente',
         )
         db.session.add(new_blog)
@@ -374,7 +368,7 @@ def update_task_date(task_id):
             home_id=roomie.home.id,
             text=text,
             roomie_name=roomie.first_name,
-            date=new_date_assigned,
+            date=datetime.now(),
             status='Hecho',
         )
         task.date_assigned = new_date_assigned
@@ -421,11 +415,10 @@ def get_all_list():
 
 @api.route('/list/home/<int:home_id>', methods=['GET'])
 def get_list_by_home(home_id):
-    shopping_lists = List.query.filter_by(home_id=home_id).all()
-    if not shopping_lists:
+    shopping_list = List.query.filter_by(home_id=home_id).first()
+    if not shopping_list:
         return jsonify({'error': 'No hay lista de la compra para esta vivienda'}), 404
-    serialized_shopping_lists = [shopping_list.serialize() for shopping_list in shopping_lists]
-    return jsonify(serialized_shopping_lists), 200
+    return jsonify(shopping_list.serialize()), 200
 
 
 #Rutas para elementos de la lista de la compra
@@ -486,12 +479,14 @@ def delete_item(item_id):
     item = Item.query.get(item_id)
     if item is None:
         return jsonify({'error': 'El elemento no existe'}), 400
-    home_id = item.shopping_list.home_id
+    shopping_list_id = item.shopping_list_id
     db.session.delete(item)
     db.session.commit()
     current_roomie_id = get_jwt_identity().get('roomie_id')
     current_roomie = Roomie.query.filter_by(id=current_roomie_id).first()
-    if home_id:
+    if shopping_list_id:
+        shopping_list = List.query.get(shopping_list_id)
+        home_id = shopping_list.home_id
         new_blog = Blog(
             home_id=home_id,
             text=f'Elemento eliminado por {current_roomie.first_name}: {item.name}',
@@ -502,6 +497,7 @@ def delete_item(item_id):
         db.session.add(new_blog)
         db.session.commit()
     return jsonify({'message': 'Elemento eliminado correctamente'}), 200
+
 
 
 #Rutas para gastos
@@ -776,3 +772,4 @@ def calendar_view():
             }
             calendar_data.append(calendar_event)
     return jsonify(calendar_data)
+
