@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from "react";
+import ReactDOM from "react-dom";
 
 import useAppContext from "../contexts/AppContext.jsx";
-//import DebtsModal from '../components/DebtsModal.jsx';
+import CreateDebtModal from "../component/CreateDebtModal.jsx";
+import LiquidateDebtModal from "../component/LiquidateDebtModal.jsx";
 
 const Expenses = () => {
   const [expenses, setExpenses] = useState([]);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [isLiquidateModalOpen, setIsLiquidateModalOpen] = useState(false);
   const { actions } = useAppContext();
 
   useEffect(() => {
@@ -21,45 +24,68 @@ const Expenses = () => {
     fetchData();
   }, [actions]);
 
-  const handleOpenModal = () => {
-    setIsModalOpen(true);
+  const handleOpenModalCreateDebt = () => {
+    setIsCreateModalOpen(true);
   };
 
-  const handleCloseModal = () => {
-    setIsModalOpen(false);
+  const handleCloseModalCreateDebt = () => {
+    setIsCreateModalOpen(false);
+  };
+
+  const handleOpenModalLiquidateDebt = () => {
+    setIsLiquidateModalOpen(true);
+  };
+
+  const handleCloseModalLiquidateDebt = () => {
+    setIsLiquidateModalOpen(false);
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100">
+    <div className="w-screen flex justify-center items-center h-screen">
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 gap-4 max-w-screen-md p-4">
         {expenses.map((expense) => (
           <div
             key={expense.id}
-            className="bg-white rounded-[50px] p-6 md:p-12 w-full md:max-w-xl"
+            className="bg-white rounded-[50px] overflow-hidden shadow-xl transition-all mx-2 sm:mx-4 mb-4 p-12 md:p-8 w-full"
           >
             <h1 className="text-xl md:text-2xl text-gray-700 font-bold mb-6 text-center">
               {expense.name}
             </h1>
             <div className="flex justify-center">
-              <button
-                type="button"
-                className="bg-indigo-100 hover:bg-indigo-300 text-gray-600 font-bold py-2 px-4 rounded-xl mr-2"
-                onClick={handleOpenModal}
-              >
-                Liquidar Deuda
-              </button>
-              <button
-                type="button"
-                className="bg-orange-600 hover:bg-orange-300 text-white font-bold py-2 px-4 rounded-xl"
-                onClick={handleOpenModal}
-              >
-                Crear Deuda
-              </button>
+              {expense.expense_id ? (
+                <button
+                  type="button"
+                  className="bg-indigo-100 hover:bg-indigo-300 text-gray-600 font-bold py-2 px-4 rounded-xl mr-2"
+                  onClick={handleOpenModalLiquidateDebt}
+                >
+                  Liquidar Deuda
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  className="bg-orange-600 hover:bg-orange-300 text-white font-bold py-2 px-4 rounded-xl mr-2"
+                  onClick={handleOpenModalCreateDebt}
+                >
+                  Crear Deuda
+                </button>
+              )}
             </div>
           </div>
         ))}
       </div>
-      {/* <ExpenseModal isOpen={isModalOpen} onClose={handleCloseModal} /> */}
+      {isCreateModalOpen && (
+        <CreateDebtModal
+          isOpen={isCreateModalOpen}
+          onClose={handleCloseModalCreateDebt}
+        />
+      )}
+
+      {isLiquidateModalOpen && (
+        <LiquidateDebtModal
+          isOpen={isLiquidateModalOpen}
+          onClose={handleCloseModalLiquidateDebt}
+        />
+      )}
     </div>
   );
 };

@@ -3,6 +3,8 @@ import React, { useState, useEffect } from "react";
 import useAppContext from "../contexts/AppContext.jsx";
 import ExpensesModal from "../component/ExpensesModal.jsx";
 
+import toast from "react-hot-toast";
+
 const ShopList = () => {
   const [items, setItems] = useState([]);
   const [newItem, setNewItem] = useState("");
@@ -37,15 +39,23 @@ const ShopList = () => {
   }, [actions]);
 
   const handleAddItem = async () => {
-    if (newItem !== "") {
-      const newItemObject = { name: newItem, completed: false };
-      const updatedItems = [...items, newItemObject];
-      setItems(updatedItems);
-      setNewItem("");
-      try {
-        await actions.createNewItem(newItem, shopList.id);
-      } catch (error) {
-        console.error("Error al añadir nuevo item:", error);
+    if (newItem.trim() !== "") {
+      const isDuplicate = items.some((item) => item.name === newItem.trim());
+      if (!isDuplicate) {
+        const newItemObject = { name: newItem.trim(), completed: false };
+        const updatedItems = [...items, newItemObject];
+        setItems(updatedItems);
+        setNewItem("");
+        try {
+          await actions.createNewItem(newItem.trim(), shopList.id);
+        } catch (error) {
+          console.error("Error al añadir nuevo item:", error);
+        }
+      } else {
+        console.log("El item ya está en la lista.");
+        toast.error("El item ya está en la lista", {
+          duration: 3000,
+        });
       }
     }
   };

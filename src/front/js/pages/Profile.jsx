@@ -22,8 +22,8 @@ const Profile = () => {
 
   return (
     <>
-      <div className="flex items-center justify-center h-screen bg-gray-100">
-        <div className="bg-white rounded-[50px] p-6 md:p-12 max-w-lg w-full max-h-[75%] overflow-y-auto">
+      <div className="flex items-center justify-center sm:mt-8 h-screen bg-gray-100">
+        <div className="bg-white rounded-[50px] p-6 md:p-12 max-w-lg w-full">
           <h1 className="text-2xl text-gray-700 font-bold mb-4 text-center">
             Mis datos
           </h1>

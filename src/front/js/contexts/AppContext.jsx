@@ -5,6 +5,7 @@ import authShop from "../services/authShop";
 
 import toast from "react-hot-toast";
 import authExpenses from "../services/authExpenses";
+import authDebts from "../services/authDebts";
 
 const AppContext = createContext();
 
@@ -212,6 +213,19 @@ export const AppContextProvider = ({ children }) => {
     }
   };
 
+  const getRoomiesByHomeId = async (home_id) => {
+    try {
+      const response = await authDebts.getRoomiesByHomeId(home_id);
+      if (!response.ok) {
+        throw new Error("Error al obtener los roomies " + response.status);
+      }
+      return response;
+    } catch (error) {
+      console.error("Error al obtener los roomies:", error);
+      throw error;
+    }
+  };
+
   const store = {
     token,
     roomie_id,
@@ -232,6 +246,7 @@ export const AppContextProvider = ({ children }) => {
     deleteItem,
     createExpense,
     getExpensesByHomeId,
+    getRoomiesByHomeId,
   };
 
   return (
