@@ -202,6 +202,16 @@ export const AppContextProvider = ({ children }) => {
     }
   };
 
+  const getExpensesByHomeId = async (home_id) => {
+    try {
+      const response = await authExpenses.getExpensesByHomeId(home_id);
+      return response;
+    } catch (error) {
+      console.error("Error al obtener los gastos por home_id:", error);
+      return null;
+    }
+  };
+
   const store = {
     token,
     roomie_id,
@@ -221,6 +231,7 @@ export const AppContextProvider = ({ children }) => {
     createNewItem,
     deleteItem,
     createExpense,
+    getExpensesByHomeId,
   };
 
   return (

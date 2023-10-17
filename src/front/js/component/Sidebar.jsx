@@ -133,7 +133,7 @@ const Sidebar = () => {
             <ul className="space-y-4 ps-6">
               <li>
                 <Link
-                  to="/"
+                  to="/home"
                   className="text-gray-600 hover:text-indigo-300 block"
                 >
                   <i className="fa-solid fa-house"></i> Inicio
@@ -141,7 +141,7 @@ const Sidebar = () => {
               </li>
               <li>
                 <Link
-                  to="/"
+                  to="/roomies"
                   className="text-gray-600 hover:text-indigo-300 block"
                 >
                   <i className="fa-solid fa-people-roof"></i> Roomies
@@ -149,7 +149,7 @@ const Sidebar = () => {
               </li>
               <li>
                 <Link
-                  to="/"
+                  to="/tasks"
                   className="text-gray-600 hover:text-indigo-300 block"
                 >
                   <i className="fa-solid fa-list-check"></i> Tareas
@@ -157,7 +157,7 @@ const Sidebar = () => {
               </li>
               <li>
                 <Link
-                  to="/"
+                  to="/shoplist"
                   className="text-gray-600 hover:text-indigo-300 block"
                 >
                   <i className="fa-solid fa-basket-shopping"></i> Compra
@@ -165,7 +165,7 @@ const Sidebar = () => {
               </li>
               <li>
                 <Link
-                  to="/"
+                  to="/expenses"
                   className="text-gray-600 hover:text-indigo-300 block"
                 >
                   <i className="fa-solid fa-hand-holding-dollar"></i> Gastos
@@ -173,7 +173,7 @@ const Sidebar = () => {
               </li>
               <li>
                 <Link
-                  to="/"
+                  to="/calendar"
                   className="text-gray-600 hover:text-indigo-300 block"
                 >
                   <i className="fa-solid fa-calendar-days"></i> Calendario
@@ -181,7 +181,7 @@ const Sidebar = () => {
               </li>
               <li>
                 <Link
-                  to="/"
+                  to="/files"
                   className="text-gray-600 hover:text-indigo-300 block"
                 >
                   <i className="fa-regular fa-folder-open"></i> Archivos
@@ -189,7 +189,7 @@ const Sidebar = () => {
               </li>
               <li className="pb-4">
                 <Link
-                  to="/"
+                  to="/blog"
                   className="text-gray-600 hover:text-indigo-300 block"
                 >
                   <i className="fa-regular fa-newspaper"></i> Actualizaciones
@@ -236,14 +236,14 @@ const Sidebar = () => {
         >
           <nav className="p-8">
             <section className="flex items-center">
-              <Link to="/" className="text-indigo-900">
+              <Link to="/home" className="text-indigo-900">
                 <img className="w-60 h-18 pb-10" src={logo} alt="logo" />
               </Link>
             </section>
             <ul className="space-y-4">
               <li>
                 <Link
-                  to="/"
+                  to="/home"
                   className="text-gray-600 hover:text-indigo-300 block"
                 >
                   <i className="fa-solid fa-house"></i> Inicio
@@ -251,7 +251,7 @@ const Sidebar = () => {
               </li>
               <li>
                 <Link
-                  to="/"
+                  to="/roomies"
                   className="text-gray-600 hover:text-indigo-300 block"
                 >
                   <i className="fa-solid fa-people-roof"></i> Roomies
@@ -259,7 +259,7 @@ const Sidebar = () => {
               </li>
               <li>
                 <Link
-                  to="/"
+                  to="/tasks"
                   className="text-gray-600 hover:text-indigo-300 block"
                 >
                   <i className="fa-solid fa-list-check"></i> Tareas
@@ -267,7 +267,7 @@ const Sidebar = () => {
               </li>
               <li>
                 <Link
-                  to="/"
+                  to="/shoplist"
                   className="text-gray-600 hover:text-indigo-300 block"
                 >
                   <i className="fa-solid fa-basket-shopping"></i> Compra
@@ -275,7 +275,7 @@ const Sidebar = () => {
               </li>
               <li>
                 <Link
-                  to="/"
+                  to="/expenses"
                   className="text-gray-600 hover:text-indigo-300 block"
                 >
                   <i className="fa-solid fa-hand-holding-dollar"></i> Gastos
@@ -283,7 +283,7 @@ const Sidebar = () => {
               </li>
               <li>
                 <Link
-                  to="/"
+                  to="/calendar"
                   className="text-gray-600 hover:text-indigo-300 block"
                 >
                   <i className="fa-solid fa-calendar-days"></i> Calendario
@@ -291,7 +291,7 @@ const Sidebar = () => {
               </li>
               <li>
                 <Link
-                  to="/"
+                  to="/files"
                   className="text-gray-600 hover:text-indigo-300 block"
                 >
                   <i className="fa-regular fa-folder-open"></i> Archivos
@@ -299,7 +299,7 @@ const Sidebar = () => {
               </li>
               <li>
                 <Link
-                  to="/"
+                  to="/blog"
                   className="text-gray-600 hover:text-indigo-300 block"
                 >
                   <i className="fa-regular fa-newspaper"></i> Actualizaciones

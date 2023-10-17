@@ -1,3 +1,22 @@
+const getExpensesByHomeId = async (home_id) => {
+  try {
+    const response = await fetch(
+      `https://laughing-space-goldfish-jxgw66jr5ppc57qx-3001.app.github.dev/api/expense/home/${home_id}`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error al obtener los gastos por home_id:", error);
+    return null;
+  }
+};
+
 const createExpense = async (expense_name, item_ids) => {
   const token = localStorage.getItem("token");
   try {
@@ -30,6 +49,7 @@ const createExpense = async (expense_name, item_ids) => {
 
 const authExpenses = {
   createExpense,
+  getExpensesByHomeId,
 };
 
 export default authExpenses;

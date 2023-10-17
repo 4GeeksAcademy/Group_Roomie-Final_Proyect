@@ -439,8 +439,12 @@ def get_one_item(item_id):
 
 @api.route('/item/list/<int:list_id>', methods=['GET'])
 def get_items_by_list_id(list_id):
+    have_expense = request.args.get('have_expense', default=False, type=bool)
     items = Item.query.filter_by(shopping_list_id=list_id).all()
-    items_list = [item.serialize() for item in items]
+    if have_expense:
+        items_list = [item.serialize() for item in items if item.expense_id is not None]
+    else:
+        items_list = [item.serialize() for item in items if item.expense_id is None or item.expense_id == 'null']
     return jsonify(items_list), 200
 
 @api.route('/item', methods=['POST'])

@@ -60,7 +60,7 @@ const ProfileModal = ({ isOpen, onClose }) => {
               <div className="absolute inset-0 bg-gray-500 opacity-75"></div>
             </div>
             <span
-              className="inline-block align-middle bg-white rounded-[50px] text-left overflow-hidden shadow-xl transform transition-all my-8 align-middle w-2/3 sm:w-3/4 md:w-1/2 lg:w-1/3"
+              className="inline-block align-middle bg-white rounded-[50px] text-left overflow-hidden shadow-xl transform transition-all my-8 w-2/3 sm:w-3/4 md:w-1/2 lg:w-1/3"
               role="dialog"
               aria-modal="true"
               aria-labelledby="modal-headline"
