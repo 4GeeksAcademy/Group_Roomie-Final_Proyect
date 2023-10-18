@@ -439,8 +439,12 @@ def get_one_item(item_id):
 
 @api.route('/item/list/<int:list_id>', methods=['GET'])
 def get_items_by_list_id(list_id):
+    have_expense = request.args.get('have_expense', default=False, type=bool)
     items = Item.query.filter_by(shopping_list_id=list_id).all()
-    items_list = [item.serialize() for item in items]
+    if have_expense:
+        items_list = [item.serialize() for item in items if item.expense_id is not None]
+    else:
+        items_list = [item.serialize() for item in items if item.expense_id is None or item.expense_id == 'null']
     return jsonify(items_list), 200
 
 @api.route('/item', methods=['POST'])
@@ -516,9 +520,10 @@ def get_one_expense(expense_id):
         return jsonify({'error': 'Este gasto no existe'}), 404
     return jsonify(chosen_expense.serialize()), 200
 
-@api.route('/expense/home/<int:home_id>', methods=['GET'])
-def get_expenses_by_home_id(home_id):
-    expenses = Expenses.query.filter_by(home_id=home_id).all()
+@api.route('/expense/roomie/<int:roomie_id>', methods=['GET'])
+def get_expenses_by_roomie_id(roomie_id):
+    # expenses = Expenses.query.filter_by(roomie_id=roomie_id, debt_generated=False).all()
+    expenses = Expenses.query.filter_by(roomie_id=roomie_id).all()
     expenses_list = [item.serialize() for item in expenses]
     return jsonify(expenses_list), 200
 
@@ -579,6 +584,26 @@ def get_one_debt(debts_id):
         return jsonify({'error': 'Este gasto no existe'}), 404
     return jsonify(chosen_debt.serialize()), 200
 
+@api.route('/debts/roomie/<int:roomie_id>', methods=['GET'])
+def get_debts_by_roomie_id(roomie_id):
+    debts_debtor = Debts.query.filter(
+        Debts.roomie_debtor_id == roomie_id,
+        Debts.status == 'Pendiente'
+    ).all()
+
+    debts_payer = Debts.query.filter(
+        Debts.roomie_paying_id == roomie_id,
+        Debts.status == 'Pendiente'
+    ).all()
+
+    debts = debts_debtor + debts_payer
+    # for debt in debts:
+    #     setattr(debt, name, debt.expense.name)
+
+
+    debts_list = [item.serialize() for item in debts]
+    return jsonify(debts_list), 200
+
 @api.route('/debts', methods=['POST'])
 @jwt_required()
 def generate_debt():
@@ -597,6 +622,7 @@ def generate_debt():
         return jsonify({'error': 'Gasto no encontrado'}), 404
     if expense.roomie_id != current_roomie_id:
         return jsonify({'error': 'No tienes permiso para crear esta deuda'})
+    expense.debt_generated = True
     individual_debt_amount = total_amount / (len(debtor_ids) + 1)
     debts = []
     for debtor_id in debtor_ids:

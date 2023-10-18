@@ -3,28 +3,25 @@ import { useNavigate } from "react-router-dom";
 
 import useAppContext from "../contexts/AppContext.jsx";
 
-const ExpensesModal = ({ isOpen, onClose, markedItems }) => {
+const ExpensesModal = ({ isOpen, onClose, selectedItems }) => {
   const [expenseName, setExpenseName] = useState("");
   const navigate = useNavigate();
   const { actions } = useAppContext();
 
   const handleCreateExpense = async () => {
     try {
-      if (markedItems && markedItems.length > 0) {
-        const itemIds = markedItems.map((item) => item.id);
-        await actions.createExpense(expenseName, itemIds);
-        onClose();
-        navigate("/expenses");
-      } else {
+      if (!selectedItems || selectedItems.length === 0) {
         console.error("No se han marcado elementos para el gasto.");
+        return;
       }
+      const itemIds = selectedItems.map((item) => item.id);
+      await actions.createExpense(expenseName, itemIds);
+      onClose();
+      navigate("/expenses");
     } catch (error) {
-      console.error("Error al crear el gasto:", error);
+      console.error("Error al crear el gasto", error);
     }
   };
-  if (!isOpen) {
-    return null;
-  }
 
   return (
     <>
@@ -35,7 +32,7 @@ const ExpensesModal = ({ isOpen, onClose, markedItems }) => {
               <div className="absolute inset-0 bg-gray-500 opacity-75"></div>
             </div>
             <span
-              className="inline-block align-middle bg-white rounded-[50px] text-left overflow-hidden shadow-xl transform transition-all my-8 align-middle w-full sm:w-3/4 md:w-1/2 lg:w-1/3"
+              className="inline-block align-middle bg-white rounded-[50px] text-left overflow-hidden shadow-xl transform transition-all my-8 w-full sm:w-3/4 md:w-1/2 lg:w-1/3"
               role="dialog"
               aria-modal="true"
               aria-labelledby="modal-headline"

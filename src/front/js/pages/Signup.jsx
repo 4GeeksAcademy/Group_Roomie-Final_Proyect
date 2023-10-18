@@ -100,20 +100,25 @@ const Signup = () => {
                   className="px-3 py-3 shadow appearance-none border rounded-md w-full text-gray-900 mt-1 leading-tight focus:outline-none focus:shadow-outline"
                   onChange={handleChangePassword}
                 />
-                <button
-                  className="absolute top-1/2 right-3 -translate-y-1/2 focus:outline-none"
-                  onClick={() => setShowPassword(!showPassword)}
-                >
-                  <i
-                    className={`fa-solid text-indigo-900 ${
-                      showPassword ? "fa-eye" : "fa-eye-slash"
-                    }`}
-                  />
-                </button>
               </div>
             </div>
+            <div className="mb-5 text-sm">
+              <div className="form-check">
+                <input
+                  className="form-check-input"
+                  type="checkbox"
+                  value="check-password"
+                  id="flexCheckDefault"
+                  onChange={() => setShowPassword(!showPassword)}
+                />
+                <label className="ml-2" htmlFor="flexCheckDefault">
+                  Mostrar contraseña
+                </label>
+              </div>
+            </div>
+
             <button
-              type="button"
+              type="submit"
               value="signup"
               className="bg-indigo-900 text-white font-bold text-lg hover:bg-indigo-500 p-2 mt-8 rounded-lg"
               onClick={handleSubmit}
