@@ -20,8 +20,82 @@ const getRoomiesByHomeId = async (home_id) => {
   }
 };
 
+const getDebtsByRoomieId = async (roomie_id) => {
+  try {
+    const response = await fetch(
+      `https://laughing-space-goldfish-jxgw66jr5ppc57qx-3001.app.github.dev/api/debts/roomie/${roomie_id}`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error al obtener las deudas:", error);
+    return null;
+  }
+};
+
+const createDebt = async (expense_id, debtor_ids, total_amount) => {
+  const token = localStorage.getItem("token");
+  try {
+    const response = await fetch(
+      "https://laughing-space-goldfish-jxgw66jr5ppc57qx-3001.app.github.dev/api/debts",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          expense_id: expense_id,
+          debtor_ids: debtor_ids,
+          total_amount: total_amount,
+        }),
+      }
+    );
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(
+        errorData.error || "Ha habido un error al crear la deuda"
+      );
+    }
+    const responseData = await response.json();
+    return responseData;
+  } catch (error) {
+    throw new Error(error.message || "Ha habido un error al crear la deuda");
+  }
+};
+
+const payDebt = async (debt_id) => {
+  const token = localStorage.getItem("token");
+  try {
+    const response = await fetch(
+      `https://laughing-space-goldfish-jxgw66jr5ppc57qx-3001.app.github.dev/api/debts/${debt_id}`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error al realizar el pago de la deuda:", error);
+    return null;
+  }
+};
+
 const authDebts = {
   getRoomiesByHomeId,
+  createDebt,
+  getDebtsByRoomieId,
+  payDebt,
 };
 
 export default authDebts;

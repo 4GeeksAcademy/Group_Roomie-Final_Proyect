@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import ReactDOM from "react-dom";
 
 import useAppContext from "../contexts/AppContext.jsx";
 import CreateDebtModal from "../component/CreateDebtModal.jsx";
@@ -7,24 +6,29 @@ import LiquidateDebtModal from "../component/LiquidateDebtModal.jsx";
 
 const Expenses = () => {
   const [expenses, setExpenses] = useState([]);
+  const [debts, setDebts] = useState([]);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isLiquidateModalOpen, setIsLiquidateModalOpen] = useState(false);
+  const [selectedExpenseId, setSelectedExpenseId] = useState("");
   const { actions } = useAppContext();
 
   useEffect(() => {
-    const home_id = localStorage.getItem("home_id");
+    const roomie_id = localStorage.getItem("roomie_id");
     const fetchData = async () => {
       try {
-        const expensesData = await actions.getExpensesByHomeId(home_id);
+        const expensesData = await actions.getExpensesByRoomieId(roomie_id);
         setExpenses(expensesData);
+        const debtsData = await actions.getDebtsByRoomieId(roomie_id);
+        setDebts(debtsData);
       } catch (error) {
-        console.error("Error al obtener los gastos:", error);
+        console.error("Error al obtener los gastos y deudas:", error);
       }
     };
     fetchData();
   }, [actions]);
 
-  const handleOpenModalCreateDebt = () => {
+  const handleOpenModalCreateDebt = (expenseId) => {
+    setSelectedExpenseId(expenseId);
     setIsCreateModalOpen(true);
   };
 
@@ -32,7 +36,8 @@ const Expenses = () => {
     setIsCreateModalOpen(false);
   };
 
-  const handleOpenModalLiquidateDebt = () => {
+  const handleOpenModalLiquidateDebt = (expenseId) => {
+    setSelectedExpenseId(expenseId);
     setIsLiquidateModalOpen(true);
   };
 
@@ -52,23 +57,20 @@ const Expenses = () => {
               {expense.name}
             </h1>
             <div className="flex justify-center">
-              {expense.expense_id ? (
-                <button
-                  type="button"
-                  className="bg-indigo-100 hover:bg-indigo-300 text-gray-600 font-bold py-2 px-4 rounded-xl mr-2"
-                  onClick={handleOpenModalLiquidateDebt}
-                >
-                  Liquidar Deuda
-                </button>
-              ) : (
-                <button
-                  type="button"
-                  className="bg-orange-600 hover:bg-orange-300 text-white font-bold py-2 px-4 rounded-xl mr-2"
-                  onClick={handleOpenModalCreateDebt}
-                >
-                  Crear Deuda
-                </button>
-              )}
+              <button
+                type="button"
+                className="bg-indigo-100 hover:bg-indigo-300 text-gray-600 font-bold py-2 px-4 rounded-xl mr-2"
+                onClick={() => handleOpenModalLiquidateDebt(expense.id)}
+              >
+                Liquidar Deuda
+              </button>
+              <button
+                type="button"
+                className="bg-orange-600 hover:bg-orange-300 text-white font-bold py-2 px-4 rounded-xl mr-2"
+                onClick={() => handleOpenModalCreateDebt(expense.id)}
+              >
+                Crear Deuda
+              </button>
             </div>
           </div>
         ))}
@@ -77,6 +79,7 @@ const Expenses = () => {
         <CreateDebtModal
           isOpen={isCreateModalOpen}
           onClose={handleCloseModalCreateDebt}
+          selectedExpenseId={selectedExpenseId}
         />
       )}
 
@@ -84,6 +87,7 @@ const Expenses = () => {
         <LiquidateDebtModal
           isOpen={isLiquidateModalOpen}
           onClose={handleCloseModalLiquidateDebt}
+          selectedExpenseId={selectedExpenseId}
         />
       )}
     </div>

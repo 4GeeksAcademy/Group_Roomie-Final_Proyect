@@ -1,24 +1,58 @@
 import React, { useState, useEffect } from "react";
+import useAppContext from "../contexts/AppContext.jsx";
 
-const CreateDebtModal = ({ isOpen, onClose }) => {
+const CreateDebtModal = ({ isOpen, onClose, selectedExpenseId }) => {
   const [roomies, setRoomies] = useState([]);
   const [selectedRoomies, setSelectedRoomies] = useState([]);
-  const [expenseName, setExpenseName] = useState("");
   const [amount, setAmount] = useState("");
   const [selectedDate, setSelectedDate] = useState(new Date());
+  const { actions } = useAppContext();
 
   useEffect(() => {
-    const home_id = localStorage.getItem("home_id");
-    // Aquí llamarías a la función getRoomiesByHomeId que obtiene los roomies de la vivienda y los establece en el estado
-    // setRoomies(result);
-  }, []);
+    const fetchRoomies = async () => {
+      try {
+        const response = await actions.getRoomiesByHomeId(
+          localStorage.getItem("home_id")
+        );
+        if (response) {
+          const currentUserIndex = response.findIndex(
+            (roomie) =>
+              roomie.id === parseInt(localStorage.getItem("roomie_id"))
+          );
+          if (currentUserIndex !== -1) {
+            response.splice(currentUserIndex, 1);
+          }
+          setRoomies(response);
+        }
+      } catch (error) {
+        console.error("Error al obtener los roomies:", error);
+      }
+    };
+    fetchRoomies();
+  }, [actions]);
 
   const handleCancel = () => {
     onClose();
   };
 
-  const handleCreateDebt = () => {
-    // Lógica para crear la deuda
+  const handleCreateDebt = async () => {
+    try {
+      const expense_id = selectedExpenseId;
+      const debtor_ids = selectedRoomies;
+      const total_amount = parseFloat(amount);
+      console.log(expense_id);
+      console.log(debtor_ids);
+      console.log(total_amount);
+      const responseData = await actions.createDebt(
+        expense_id,
+        debtor_ids,
+        total_amount
+      );
+      console.log(responseData);
+      onClose();
+    } catch (error) {
+      console.error("Error al crear la deuda:", error);
+    }
   };
 
   const formatDate = (date) => {
@@ -26,13 +60,15 @@ const CreateDebtModal = ({ isOpen, onClose }) => {
     return new Date(date).toLocaleDateString(undefined, options);
   };
 
-  return isOpen ? (
+  if (!isOpen) return null;
+
+  return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white rounded-3xl p-8 m-2 max-w-md w-full">
         <h2 className="text-2xl font-bold text-center mb-4">Crear Deuda</h2>
-        <div className="mb-4">
+        <div className="mb-4" style={{ maxHeight: "200px", overflowY: "auto" }}>
           <label className="block text-gray-700 text-base md:text-lg lg:text-base mb-2">
-            Compartido entre tú y:
+            Compartido entre <strong>tú</strong> y:
           </label>
           <select
             multiple
@@ -43,24 +79,14 @@ const CreateDebtModal = ({ isOpen, onClose }) => {
               )
             }
             className="border border-gray-300 focus:border-gray-300 rounded-lg p-3 w-full"
+            style={{ height: "50px" }}
           >
             {roomies.map((roomie) => (
               <option key={roomie.id} value={roomie.id}>
-                {roomie.name}
+                {roomie.first_name} {roomie.last_name ? roomie.last_name : ""}
               </option>
             ))}
           </select>
-        </div>
-        <div className="mb-4">
-          <label className="block text-gray-700 text-base md:text-lg lg:text-base mb-2">
-            Nombre del gasto
-          </label>
-          <input
-            type="text"
-            value={expenseName}
-            onChange={(e) => setExpenseName(e.target.value)}
-            className="border border-gray-300 focus:border-gray-300 rounded-lg p-3 w-full"
-          />
         </div>
         <div className="mb-4">
           <label className="block text-gray-700 text-base md:text-lg lg:text-base mb-2">
@@ -105,7 +131,7 @@ const CreateDebtModal = ({ isOpen, onClose }) => {
         </div>
       </div>
     </div>
-  ) : null;
+  );
 };
 
 export default CreateDebtModal;
