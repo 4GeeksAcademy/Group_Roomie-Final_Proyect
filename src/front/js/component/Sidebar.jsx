@@ -3,7 +3,6 @@ import { Link } from "react-router-dom";
 import { useMediaQuery } from "react-responsive";
 
 import LogoutButton from "./LogoutButton.jsx";
-import Profile from "../pages/Profile.jsx";
 
 import logo from "../../img/logo.png";
 
@@ -13,7 +12,6 @@ const Sidebar = () => {
   const isSmallScreen = useMediaQuery({ query: "(max-width: 639px)" });
 
   const [isMenuVisible, setIsMenuVisible] = useState(false);
-  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const toggleMenu = () => {
     setIsMenuVisible(!isMenuVisible);

@@ -28,7 +28,6 @@ const ShopList = () => {
               shopListResponse.id
             );
             setItems(itemsResponse);
-            console.log(itemsResponse);
           }
         } catch (error) {
           console.error("Error al obtener los datos", error);

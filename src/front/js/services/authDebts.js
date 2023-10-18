@@ -1,7 +1,9 @@
+
+
 const getRoomiesByHomeId = async (home_id) => {
   try {
     const response = await fetch(
-      `https://laughing-space-goldfish-jxgw66jr5ppc57qx-3001.app.github.dev/api/roomie/home/${home_id}`,
+      `${process.env.REACT_APP_URL}/api/roomie/home/${home_id}`,
       {
         method: "GET",
         headers: {
@@ -23,7 +25,7 @@ const getRoomiesByHomeId = async (home_id) => {
 const getDebtsByRoomieId = async (roomie_id) => {
   try {
     const response = await fetch(
-      `https://laughing-space-goldfish-jxgw66jr5ppc57qx-3001.app.github.dev/api/debts/roomie/${roomie_id}`,
+      `${process.env.REACT_APP_URL}/api/debts/roomie/${roomie_id}`,
       {
         method: "GET",
         headers: {
@@ -43,7 +45,7 @@ const createDebt = async (expense_id, debtor_ids, total_amount) => {
   const token = localStorage.getItem("token");
   try {
     const response = await fetch(
-      "https://laughing-space-goldfish-jxgw66jr5ppc57qx-3001.app.github.dev/api/debts",
+      `${process.env.REACT_APP_URL}/api/debts`,
       {
         method: "POST",
         headers: {
@@ -74,7 +76,7 @@ const payDebt = async (debt_id) => {
   const token = localStorage.getItem("token");
   try {
     const response = await fetch(
-      `https://laughing-space-goldfish-jxgw66jr5ppc57qx-3001.app.github.dev/api/debts/${debt_id}`,
+      `${process.env.REACT_APP_URL}/api/debts/${debt_id}`,
       {
         method: "POST",
         headers: {

@@ -1,7 +1,7 @@
 const getExpensesByRoomieId = async (roomie_id) => {
   try {
     const response = await fetch(
-      `https://laughing-space-goldfish-jxgw66jr5ppc57qx-3001.app.github.dev/api/expense/roomie/${roomie_id}`,
+      `${process.env.REACT_APP_URL}/api/expense/roomie/${roomie_id}`,
       {
         method: "GET",
         headers: {
@@ -10,7 +10,6 @@ const getExpensesByRoomieId = async (roomie_id) => {
       }
     );
     const data = await response.json();
-    console.log(data);
     return data;
   } catch (error) {
     console.error("Error al obtener los gastos por roomie_id:", error);
@@ -22,7 +21,7 @@ const createExpense = async (expense_name, item_ids) => {
   const token = localStorage.getItem("token");
   try {
     const response = await fetch(
-      "https://laughing-space-goldfish-jxgw66jr5ppc57qx-3001.app.github.dev/api/expense",
+      `${process.env.REACT_APP_URL}/api/expense`,
       {
         method: "POST",
         headers: {

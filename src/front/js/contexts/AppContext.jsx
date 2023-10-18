@@ -206,7 +206,6 @@ export const AppContextProvider = ({ children }) => {
   const getExpensesByRoomieId = async (roomie_id) => {
     try {
       const response = await authExpenses.getExpensesByRoomieId(roomie_id);
-      console.log(response);
       return response;
     } catch (error) {
       console.error("Error al obtener los gastos por roomie_id:", error);
