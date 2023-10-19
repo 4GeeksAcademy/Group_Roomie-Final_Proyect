@@ -41,12 +41,14 @@ const ShopList = () => {
     if (newItem.trim() !== "") {
       const isDuplicate = items.some((item) => item.name === newItem.trim());
       if (!isDuplicate) {
-        const newItemObject = { name: newItem.trim(), completed: false };
-        const updatedItems = [...items, newItemObject];
-        setItems(updatedItems);
-        setNewItem("");
         try {
-          await actions.createNewItem(newItem.trim(), shopList.id);
+          const newItemObject = await actions.createNewItem(
+            newItem.trim(),
+            shopList.id
+          );
+          const updatedItems = [...items, newItemObject];
+          setItems(updatedItems);
+          setNewItem("");
         } catch (error) {
           console.error("Error al añadir nuevo item:", error);
         }
@@ -177,7 +179,7 @@ const ShopList = () => {
         <h1 className="min-h-screen flex items-center justify-center text-center text-2xl font-bold tracking-tight text-gray-600 sm:text-4xl sm:p-4">
           No estás vinculado a ninguna vivienda.
           <br />
-          Crea una o pide a un administrador que te añada.
+          Crea una o pide a un administrador que te añada
         </h1>
       )}
     </>

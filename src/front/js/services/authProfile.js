@@ -104,6 +104,29 @@ const updateRoomie = (
   });
 };
 
+const getRoomieById = async (roomie_id) => {
+  try {
+    const response = await fetch(
+      `${process.env.REACT_APP_URL}/api/roomie/${roomie_id}`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    if (!response.ok) {
+      throw new Error("Error al obtener el roomie por ID");
+    }
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error al obtener el roomie por ID:", error);
+    return null;
+  }
+};
+
+
 const getCurrentRoomie = () => {
   return JSON.parse(localStorage.getItem("roomie"));
 };
@@ -114,6 +137,7 @@ const authProfile = {
   getCurrentRoomie,
   getRoomieData,
   updateRoomie,
+  getRoomieById,
 };
 
 export default authProfile;

@@ -1,5 +1,3 @@
-
-
 const getRoomiesByHomeId = async (home_id) => {
   try {
     const response = await fetch(

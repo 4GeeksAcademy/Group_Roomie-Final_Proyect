@@ -260,6 +260,16 @@ export const AppContextProvider = ({ children }) => {
     }
   };
 
+  const getRoomieById = async (roomie_id) => {
+    try {
+      const response = await authProfile.getRoomieById(roomie_id);
+      return response;
+    } catch (error) {
+      console.error("Error al obtener el roomie por ID:", error);
+      return null;
+    }
+  };
+
   const store = {
     token,
     roomie_id,
@@ -284,6 +294,7 @@ export const AppContextProvider = ({ children }) => {
     createDebt,
     getDebtsByRoomieId,
     payDebt,
+    getRoomieById,
   };
 
   return (

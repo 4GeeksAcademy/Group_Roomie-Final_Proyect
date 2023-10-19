@@ -51,9 +51,9 @@ const ProfileModal = ({ isOpen, onClose }) => {
     });
   };
 
+  if (!isOpen) return null;
+
   return (
-    <>
-      {isOpen ? (
         <div className="fixed z-10 inset-0 overflow-y-auto">
           <div className="flex items-center justify-center min-h-screen p-4 text-center">
             <div className="fixed inset-0 transition-opacity" onClick={onClose}>
@@ -190,8 +190,6 @@ const ProfileModal = ({ isOpen, onClose }) => {
             </span>
           </div>
         </div>
-      ) : null}
-    </>
   );
 };
 

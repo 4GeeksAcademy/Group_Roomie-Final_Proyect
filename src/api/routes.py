@@ -475,7 +475,7 @@ def create_item():
     )
     db.session.add(new_blog)
     db.session.commit()
-    return jsonify({'message': 'Nuevo elemento añadido correctamente'}), 200
+    return jsonify(new_item.serialize()), 200
 
 @api.route('/item/<int:item_id>', methods=['DELETE'])
 @jwt_required()
@@ -522,8 +522,9 @@ def get_one_expense(expense_id):
 
 @api.route('/expense/roomie/<int:roomie_id>', methods=['GET'])
 def get_expenses_by_roomie_id(roomie_id):
-    # expenses = Expenses.query.filter_by(roomie_id=roomie_id, debt_generated=False).all()
-    expenses = Expenses.query.filter_by(roomie_id=roomie_id).all()
+    expenses = Expenses.query.filter(
+        (Expenses.roomie_id == roomie_id) & (Expenses.debt_generated == False)
+    ).all()
     expenses_list = [item.serialize() for item in expenses]
     return jsonify(expenses_list), 200
 
@@ -597,10 +598,6 @@ def get_debts_by_roomie_id(roomie_id):
     ).all()
 
     debts = debts_debtor + debts_payer
-    # for debt in debts:
-    #     setattr(debt, name, debt.expense.name)
-
-
     debts_list = [item.serialize() for item in debts]
     return jsonify(debts_list), 200
 
@@ -630,6 +627,7 @@ def generate_debt():
         debt_text = f'{current_roomie.first_name} te debe {individual_debt_amount}€'
         debt = Debts(
             amount=individual_debt_amount,
+            name=expense.name,
             status='Pendiente',
             date=datetime.now().date(),
             roomie_debtor_id=debtor_id,

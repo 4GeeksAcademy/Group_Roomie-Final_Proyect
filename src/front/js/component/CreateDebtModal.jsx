@@ -1,7 +1,12 @@
 import React, { useState, useEffect } from "react";
 import useAppContext from "../contexts/AppContext.jsx";
 
-const CreateDebtModal = ({ isOpen, onClose, selectedExpenseId }) => {
+const CreateDebtModal = ({
+  isOpen,
+  onClose,
+  selectedExpenseId,
+  handleCreateDebtUpdate,
+}) => {
   const [roomies, setRoomies] = useState([]);
   const [selectedRoomies, setSelectedRoomies] = useState([]);
   const [amount, setAmount] = useState("");
@@ -40,16 +45,14 @@ const CreateDebtModal = ({ isOpen, onClose, selectedExpenseId }) => {
       const expense_id = selectedExpenseId;
       const debtor_ids = selectedRoomies;
       const total_amount = parseFloat(amount);
-      console.log(expense_id);
-      console.log(debtor_ids);
-      console.log(total_amount);
       const responseData = await actions.createDebt(
         expense_id,
         debtor_ids,
         total_amount
       );
-      console.log(responseData);
+      handleCreateDebtUpdate();
       onClose();
+      // window.location.reload();
     } catch (error) {
       console.error("Error al crear la deuda:", error);
     }
