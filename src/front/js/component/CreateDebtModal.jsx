@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
+
 import useAppContext from "../contexts/AppContext.jsx";
+import CloudinaryUpload from "./CloudinaryUpload.jsx";
 
 const CreateDebtModal = ({
   isOpen,
@@ -11,6 +13,7 @@ const CreateDebtModal = ({
   const [selectedRoomies, setSelectedRoomies] = useState([]);
   const [amount, setAmount] = useState("");
   const [selectedDate, setSelectedDate] = useState(new Date());
+  const [isCloudinaryOpen, setIsCloudinaryOpen] = useState(false);
   const { actions } = useAppContext();
 
   useEffect(() => {
@@ -115,9 +118,7 @@ const CreateDebtModal = ({
             {formatDate(selectedDate)}
           </p>
         </div>
-        <button className="bg-gray-200 hover:bg-gray-300 text-gray-600 font-bold py-2 px-4 rounded-xl mr-2">
-          Adjuntar imagen
-        </button>
+        <CloudinaryUpload />
         <div className="flex justify-end mt-5">
           <button
             className="bg-indigo-100 hover:bg-indigo-300 text-gray-600 font-bold py-2 px-4 rounded-xl mr-2"
@@ -133,6 +134,9 @@ const CreateDebtModal = ({
           </button>
         </div>
       </div>
+      {isCloudinaryOpen && (
+        <CloudinaryUpload onClose={() => setIsCloudinaryOpen(false)} />
+      )}
     </div>
   );
 };
