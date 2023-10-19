@@ -1,8 +1,9 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useState, useRef } from "react";
 
 const CloudinaryUpload = () => {
   const cloudinaryRef = useRef();
   const widgetRef = useRef();
+  const [filesInfo, setFilesInfo] = useState([]);
 
   useEffect(() => {
     cloudinaryRef.current = window.cloudinary;
@@ -12,7 +13,14 @@ const CloudinaryUpload = () => {
         uploadPreset: "roomie_connect",
       },
       function (error, result) {
-        console.log(result);
+        if (!error && result && result.event === "success") {
+          console.log("Listo! Estos son los datos del archivo: ", result.info);
+          const file = {
+            name: result.info.public_id,
+            url: result.info.url,
+          };
+          setFilesInfo(...filesInfo, file);
+        }
       }
     );
   }, []);

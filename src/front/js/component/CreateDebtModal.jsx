@@ -13,7 +13,7 @@ const CreateDebtModal = ({
   const [selectedRoomies, setSelectedRoomies] = useState([]);
   const [amount, setAmount] = useState("");
   const [selectedDate, setSelectedDate] = useState(new Date());
-  const [isCloudinaryOpen, setIsCloudinaryOpen] = useState(false);
+  const [selectedFile, setSelectedFile] = useState(null);
   const { actions } = useAppContext();
 
   useEffect(() => {
@@ -54,8 +54,15 @@ const CreateDebtModal = ({
         total_amount
       );
       handleCreateDebtUpdate();
+      if (selectedFile) {
+        await actions.uploadFile(
+          selectedFile.name,
+          selectedFile.url,
+          localStorage.getItem("home_id"),
+          selectedExpenseId
+        );
+      }
       onClose();
-      // window.location.reload();
     } catch (error) {
       console.error("Error al crear la deuda:", error);
     }
@@ -134,9 +141,6 @@ const CreateDebtModal = ({
           </button>
         </div>
       </div>
-      {isCloudinaryOpen && (
-        <CloudinaryUpload onClose={() => setIsCloudinaryOpen(false)} />
-      )}
     </div>
   );
 };

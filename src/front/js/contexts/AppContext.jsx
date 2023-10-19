@@ -6,6 +6,7 @@ import authExpenses from "../services/authExpenses";
 import authDebts from "../services/authDebts";
 
 import toast from "react-hot-toast";
+import authFiles from "../services/authFiles";
 
 const AppContext = createContext();
 
@@ -270,6 +271,37 @@ export const AppContextProvider = ({ children }) => {
     }
   };
 
+  const getFiles = async (home_id) => {
+    try {
+      const response = await authFiles.getFiles(home_id);
+      if (!response.ok) {
+        throw new Error("No se pudo obtener la lista de archivos");
+      }
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error("Error al obtener los archivos:", error);
+    }
+  };
+
+  const uploadFile = async (name, url, home_id, expense_id) => {
+    try {
+      const response = await authFiles.uploadFile(
+        name,
+        url,
+        home_id,
+        expense_id
+      );
+      if (!response.ok) {
+        throw new Error("No se pudo subir el archivo");
+      }
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error("Error al subir el archivo:", error);
+    }
+  };
+
   const store = {
     token,
     roomie_id,
@@ -295,6 +327,8 @@ export const AppContextProvider = ({ children }) => {
     getDebtsByRoomieId,
     payDebt,
     getRoomieById,
+    getFiles,
+    uploadFile,
   };
 
   return (
