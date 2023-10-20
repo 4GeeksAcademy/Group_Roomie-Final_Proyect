@@ -1,5 +1,6 @@
 import React from "react";
 import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom";
+
 import useAppContext from "../contexts/AppContext.jsx";
 
 import Home from "../pages/Home.jsx";
@@ -12,7 +13,6 @@ import Expenses from "../pages/Expenses.jsx";
 import Files from "../pages/Files.jsx";
 import ErrorPage from "../pages/Error.jsx";
 import Login from "../pages/Login.jsx";
-import Debts from "../pages/Debts.jsx";
 import Blog from "../pages/Blog.jsx";
 import ShopList from "../pages/ShopList.jsx";
 
@@ -41,7 +41,6 @@ const Router = () => {
                       <Route element={<Calendar />} path="/calendar" />
                       <Route element={<Tasks />} path="/tasks" />
                       <Route element={<ShopList />} path="/shoplist" />
-                      <Route element={<Debts />} path="/debts" />
                       <Route element={<Expenses />} path="/expenses" />
                       <Route element={<Blog />} path="/blog" />
                       <Route element={<Files />} path="/files" />

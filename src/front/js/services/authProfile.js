@@ -1,6 +1,6 @@
 const signup = (email, password, first_name) => {
   return fetch(
-    "https://laughing-space-goldfish-jxgw66jr5ppc57qx-3001.app.github.dev/api/signup",
+    `${process.env.REACT_APP_URL}/api/signup`,
     {
       method: "POST",
       headers: {
@@ -23,7 +23,7 @@ const signup = (email, password, first_name) => {
 
 const login = (email, password) => {
   return fetch(
-    "https://laughing-space-goldfish-jxgw66jr5ppc57qx-3001.app.github.dev/api/login",
+    `${process.env.REACT_APP_URL}/api/login`,
     {
       method: "POST",
       headers: {
@@ -51,7 +51,7 @@ const login = (email, password) => {
 const getRoomieData = async (roomie_id) => {
   try {
     const response = await fetch(
-      `https://laughing-space-goldfish-jxgw66jr5ppc57qx-3001.app.github.dev/api/roomie/${roomie_id}`,
+      `${process.env.REACT_APP_URL}/api/roomie/${roomie_id}`,
       {
         method: "GET",
         headers: {
@@ -87,7 +87,7 @@ const updateRoomie = (
   if (paypal_id) updateData.paypal_id = paypal_id;
   if (avatar) updateData.avatar = avatar;
   return fetch(
-    `https://laughing-space-goldfish-jxgw66jr5ppc57qx-3001.app.github.dev/api/roomie/${roomie_id}`,
+    `${process.env.REACT_APP_URL}/api/roomie/${roomie_id}`,
     {
       method: "PUT",
       headers: {
@@ -104,6 +104,29 @@ const updateRoomie = (
   });
 };
 
+const getRoomieById = async (roomie_id) => {
+  try {
+    const response = await fetch(
+      `${process.env.REACT_APP_URL}/api/roomie/${roomie_id}`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    if (!response.ok) {
+      throw new Error("Error al obtener el roomie por ID");
+    }
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error al obtener el roomie por ID:", error);
+    return null;
+  }
+};
+
+
 const getCurrentRoomie = () => {
   return JSON.parse(localStorage.getItem("roomie"));
 };
@@ -114,6 +137,7 @@ const authProfile = {
   getCurrentRoomie,
   getRoomieData,
   updateRoomie,
+  getRoomieById,
 };
 
 export default authProfile;

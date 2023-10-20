@@ -1,10 +1,18 @@
-import React, { createContext, useContext, useState, useEffect } from "react";
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  useRef,
+} from "react";
 
 import authProfile from "../services/authProfile";
 import authShop from "../services/authShop";
+import authExpenses from "../services/authExpenses";
+import authDebts from "../services/authDebts";
 
 import toast from "react-hot-toast";
-import authExpenses from "../services/authExpenses";
+import authFiles from "../services/authFiles";
 
 const AppContext = createContext();
 
@@ -15,6 +23,9 @@ export const AppContextProvider = ({ children }) => {
   const home_id = localStorage.getItem("home_id");
   const [authenticated, setAuthenticated] = useState(false);
   const [roomieData, setRoomieData] = useState({});
+  const cloudinaryRef = useRef();
+  const widgetRef = useRef();
+  const [filesInfo, setFilesInfo] = useState([]);
 
   useEffect(() => {
     if (token && token !== "" && token !== undefined) {
@@ -22,6 +33,26 @@ export const AppContextProvider = ({ children }) => {
       getRoomieData();
     }
   }, [token]);
+
+  useEffect(() => {
+    cloudinaryRef.current = window.cloudinary;
+    widgetRef.current = cloudinaryRef.current.createUploadWidget(
+      {
+        cloudName: "dewjikwun",
+        uploadPreset: "roomie_connect",
+      },
+      function (error, result) {
+        if (!error && result && result.event === "success") {
+          console.log("Listo! Estos son los datos del archivo: ", result.info);
+          const file = {
+            name: result.info.original_filename,
+            url: result.info.url,
+          };
+          setFilesInfo([...filesInfo, file]);
+        }
+      }
+    );
+  }, [filesInfo]);
 
   const login = async (email, password, navigate) => {
     try {
@@ -105,6 +136,7 @@ export const AppContextProvider = ({ children }) => {
     try {
       const profile_data = await authProfile.getRoomieData(roomie_id);
       setRoomieData(profile_data);
+      return profile_data;
     } catch (error) {
       console.error("Error al obtener los datos del Roomie:", error);
     }
@@ -187,7 +219,7 @@ export const AppContextProvider = ({ children }) => {
         throw new Error(response.error || "Error al eliminar el item");
       }
     } catch (error) {
-      console.error("Error al eliminar el item:", error.message);
+      console.error("Error al eliminar el item:", error);
       throw error;
     }
   };
@@ -197,7 +229,100 @@ export const AppContextProvider = ({ children }) => {
       const response = await authExpenses.createExpense(expense_name, item_ids);
       return response;
     } catch (error) {
-      console.error("Ha habido un error al crear el gasto:", error.message);
+      console.error("Ha habido un error al crear el gasto:", error);
+      throw error;
+    }
+  };
+
+  const getExpensesByRoomieId = async (roomie_id) => {
+    try {
+      const response = await authExpenses.getExpensesByRoomieId(roomie_id);
+      return response;
+    } catch (error) {
+      console.error("Error al obtener los gastos por roomie_id:", error);
+      return null;
+    }
+  };
+
+  const getRoomiesByHomeId = async (home_id) => {
+    try {
+      const response = await authDebts.getRoomiesByHomeId(home_id);
+      if (!response) {
+        throw new Error("Error al obtener los roomies. Respuesta vacía.");
+      }
+      return response;
+    } catch (error) {
+      console.error("Error al obtener los roomies:", error);
+      throw error;
+    }
+  };
+
+  const createDebt = async (expense_id, debtor_ids, total_amount) => {
+    try {
+      const response = await authDebts.createDebt(
+        expense_id,
+        debtor_ids,
+        total_amount
+      );
+      return response;
+    } catch (error) {
+      console.error("Error al crear la deuda:", error);
+      throw error;
+    }
+  };
+
+  const getDebtsByRoomieId = async (roomie_id) => {
+    try {
+      const response = await authDebts.getDebtsByRoomieId(roomie_id);
+      return response;
+    } catch (error) {
+      console.error("Error al obtener las deudas del roomie", error);
+      return null;
+    }
+  };
+
+  const payDebt = async (debt_id) => {
+    try {
+      const response = await authDebts.payDebt(debt_id);
+      return response;
+    } catch (error) {
+      console.error("Error al realizar el pago de la deuda:", error);
+      return null;
+    }
+  };
+
+  const getRoomieById = async (roomie_id) => {
+    try {
+      const response = await authProfile.getRoomieById(roomie_id);
+      return response;
+    } catch (error) {
+      console.error("Error al obtener el roomie por ID:", error);
+      return null;
+    }
+  };
+
+  const getFiles = async (home_id) => {
+    try {
+      const response = await authFiles.getFiles(home_id);
+      const data = await response;
+      return data;
+    } catch (error) {
+      console.error("Error al obtener los archivos:", error);
+    }
+  };
+
+  const uploadFile = async (name, url, home_id, expense_id) => {
+    try {
+      const response = await authFiles.uploadFile(
+        name,
+        url,
+        home_id,
+        expense_id
+      );
+      const data = await response;
+      return data;
+    } catch (error) {
+      console.error("Error al subir el archivo:", error);
       throw error;
     }
   };
@@ -209,6 +334,10 @@ export const AppContextProvider = ({ children }) => {
     home_id,
     roomieData,
     authenticated,
+    filesInfo,
+    setFilesInfo,
+    cloudinaryRef,
+    widgetRef,
   };
   const actions = {
     login,
@@ -221,6 +350,14 @@ export const AppContextProvider = ({ children }) => {
     createNewItem,
     deleteItem,
     createExpense,
+    getExpensesByRoomieId,
+    getRoomiesByHomeId,
+    createDebt,
+    getDebtsByRoomieId,
+    payDebt,
+    getRoomieById,
+    getFiles,
+    uploadFile,
   };
 
   return (

@@ -56,6 +56,7 @@ class Home(db.Model):
 class Expenses(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(50), nullable=False)
+    debt_generated = db.Column(db.Boolean, nullable=False, default=False)
     home_id = db.Column(db.Integer, db.ForeignKey('home.id'), nullable=False)
     roomie_id = db.Column(db.Integer, db.ForeignKey('roomie.id'), nullable=False)
 
@@ -70,11 +71,13 @@ class Expenses(db.Model):
         return {
             "id": self.id,
             "name": self.name,
+            "debt_generated": self.debt_generated,
             "home_id": self.home_id
         }
 
 class Debts(db.Model):
     id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(50), nullable=False)
     amount = db.Column(db.Float, nullable=False)
     status = db.Column(db.String(20), nullable=False)
     date = db.Column(db.Date, nullable=False)
@@ -91,6 +94,7 @@ class Debts(db.Model):
     def serialize(self):
         return {
             "id": self.id,
+            "name": self.name,
             "amount": self.amount,
             "roomie_debtor_id": self.roomie_debtor_id,
             "roomie_paying_id": self.roomie_paying_id,
