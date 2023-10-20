@@ -101,6 +101,7 @@ const Signup = () => {
                   onChange={handleChangePassword}
                 />
                 <button
+                  type="button"
                   className="absolute top-1/2 right-3 -translate-y-1/2 focus:outline-none"
                   onClick={() => setShowPassword(!showPassword)}
                 >
@@ -113,7 +114,7 @@ const Signup = () => {
               </div>
             </div>
             <button
-              type="button"
+              type="submit"
               value="signup"
               className="bg-indigo-900 text-white font-bold text-lg hover:bg-indigo-500 p-2 mt-8 rounded-lg"
               onClick={handleSubmit}

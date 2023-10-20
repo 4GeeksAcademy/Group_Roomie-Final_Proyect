@@ -1,6 +1,6 @@
 const signup = (email, password, first_name) => {
   return fetch(
-    "https://laughing-space-goldfish-jxgw66jr5ppc57qx-3001.app.github.dev/api/signup",
+    `${process.env.REACT_APP_URL}/api/signup`,
     {
       method: "POST",
       headers: {
@@ -23,7 +23,7 @@ const signup = (email, password, first_name) => {
 
 const login = (email, password) => {
   return fetch(
-    "https://laughing-space-goldfish-jxgw66jr5ppc57qx-3001.app.github.dev/api/login",
+    `${process.env.REACT_APP_URL}/api/login`,
     {
       method: "POST",
       headers: {
@@ -48,32 +48,84 @@ const login = (email, password) => {
   });
 };
 
-const updateRoomie = (roomieId, password, first_name, last_name) => {
+const getRoomieData = async (roomie_id) => {
+  try {
+    const response = await fetch(
+      `${process.env.REACT_APP_URL}/api/roomie/${roomie_id}`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    if (!response.ok) {
+      throw new Error(
+        `Error al obtener los datos del roomie: ${response.statusText}`
+      );
+    }
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error al obtener los datos del Roomie:", error);
+    throw error;
+  }
+};
+
+const updateRoomie = (
+  roomie_id,
+  first_name,
+  last_name,
+  password,
+  paypal_id,
+  avatar
+) => {
+  const updateData = {};
+  if (first_name) updateData.first_name = first_name;
+  if (last_name) updateData.last_name = last_name;
+  if (password) updateData.password = password;
+  if (paypal_id) updateData.paypal_id = paypal_id;
+  if (avatar) updateData.avatar = avatar;
   return fetch(
-    `https://laughing-space-goldfish-jxgw66jr5ppc57qx-3001.app.github.dev/api/roomie/${roomieId}`,
+    `${process.env.REACT_APP_URL}/api/roomie/${roomie_id}`,
     {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({
-        password: password,
-        nombre: first_name,
-        apellido: last_name,
-      }),
+      body: JSON.stringify(updateData),
     }
-  )
-    .then((response) => {
-      if (response.ok) {
-        return response.json();
-      } else {
-        throw new Error("La actualización del Roomie falló");
-      }
-    })
-    .catch((error) => {
-      console.error("Error en la actualización del Roomie:", error);
-    });
+  ).then((response) => {
+    if (response.ok) {
+      return response.json();
+    } else {
+      throw new Error("Error al actualizar el roomie:", response.status);
+    }
+  });
 };
+
+const getRoomieById = async (roomie_id) => {
+  try {
+    const response = await fetch(
+      `${process.env.REACT_APP_URL}/api/roomie/${roomie_id}`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    if (!response.ok) {
+      throw new Error("Error al obtener el roomie por ID");
+    }
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error al obtener el roomie por ID:", error);
+    return null;
+  }
+};
+
 
 const getCurrentRoomie = () => {
   return JSON.parse(localStorage.getItem("roomie"));
@@ -83,7 +135,9 @@ const authProfile = {
   signup,
   login,
   getCurrentRoomie,
+  getRoomieData,
   updateRoomie,
+  getRoomieById,
 };
 
 export default authProfile;

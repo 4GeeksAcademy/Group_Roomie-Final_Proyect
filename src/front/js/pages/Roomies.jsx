@@ -75,7 +75,7 @@ function Roomies() {
           {showModal && (
           <div className="fixed z-50 inset-0 overflow-y-auto">
             <div className="flex items-center justify-center min-h-screen">
-              <ModalBuscar onClose={handleCloseModal} /> {/* Pasa la función de cierre */}
+              <ModalBuscar onClose={handleCloseModal} /> 
             </div>
           </div>
         )}
