@@ -61,24 +61,21 @@ const Login = () => {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                 />
-              </div>
-            </div>
-            <div className="mb-5 text-sm">
-              <div className="form-check">
-                <input
-                  className="form-check-input"
-                  type="checkbox"
-                  value="check-password"
-                  id="flexCheckDefault"
-                  onChange={() => setShowPassword(!showPassword)}
-                />
-                <label className="ml-2" htmlFor="flexCheckDefault">
-                  Mostrar contraseña
-                </label>
+                <button
+                  type="button"
+                  className="absolute top-1/2 right-3 -translate-y-1/2 focus:outline-none"
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  <i
+                    className={`fa-solid text-indigo-900 ${
+                      showPassword ? "fa-eye" : "fa-eye-slash"
+                    }`}
+                  />
+                </button>
               </div>
             </div>
             <button
-              type="button"
+              type="submit"
               value="login"
               className="bg-indigo-900 text-white font-bold text-lg hover:bg-indigo-500 p-2 mt-8 rounded-lg"
               onClick={handleSubmit}

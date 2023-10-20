@@ -702,6 +702,8 @@ def get_files_by_home_id(home_id):
 @jwt_required()
 def upload_file():
     request_data = request.get_json()
+    if request_data is None:
+        return jsonify({'error': 'Faltan campos por completar'}), 400
     file_name = request_data.get('name')
     file_url = request_data.get('url')
     home_id = request_data.get('home_id')
@@ -731,7 +733,7 @@ def upload_file():
     )
     db.session.add(new_blog)
     db.session.commit()
-    return jsonify({'message': 'Archivo subido correctamente'}), 200
+    return jsonify(new_file.serialize()), 200
 
 @api.route('/file/<int:file_id>', methods=['DELETE'])
 def delete_file(file_id):

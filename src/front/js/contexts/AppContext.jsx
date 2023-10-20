@@ -1,4 +1,10 @@
-import React, { createContext, useContext, useState, useEffect } from "react";
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  useRef,
+} from "react";
 
 import authProfile from "../services/authProfile";
 import authShop from "../services/authShop";
@@ -17,6 +23,9 @@ export const AppContextProvider = ({ children }) => {
   const home_id = localStorage.getItem("home_id");
   const [authenticated, setAuthenticated] = useState(false);
   const [roomieData, setRoomieData] = useState({});
+  const cloudinaryRef = useRef();
+  const widgetRef = useRef();
+  const [filesInfo, setFilesInfo] = useState([]);
 
   useEffect(() => {
     if (token && token !== "" && token !== undefined) {
@@ -24,6 +33,26 @@ export const AppContextProvider = ({ children }) => {
       getRoomieData();
     }
   }, [token]);
+
+  useEffect(() => {
+    cloudinaryRef.current = window.cloudinary;
+    widgetRef.current = cloudinaryRef.current.createUploadWidget(
+      {
+        cloudName: "dewjikwun",
+        uploadPreset: "roomie_connect",
+      },
+      function (error, result) {
+        if (!error && result && result.event === "success") {
+          console.log("Listo! Estos son los datos del archivo: ", result.info);
+          const file = {
+            name: result.info.original_filename,
+            url: result.info.url,
+          };
+          setFilesInfo([...filesInfo, file]);
+        }
+      }
+    );
+  }, [filesInfo]);
 
   const login = async (email, password, navigate) => {
     try {
@@ -274,10 +303,7 @@ export const AppContextProvider = ({ children }) => {
   const getFiles = async (home_id) => {
     try {
       const response = await authFiles.getFiles(home_id);
-      if (!response.ok) {
-        throw new Error("No se pudo obtener la lista de archivos");
-      }
-      const data = await response.json();
+      const data = await response;
       return data;
     } catch (error) {
       console.error("Error al obtener los archivos:", error);
@@ -292,13 +318,11 @@ export const AppContextProvider = ({ children }) => {
         home_id,
         expense_id
       );
-      if (!response.ok) {
-        throw new Error("No se pudo subir el archivo");
-      }
-      const data = await response.json();
+      const data = await response;
       return data;
     } catch (error) {
       console.error("Error al subir el archivo:", error);
+      throw error;
     }
   };
 
@@ -309,6 +333,10 @@ export const AppContextProvider = ({ children }) => {
     home_id,
     roomieData,
     authenticated,
+    filesInfo,
+    setFilesInfo,
+    cloudinaryRef,
+    widgetRef,
   };
   const actions = {
     login,

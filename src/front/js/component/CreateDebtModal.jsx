@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 
 import useAppContext from "../contexts/AppContext.jsx";
-import CloudinaryUpload from "./CloudinaryUpload.jsx";
 
 const CreateDebtModal = ({
   isOpen,
@@ -13,8 +12,8 @@ const CreateDebtModal = ({
   const [selectedRoomies, setSelectedRoomies] = useState([]);
   const [amount, setAmount] = useState("");
   const [selectedDate, setSelectedDate] = useState(new Date());
-  const [selectedFile, setSelectedFile] = useState(null);
-  const { actions } = useAppContext();
+  const { actions, store } = useAppContext();
+  const { widgetRef } = store;
 
   useEffect(() => {
     const fetchRoomies = async () => {
@@ -45,23 +44,19 @@ const CreateDebtModal = ({
 
   const handleCreateDebt = async () => {
     try {
+      const home_id = localStorage.getItem("home_id");
       const expense_id = selectedExpenseId;
       const debtor_ids = selectedRoomies;
       const total_amount = parseFloat(amount);
+      store.filesInfo.forEach(async (file) => {
+        await actions.uploadFile(file.name, file.url, home_id, expense_id);
+      });
       const responseData = await actions.createDebt(
         expense_id,
         debtor_ids,
         total_amount
       );
       handleCreateDebtUpdate();
-      if (selectedFile) {
-        await actions.uploadFile(
-          selectedFile.name,
-          selectedFile.url,
-          localStorage.getItem("home_id"),
-          selectedExpenseId
-        );
-      }
       onClose();
     } catch (error) {
       console.error("Error al crear la deuda:", error);
@@ -71,6 +66,10 @@ const CreateDebtModal = ({
   const formatDate = (date) => {
     const options = { year: "numeric", month: "long", day: "numeric" };
     return new Date(date).toLocaleDateString(undefined, options);
+  };
+
+  const handleUpload = () => {
+    widgetRef.current.open();
   };
 
   if (!isOpen) return null;
@@ -125,7 +124,12 @@ const CreateDebtModal = ({
             {formatDate(selectedDate)}
           </p>
         </div>
-        <CloudinaryUpload />
+        <button
+          className="bg-gray-200 hover:bg-gray-300 text-gray-600 font-bold py-2 px-4 rounded-xl mr-2"
+          onClick={handleUpload}
+        >
+          Adjuntar imagen
+        </button>
         <div className="flex justify-end mt-5">
           <button
             className="bg-indigo-100 hover:bg-indigo-300 text-gray-600 font-bold py-2 px-4 rounded-xl mr-2"

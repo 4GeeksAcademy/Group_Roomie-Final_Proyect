@@ -35,9 +35,6 @@ const uploadFile = async (name, url, home_id, expense_id) => {
         expense_id: expense_id,
       }),
     });
-    if (!response.ok) {
-      throw new Error("No se pudo subir el archivo");
-    }
     const data = await response.json();
     return data;
   } catch (error) {
