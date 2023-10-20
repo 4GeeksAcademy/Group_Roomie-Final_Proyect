@@ -2,6 +2,8 @@ import React, { createContext, useContext, useState, useEffect } from "react";
 
 import authProfile from "../services/authProfile";
 
+import getRoomies from '../services/getRoomies';
+
 import toast from "react-hot-toast";
 import authShop from "../services/authShop";
 
@@ -12,12 +14,46 @@ export const AppContextProvider = ({ children }) => {
   const roomieId = localStorage.getItem("roomie_id");
   const [authenticated, setAuthenticated] = useState(false);
   const [roomieData, setRoomieData] = useState(null);
+  const [roomies, setRoomies] = useState([]);
 
   useEffect(() => {
     if (token && token !== "" && token !== undefined) {
       setAuthenticated(true);
     }
   }, [token]);
+
+  useEffect(() => {
+    if (authenticated) {
+      getRoomies() 
+        .then((data) => {
+          setRoomies(data);
+        })
+        .catch((error) => {
+          console.error("Error al cargar la lista de roomies: ", error);
+        });
+    }
+  }, [authenticated]);
+
+  const deleteRoomie = async (roomieIdToDelete) => {
+    try {
+      const response = await fetch(`/api/delete-roomie/${roomieIdToDelete}`, {
+        method: "DELETE",
+        headers: {
+          "Authorization": `Bearer ${token}`, 
+        },
+      });
+
+      if (response.status === 204) {
+        setRoomies((prevRoomies) =>
+          prevRoomies.filter((roomie) => roomie.id !== roomieIdToDelete)
+        );
+      } else {
+        console.error("Error al eliminar el roomie");
+      }
+    } catch (error) {
+      console.error("Error al eliminar el roomie: ", error);
+    }
+  };
 
   const login = async (email, password, navigate) => {
     try {
@@ -144,6 +180,7 @@ export const AppContextProvider = ({ children }) => {
     logout,
     getNameShopList,
     updateRoomieData,
+    deleteRoomie,
   };
 
   return (

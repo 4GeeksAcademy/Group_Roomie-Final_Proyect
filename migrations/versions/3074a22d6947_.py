@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: 4ec8151f9f5e
+Revision ID: 3074a22d6947
 Revises: 
-Create Date: 2023-10-08 11:30:19.264741
+Create Date: 2023-10-20 16:50:47.058097
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '4ec8151f9f5e'
+revision = '3074a22d6947'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -49,15 +49,13 @@ def upgrade():
     sa.Column('password', sa.String(length=64), nullable=False),
     sa.Column('first_name', sa.String(length=20), nullable=True),
     sa.Column('last_name', sa.String(length=20), nullable=True),
-    sa.Column('phone_number', sa.String(length=20), nullable=False),
     sa.Column('avatar', sa.String(length=200), nullable=True),
     sa.Column('paypal_id', sa.String(length=12), nullable=True),
     sa.Column('is_active', sa.Boolean(), nullable=True),
     sa.Column('home_id', sa.Integer(), nullable=True),
     sa.ForeignKeyConstraint(['home_id'], ['home.id'], ),
     sa.PrimaryKeyConstraint('id'),
-    sa.UniqueConstraint('email'),
-    sa.UniqueConstraint('phone_number')
+    sa.UniqueConstraint('email')
     )
     op.create_table('expenses',
     sa.Column('id', sa.Integer(), nullable=False),
@@ -66,13 +64,6 @@ def upgrade():
     sa.Column('roomie_id', sa.Integer(), nullable=False),
     sa.ForeignKeyConstraint(['home_id'], ['home.id'], ),
     sa.ForeignKeyConstraint(['roomie_id'], ['roomie.id'], ),
-    sa.PrimaryKeyConstraint('id')
-    )
-    op.create_table('notifications',
-    sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('name', sa.String(length=100), nullable=False),
-    sa.Column('phone_number', sa.String(length=20), nullable=False),
-    sa.ForeignKeyConstraint(['phone_number'], ['roomie.phone_number'], ),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_table('task',
@@ -126,7 +117,6 @@ def downgrade():
     op.drop_table('file')
     op.drop_table('debts')
     op.drop_table('task')
-    op.drop_table('notifications')
     op.drop_table('expenses')
     op.drop_table('roomie')
     op.drop_table('list')
