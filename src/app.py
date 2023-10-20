@@ -109,7 +109,7 @@ def send_daily_emails():
             print("No se encontraron nuevas entradas de blog hoy.")
 
 scheduler = BackgroundScheduler()
-scheduler.add_job(send_daily_emails, 'cron', hour=20, minute=30)
+scheduler.add_job(send_daily_emails, 'cron', hour=16, minute=30)
 scheduler.start()
 
 

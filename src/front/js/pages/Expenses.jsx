@@ -15,7 +15,7 @@ const Expenses = () => {
   const [selectedExpenseId, setSelectedExpenseId] = useState("");
   const [selectedDebtId, setSelectedDebtId] = useState("");
   const [selectedDebtAmount, setSelectedDebtAmount] = useState(0);
-  const { actions } = useAppContext();
+  const { actions, store } = useAppContext();
 
   useEffect(() => {
     const roomie_id = localStorage.getItem("roomie_id");
@@ -53,6 +53,7 @@ const Expenses = () => {
 
   const handleOpenModalCreateDebt = (expenseId) => {
     setSelectedExpenseId(expenseId);
+    store.setFilesInfo([]);
     setIsCreateModalOpen(true);
   };
 

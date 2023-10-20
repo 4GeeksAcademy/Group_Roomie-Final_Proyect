@@ -2,15 +2,16 @@ import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { useMediaQuery } from "react-responsive";
 
+import useAppContext from "../contexts/AppContext.jsx";
 import LogoutButton from "./LogoutButton.jsx";
 
 import logo from "../../img/logo.png";
 
 const Sidebar = () => {
+  const { store } = useAppContext();
   const isLargeScreen = useMediaQuery({ query: "(min-width: 1024px)" });
   const isMediumScreen = useMediaQuery({ query: "(max-width: 1023px)" });
   const isSmallScreen = useMediaQuery({ query: "(max-width: 639px)" });
-
   const [isMenuVisible, setIsMenuVisible] = useState(false);
 
   const toggleMenu = () => {
@@ -95,12 +96,23 @@ const Sidebar = () => {
               <hr className="border-t border-gray-300 my-4" />{" "}
               {/* Línea separadora */}
             </li>
-            <li>
+            <li className="flex items-center">
               <Link
                 to="/profile"
-                className="text-gray-600 hover:text-indigo-300 block"
+                className="text-gray-600 hover:text-indigo-300 flex items-center"
               >
-                <i className="fa-regular fa-circle-user pr-1"></i> Perfil
+                <div className="h-6 w-6 mr-1">
+                  {store.roomieData.avatar ? (
+                    <img
+                      src={store.roomieData.avatar}
+                      alt="Avatar"
+                      className="w-full h-full rounded-full"
+                    />
+                  ) : (
+                    <i className="fa-regular fa-circle-user pr-1"></i>
+                  )}
+                </div>
+                <span>Perfil</span>
               </Link>
             </li>
             <li>
@@ -113,8 +125,8 @@ const Sidebar = () => {
   }
   if (isSmallScreen) {
     return (
-      <nav className="bg-white rounded-b-xl">
-        <div className="container mx-auto flex items-center justify-between p-4">
+      <nav className="bg-white rounded-b-xl h-14">
+        <div className="container mx-auto flex items-center justify-between p-2">
           <button onClick={toggleMenu} className="p-2 text-gray-600 ml-2">
             {isMenuVisible ? (
               <i className="fa-solid fa-xmark" />
@@ -123,94 +135,107 @@ const Sidebar = () => {
             )}
           </button>
           <Link to="/home" className="logo">
-            <img src={logo} alt="Logo" className="w-30 h-10" />
+            <img src={logo} alt="Logo" className="w-20 h-10" />
           </Link>
         </div>
-        {isMenuVisible && (
-          <div className="sidebar-content">
-            <ul className="space-y-4 ps-6">
-              <li>
-                <Link
-                  to="/home"
-                  className="text-gray-600 hover:text-indigo-300 block"
-                >
-                  <i className="fa-solid fa-house"></i> Inicio
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/roomies"
-                  className="text-gray-600 hover:text-indigo-300 block"
-                >
-                  <i className="fa-solid fa-people-roof"></i> Roomies
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/tasks"
-                  className="text-gray-600 hover:text-indigo-300 block"
-                >
-                  <i className="fa-solid fa-list-check"></i> Tareas
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/shoplist"
-                  className="text-gray-600 hover:text-indigo-300 block"
-                >
-                  <i className="fa-solid fa-basket-shopping"></i> Compra
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/expenses"
-                  className="text-gray-600 hover:text-indigo-300 block"
-                >
-                  <i className="fa-solid fa-hand-holding-dollar"></i> Gastos
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/calendar"
-                  className="text-gray-600 hover:text-indigo-300 block"
-                >
-                  <i className="fa-solid fa-calendar-days"></i> Calendario
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/files"
-                  className="text-gray-600 hover:text-indigo-300 block"
-                >
-                  <i className="fa-regular fa-folder-open"></i> Archivos
-                </Link>
-              </li>
-              <li className="pb-4">
-                <Link
-                  to="/blog"
-                  className="text-gray-600 hover:text-indigo-300 block"
-                >
-                  <i className="fa-regular fa-newspaper"></i> Actualizaciones
-                </Link>
-              </li>
-              <li>
-                <hr className="border-t border-gray-300 my-4" />{" "}
-                {/* Línea separadora */}
-              </li>
-              <li>
-                <Link
-                  to="/profile"
-                  className="text-gray-600 hover:text-indigo-300 block"
-                >
-                  <i className="fa-regular fa-circle-user"></i> Perfil
-                </Link>
-              </li>
-              <li className="pb-4">
-                <LogoutButton />
-              </li>
-            </ul>
-          </div>
-        )}
+        <div
+          className={`sidebar-content transition-transform transform duration-300 ${
+            isMenuVisible ? "translate-x-0" : "-translate-x-full"
+          }`}
+        >
+          <ul className="space-y-4 ps-6 mt-2 bg-white w-1/2 rounded-xl">
+            <li>
+              <Link
+                to="/home"
+                className="text-gray-600 hover:text-indigo-300 block pt-3"
+              >
+                <i className="fa-solid fa-house"></i> Inicio
+              </Link>
+            </li>
+            <li>
+              <Link
+                to="/roomies"
+                className="text-gray-600 hover:text-indigo-300 block"
+              >
+                <i className="fa-solid fa-people-roof"></i> Roomies
+              </Link>
+            </li>
+            <li>
+              <Link
+                to="/tasks"
+                className="text-gray-600 hover:text-indigo-300 block"
+              >
+                <i className="fa-solid fa-list-check"></i> Tareas
+              </Link>
+            </li>
+            <li>
+              <Link
+                to="/shoplist"
+                className="text-gray-600 hover:text-indigo-300 block"
+              >
+                <i className="fa-solid fa-basket-shopping"></i> Compra
+              </Link>
+            </li>
+            <li>
+              <Link
+                to="/expenses"
+                className="text-gray-600 hover:text-indigo-300 block"
+              >
+                <i className="fa-solid fa-hand-holding-dollar"></i> Gastos
+              </Link>
+            </li>
+            <li>
+              <Link
+                to="/calendar"
+                className="text-gray-600 hover:text-indigo-300 block"
+              >
+                <i className="fa-solid fa-calendar-days"></i> Calendario
+              </Link>
+            </li>
+            <li>
+              <Link
+                to="/files"
+                className="text-gray-600 hover:text-indigo-300 block"
+              >
+                <i className="fa-regular fa-folder-open"></i> Archivos
+              </Link>
+            </li>
+            <li className="pb-4">
+              <Link
+                to="/blog"
+                className="text-gray-600 hover:text-indigo-300 block"
+              >
+                <i className="fa-regular fa-newspaper"></i> Actualizaciones
+              </Link>
+            </li>
+            <li>
+              <hr className="border-t border-gray-300 my-4 mr-4" />{" "}
+              {/* Línea separadora */}
+            </li>
+            <li className="flex items-center">
+              <Link
+                to="/profile"
+                className="text-gray-600 hover:text-indigo-300 flex items-center"
+              >
+                <div className="h-6 w-6 mr-1">
+                  {store.roomieData.avatar ? (
+                    <img
+                      src={store.roomieData.avatar}
+                      alt="Avatar"
+                      className="w-full h-full rounded-full"
+                    />
+                  ) : (
+                    <i className="fa-regular fa-circle-user pr-1"></i>
+                  )}
+                </div>
+                <span>Perfil</span>
+              </Link>
+            </li>
+            <li className="pb-4">
+              <LogoutButton />
+            </li>
+          </ul>
+        </div>
       </nav>
     );
   }
@@ -307,12 +332,23 @@ const Sidebar = () => {
                 <hr className="border-t border-gray-300 my-4" />{" "}
                 {/* Línea separadora */}
               </li>
-              <li>
+              <li className="flex items-center">
                 <Link
                   to="/profile"
-                  className="text-gray-600 hover:text-indigo-300 block"
+                  className="text-gray-600 hover:text-indigo-300 flex items-center"
                 >
-                  <i className="fa-regular fa-circle-user"></i> Perfil
+                  <div className="h-6 w-6 mr-1">
+                    {store.roomieData.avatar ? (
+                      <img
+                        src={store.roomieData.avatar}
+                        alt="Avatar"
+                        className="w-full h-full rounded-full"
+                      />
+                    ) : (
+                      <i className="fa-regular fa-circle-user pr-1"></i>
+                    )}
+                  </div>
+                  <span>Perfil</span>
                 </Link>
               </li>
               <li>

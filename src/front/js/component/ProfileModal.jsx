@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 import useAppContext from "../contexts/AppContext.jsx";
 
@@ -11,9 +11,29 @@ const ProfileModal = ({ isOpen, onClose }) => {
     paypal_id: "",
     avatar: "",
   });
-  const {
-    actions: { updateRoomieData },
-  } = useAppContext();
+  const { actions, store } = useAppContext();
+  const { widgetRef } = store;
+
+  useEffect(() => {
+    const roomie_id = localStorage.getItem("roomie_id");
+    const fetchAvatar = async () => {
+      try {
+        const roomieData = await actions.getRoomieData(roomie_id);
+        console.log(roomieData);
+        setFormData((prevData) => ({
+          ...prevData,
+          avatar: roomieData.avatar,
+        }));
+      } catch (error) {
+        console.error("Error al obtener el avatar", error);
+      }
+    };
+    fetchAvatar();
+  }, []);
+
+  const handleUpload = () => {
+    widgetRef.current.open();
+  };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -35,7 +55,7 @@ const ProfileModal = ({ isOpen, onClose }) => {
     onClose();
   };
 
-  const handleUpdate = () => {
+  const handleUpdate = async () => {
     if (formData.password.length > 0) {
       if (formData.password.length < 8) {
         console.error("La contraseña debe tener al menos 8 caracteres");
@@ -46,7 +66,10 @@ const ProfileModal = ({ isOpen, onClose }) => {
       }
     }
     const { repeat_password, ...updatedData } = formData;
-    updateRoomieData(updatedData, () => {
+    if (store.filesInfo.length > 0) {
+      updatedData.avatar == store.filesInfo[0].url;
+    }
+    await actions.updateRoomieData(updatedData, () => {
       onClose();
     });
   };
@@ -73,6 +96,24 @@ const ProfileModal = ({ isOpen, onClose }) => {
               Actualizar perfil
             </h2>
             <form className="mt-4">
+              <div className="mb-4 flex justify-center">
+                <div className="relative inline-block">
+                  <button
+                    type="button"
+                    onClick={handleUpload}
+                    className="bg-gray-300 hover:bg-gray-400 py-2 px-4 rounded-full mt-2 shadow h-20 w-20 flex items-center justify-center"
+                    style={{
+                      backgroundImage: formData.avatar ? (
+                        `url(${formData.avatar})`
+                      ) : (
+                        <i className="fa-regular fa-user fa-2xl"></i>
+                      ),
+                      backgroundSize: "cover",
+                    }}
+                  ></button>
+                </div>
+              </div>
+
               <div className="mb-4">
                 <label
                   className="block text-gray-700 text-base md:text-lg lg:text-base mb-2"
@@ -149,22 +190,6 @@ const ProfileModal = ({ isOpen, onClose }) => {
                   name="paypal_id"
                   placeholder="Nuevo PayPal ID"
                   value={formData.paypal_id}
-                  onChange={handleInputChange}
-                  className="border border-gray-300 focus:border-gray-300 rounded-lg p-3 w-full"
-                />
-              </div>
-              <div className="mb-4">
-                <label
-                  className="block text-gray-700 text-base md:text-lg lg:text-base mb-2"
-                  htmlFor="avatar"
-                >
-                  Avatar
-                </label>
-                <input
-                  type="text"
-                  name="avatar"
-                  placeholder="Nuevo Avatar"
-                  value={formData.avatar}
                   onChange={handleInputChange}
                   className="border border-gray-300 focus:border-gray-300 rounded-lg p-3 w-full"
                 />

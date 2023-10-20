@@ -136,6 +136,7 @@ export const AppContextProvider = ({ children }) => {
     try {
       const profile_data = await authProfile.getRoomieData(roomie_id);
       setRoomieData(profile_data);
+      return profile_data;
     } catch (error) {
       console.error("Error al obtener los datos del Roomie:", error);
     }

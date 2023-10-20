@@ -29,6 +29,20 @@ const Profile = () => {
           </h1>
           {roomieData && (
             <div className="flex flex-col space-y-4">
+              <div className="mb-4 flex justify-center">
+                <div
+                  className="bg-gray-300 hover:bg-gray-400 py-2 px-4 rounded-full mt-2 shadow h-20 w-20 flex items-center justify-center"
+                  style={{
+                    backgroundImage: roomieData.avatar ? (
+                      `url(${roomieData.avatar})`
+                    ) : (
+                      <i className="fa-regular fa-user fa-2xl"></i>
+                    ),
+                    backgroundSize: "cover",
+                  }}
+                ></div>
+              </div>
+
               <div className="flex flex-col items-start">
                 <span className="text-gray-700 text-base md:text-lg lg:text-base mb-1 w-11/12">
                   Nombre
@@ -71,14 +85,6 @@ const Profile = () => {
                 </span>
                 <p className="border border-gray-300 rounded-lg p-3 w-11/12">
                   {roomieData.paypal_id}
-                </p>
-              </div>
-              <div className="flex flex-col items-start">
-                <span className="text-gray-700 text-base md:text-lg lg:text-base mb-1 w-11/12">
-                  Avatar
-                </span>
-                <p className="border border-gray-300 rounded-lg p-3 w-11/12">
-                  {roomieData.avatar}
                 </p>
               </div>
             </div>
