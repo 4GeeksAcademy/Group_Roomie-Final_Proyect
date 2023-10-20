@@ -294,6 +294,12 @@ def get_tasks_by_roomie_id(roomie_id):
     task_list = [task.serialize() for task in tasks]
     return jsonify(task_list), 200
 
+@api.route('/task/home/<int:home_id>', methods=['GET'])
+def get_tasks_by_home_id(home_id):
+    tasks = Task.query.join(Roomie).filter(Roomie.home_id == home_id).all()
+    task_list = [task.serialize() for task in tasks]
+    return jsonify(task_list), 200
+
 @api.route('/task', methods=['POST'])
 def create_task():
     request_data = request.get_json()
@@ -377,7 +383,6 @@ def update_task_date(task_id):
         return jsonify({'message': 'Fecha de tarea actualizada correctamente'}), 200
     except ValueError:
         return jsonify({'error': 'Formato de fecha inválido. Utilice el formato DD-MM-YYYY'}), 400
-
 
 @api.route('/task/<int:task_id>', methods=['DELETE'])
 def delete_task(task_id):

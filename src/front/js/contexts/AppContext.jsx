@@ -13,6 +13,7 @@ import authDebts from "../services/authDebts";
 
 import toast from "react-hot-toast";
 import authFiles from "../services/authFiles";
+import authTasks from "../services/authTasks";
 
 const AppContext = createContext();
 
@@ -327,6 +328,88 @@ export const AppContextProvider = ({ children }) => {
     }
   };
 
+  const getTasksByHomeId = async (home_id) => {
+    try {
+      const response = await authTasks.getTasksByHomeId(home_id);
+      return response;
+    } catch (error) {
+      console.error("Error al obtener las tareas:", error);
+    }
+  };
+
+  const getTaskById = async (task_id) => {
+    try {
+      const response = await authTasks.getTaskById(task_id);
+      if (!response.ok) {
+        throw new Error("Error al obtener la tarea por ID");
+      }
+      return response;
+    } catch (error) {
+      console.error("Ocurrió un error al obtener la tarea por ID:", error);
+      return null;
+    }
+  };
+
+  const createNewTask = async (roomie_id, name, date_assigned, date_done) => {
+    try {
+      const response = await authTasks.createNewTask(
+        roomie_id,
+        name,
+        date_assigned,
+        date_done
+      );
+      if (!response.ok) {
+        throw new Error("Error al crear la nueva tarea");
+      }
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error("Error al crear la nueva tarea:", error);
+    }
+  };
+
+  const updateTaskDate = async (task_id, new_date_assigned) => {
+    try {
+      const response = await authTasks.updateTaskDate(
+        task_id,
+        new_date_assigned
+      );
+      if (!response.ok) {
+        throw new Error("Error al actualizar la fecha de la tarea");
+      }
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error("Error al actualizar la fecha de la tarea:", error);
+    }
+  };
+
+  const markTaskAsDone = async (task_id) => {
+    try {
+      const response = await authTasks.markTaskAsDone(task_id);
+      if (!response.ok) {
+        throw new Error("Error al marcar la tarea como completada");
+      }
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error("Error al marcar la tarea como completada:", error);
+    }
+  };
+
+  const deleteTask = async (task_id) => {
+    try {
+      const response = await authTasks.deleteTask(task_id);
+      if (!response.ok) {
+        throw new Error("Error al eliminar la tarea");
+      }
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error("Error al eliminar la tarea:", error);
+    }
+  };
+
   const store = {
     token,
     roomie_id,
@@ -358,6 +441,12 @@ export const AppContextProvider = ({ children }) => {
     getRoomieById,
     getFiles,
     uploadFile,
+    getTasksByHomeId,
+    getTaskById,
+    createNewTask,
+    updateTaskDate,
+    markTaskAsDone,
+    deleteTask,
   };
 
   return (
