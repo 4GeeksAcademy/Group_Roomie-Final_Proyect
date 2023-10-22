@@ -23,7 +23,7 @@ const useAuthHome = (currentUser) => {
       if (data && data.is_admin) {
         setIsAdmin(true);
       } else if (currentUser) {
-        setIsAdmin(currentUser.createdHome); // Suponiendo que 'createdHome' es un indicador de que el usuario creó un "home"
+        setIsAdmin(currentUser.createdHome);
       }
     } catch (error) {
       setError("Ocurrió un error al crear el Home. Por favor, inténtalo de nuevo.");

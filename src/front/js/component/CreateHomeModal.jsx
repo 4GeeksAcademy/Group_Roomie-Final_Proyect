@@ -1,20 +1,28 @@
 import React, { Fragment, useRef, useState, useEffect } from 'react';
 import { Dialog, Transition } from '@headlessui/react';
 import toast from 'react-hot-toast';
+import { handleCreateHome } from '../services/handleCreateHome';
 
 export default function CreateHomeModal({ open, onClose, createHome, isAdmin, homeName }) {
   const cancelButtonRef = useRef();
   const [homeNameInput, setHomeNameInput] = useState("");
 
-  const handleCreateHome = async () => {
-    try {
-      await createHome(homeNameInput);
-      toast.success('El Home se creó exitosamente');
-      onClose();
-    } catch (error) {
-      console.error('Error al crear el Home:', error);
-      toast.error('Hubo un error al crear el Home');
-    }
+  const handleCreateHomeClick = () => {
+    handleCreateHome(homeNameInput)
+      .then((data) => {
+        if (data && data.is_admin) {
+          // Actualiza el estado del usuario a administrador en tu aplicación
+          setIsAdmin(true);
+        }
+        // Puedes mostrar un mensaje de éxito o realizar otras acciones necesarias
+        toast.success('El Home se creó exitosamente');
+        onClose();
+      })
+      .catch((error) => {
+        // Maneja errores, muestra un mensaje de error, etc.
+        console.error('Error al crear el Home:', error);
+        toast.error('Hubo un error al crear el Home');
+      });
   };
 
   return (
@@ -64,10 +72,10 @@ export default function CreateHomeModal({ open, onClose, createHome, isAdmin, ho
                     </button>
                   ) : (
                     <button
-                      type="button"
-                      className="inline-flex w-full justify-center rounded-md bg-blue-600 px-3 py-2 text-sm font-bold text-white shadow-sm hover-bg-blue-500 sm:ml-3 sm:w-auto"
-                      onClick={handleCreateHome}
-                    >
+                   type="button"
+                  className="inline-flex w-full justify-center rounded-md bg-blue-600 px-3 py-2 text-sm font-bold text-white shadow-sm hover-bg-blue-500 sm:ml-3 sm:w-auto"
+                  onClick={handleCreateHomeClick}
+                   >
                       Crear Home
                     </button>
                   )}
