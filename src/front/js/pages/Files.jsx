@@ -16,7 +16,7 @@ const Files = () => {
   }, [actions]);
 
   return (
-    <div className="flex items-center justify-center h-screen">
+    <div className="flex items-center justify-center min-h-screen">
       <div className="w-full sm:w-3/4 md:w-3/5 lg:w-3/7 xl:w-3/7">
         {files.length === 0 ? (
           <h1 className="h-screen flex items-center justify-center text-center text-2xl font-bold tracking-tight text-gray-600 sm:text-4xl sm:p-4">

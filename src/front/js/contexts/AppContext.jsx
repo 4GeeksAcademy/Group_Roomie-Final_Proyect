@@ -10,10 +10,10 @@ import authProfile from "../services/authProfile";
 import authShop from "../services/authShop";
 import authExpenses from "../services/authExpenses";
 import authDebts from "../services/authDebts";
-
-import toast from "react-hot-toast";
 import authFiles from "../services/authFiles";
 import authTasks from "../services/authTasks";
+
+import toast from "react-hot-toast";
 
 const AppContext = createContext();
 
@@ -328,9 +328,12 @@ export const AppContextProvider = ({ children }) => {
     }
   };
 
-  const getTasksByHomeId = async (home_id) => {
+  const getTasksByHomeId = async (home_id, onlyPendingTasks) => {
     try {
-      const response = await authTasks.getTasksByHomeId(home_id);
+      const response = await authTasks.getTasksByHomeId(
+        home_id,
+        onlyPendingTasks
+      );
       return response;
     } catch (error) {
       console.error("Error al obtener las tareas:", error);
@@ -350,21 +353,18 @@ export const AppContextProvider = ({ children }) => {
     }
   };
 
-  const createNewTask = async (roomie_id, name, date_assigned, date_done) => {
+  const createNewTask = async (roomie_id, name, date_assigned) => {
     try {
       const response = await authTasks.createNewTask(
         roomie_id,
         name,
-        date_assigned,
-        date_done
+        date_assigned
       );
-      if (!response.ok) {
-        throw new Error("Error al crear la nueva tarea");
-      }
-      const data = await response.json();
+      const data = await response;
       return data;
     } catch (error) {
       console.error("Error al crear la nueva tarea:", error);
+      throw error;
     }
   };
 
@@ -374,10 +374,7 @@ export const AppContextProvider = ({ children }) => {
         task_id,
         new_date_assigned
       );
-      if (!response.ok) {
-        throw new Error("Error al actualizar la fecha de la tarea");
-      }
-      const data = await response.json();
+      const data = await response;
       return data;
     } catch (error) {
       console.error("Error al actualizar la fecha de la tarea:", error);
@@ -387,11 +384,7 @@ export const AppContextProvider = ({ children }) => {
   const markTaskAsDone = async (task_id) => {
     try {
       const response = await authTasks.markTaskAsDone(task_id);
-      if (!response.ok) {
-        throw new Error("Error al marcar la tarea como completada");
-      }
-      const data = await response.json();
-      return data;
+      return response;
     } catch (error) {
       console.error("Error al marcar la tarea como completada:", error);
     }
@@ -400,13 +393,14 @@ export const AppContextProvider = ({ children }) => {
   const deleteTask = async (task_id) => {
     try {
       const response = await authTasks.deleteTask(task_id);
-      if (!response.ok) {
-        throw new Error("Error al eliminar la tarea");
+      if (response && response.message === "Tarea eliminada correctamente") {
+        return response;
+      } else {
+        throw new Error(response.error || "Error al eliminar la tarea");
       }
-      const data = await response.json();
-      return data;
     } catch (error) {
       console.error("Error al eliminar la tarea:", error);
+      throw error;
     }
   };
 
