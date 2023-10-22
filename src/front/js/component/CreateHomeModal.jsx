@@ -1,7 +1,7 @@
 import React, { Fragment, useRef, useState, useEffect } from 'react';
 import { Dialog, Transition } from '@headlessui/react';
 import toast from 'react-hot-toast';
-import { handleCreateHome } from '../services/handleCreateHome';
+import  handleCreateHome  from '../services/handleCreateHome';
 
 export default function CreateHomeModal({ open, onClose, createHome, isAdmin, homeName }) {
   const cancelButtonRef = useRef();
@@ -11,15 +11,12 @@ export default function CreateHomeModal({ open, onClose, createHome, isAdmin, ho
     handleCreateHome(homeNameInput)
       .then((data) => {
         if (data && data.is_admin) {
-          // Actualiza el estado del usuario a administrador en tu aplicación
           setIsAdmin(true);
         }
-        // Puedes mostrar un mensaje de éxito o realizar otras acciones necesarias
         toast.success('El Home se creó exitosamente');
         onClose();
       })
       .catch((error) => {
-        // Maneja errores, muestra un mensaje de error, etc.
         console.error('Error al crear el Home:', error);
         toast.error('Hubo un error al crear el Home');
       });

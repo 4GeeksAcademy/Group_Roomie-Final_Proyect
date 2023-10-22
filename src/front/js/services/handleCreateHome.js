@@ -1,4 +1,4 @@
-export const handleCreateHome = async (homeName) => {
+const handleCreateHome = async (homeName) => {
   try {
     const response = await fetch(`${process.env.REACT_APP_URL}/api/home`, {
       method: 'POST',
@@ -16,3 +16,4 @@ export const handleCreateHome = async (homeName) => {
     throw error;
   }
 };
+export default handleCreateHome;
