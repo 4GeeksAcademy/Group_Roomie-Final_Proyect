@@ -1,17 +1,29 @@
-import React from 'react'
-import { Fragment, useRef, useState } from 'react'
-import { Dialog, Transition } from '@headlessui/react'
-import { ExclamationTriangleIcon } from '@heroicons/react/24/outline'
+import React, { Fragment, useRef, useContext } from 'react';
+import { Dialog, Transition } from '@headlessui/react';
+import { ExclamationTriangleIcon } from '@heroicons/react/outline';
+import useAppContext from '../contexts/AppContext.jsx';
+import { deleteRoomie } from '../services/roomieServices.js';
 
-export default function ModalEliminar({ onClose }) {
-  
-  const [open, setOpen] = useState(true)
 
-  const cancelButtonRef = useRef(null)
+export default function ModalEliminar({ onClose, roomieId }) {
+  const { authenticated } = useContext(useAppContext);
+
+  const deleteRoomie = async (roomieId) => {
+    try {
+      const response = await deleteRoomie(roomieId);
+      if (response && response.message === "Roomie eliminado correctamente") {
+        console.log("Roomie eliminado con éxito");
+      } else {
+        console.error("Error al eliminar el Roomie");
+      }
+    } catch (error) {
+      console.error("Error al eliminar el Roomie:", error);
+    }
+  }
 
   return (
-    <Transition.Root show={open} as={Fragment}>
-      <Dialog as="div" className="relative z-10" initialFocus={cancelButtonRef} onClose={setOpen}>
+    <Transition.Root show={open} as={Fragment} >
+      <Dialog as="div" className="relative z-10" initialFocus={cancelButtonRef} onClose={onClose}>
         <Transition.Child
           as={Fragment}
           enter="ease-out duration-300"
@@ -54,13 +66,15 @@ export default function ModalEliminar({ onClose }) {
                   </div>
                 </div>
                 <div className="bg-white px-4 pt-1 pb-5 sm:flex sm:flex-row-reverse sm:px-6">
-                  <button
-                    type="button"
-                    className="inline-flex w-full justify-center rounded-md bg-orange-600 px-3 py-2 text-sm font-bold text-white shadow-sm hover:bg-orange-500 sm:ml-3 sm:w-auto"
-                    onClick={() => setOpen(false)}
-                  >
-                    Eliminar
-                  </button>
+
+                <button
+                type="button"
+                className="inline-flex w-full justify-center rounded-md bg-red-600 px-3 py-2 text-sm font-bold text-white shadow-sm hover:bg-red-500 sm:ml-3 sm:w-auto"
+                onClick={deleteRoomie}
+                >
+                  Eliminar Roomie
+                </button>
+                  
                   <button
                     type="button"
                     className="mt-3 inline-flex w-full justify-center rounded-md bg-indigo-100  hover:bg-indigo-200 px-4 py-2 text-sm font-bold text-gray-600 shadow-sm sm:mt-0 sm:w-auto"

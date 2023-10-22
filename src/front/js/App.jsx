@@ -1,9 +1,9 @@
+
 import React from "react";
-
-import Router from "./routes/Router.jsx";
 import { AppContextProvider } from "./contexts/AppContext.jsx";
-
+import Router from "./routes/Router.jsx";
 import { Toaster } from "react-hot-toast";
+
 
 function App() {
   return (

@@ -11,7 +11,9 @@ import authShop from "../services/authShop";
 import authExpenses from "../services/authExpenses";
 import authDebts from "../services/authDebts";
 
-import getRoomies from '../services/getRoomies';
+import handleCreateHome from "../services/handleCreateHome";
+
+
 
 import toast from "react-hot-toast";
 import authFiles from "../services/authFiles";
@@ -329,6 +331,44 @@ export const AppContextProvider = ({ children }) => {
     }
   };
 
+  const deleteRoomie = async (roomie_id) => {
+    try {
+      const response = await roomieServices.deleteRoomie(roomie_id);
+      if (response && response.message === "Roomie eliminado correctamente") {
+        return response;
+      } else {
+        throw new Error(response.error || "Error al eliminar el Roomie");
+      }
+    } catch (error) {
+      console.error("Error al eliminar el Roomie:", error);
+      throw error;
+    }
+  };
+
+  const getRoomiesList = async () => {
+    try {
+      const data = await fetchRoomies();
+      setRoomies(data);
+    } catch (error) {
+      setError("Ocurrió un error al obtener la lista de roomies. Por favor, inténtalo de nuevo.");
+    }
+  };
+
+  const createHome = async () => {
+    try {
+      const data = await handleCreateHome();
+      if (data && data.is_admin) {
+        setIsAdmin(true);
+      }
+    } catch (error) {
+      setError("Ocurrió un error al crear el Home. Por favor, inténtalo de nuevo.");
+    }
+  };
+
+  const [currentUser, setCurrentUser] = useState({
+    createdHome: false,
+  });
+
   const store = {
     token,
     roomie_id,
@@ -337,10 +377,11 @@ export const AppContextProvider = ({ children }) => {
     roomieData,
     authenticated,
     filesInfo,
-    setFilesInfo,
     cloudinaryRef,
     widgetRef,
+    currentUser,
   };
+
   const actions = {
     login,
     signup,
@@ -360,6 +401,9 @@ export const AppContextProvider = ({ children }) => {
     getRoomieById,
     getFiles,
     uploadFile,
+    deleteRoomie,
+    getRoomiesList,
+    createHome,
   };
 
   return (
