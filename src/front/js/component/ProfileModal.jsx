@@ -103,14 +103,16 @@ const ProfileModal = ({ isOpen, onClose }) => {
                     onClick={handleUpload}
                     className="bg-gray-300 hover:bg-gray-400 py-2 px-4 rounded-full mt-2 shadow h-20 w-20 flex items-center justify-center"
                     style={{
-                      backgroundImage: formData.avatar ? (
-                        `url(${formData.avatar})`
-                      ) : (
-                        <i className="fa-regular fa-user fa-2xl"></i>
-                      ),
+                      backgroundImage: formData.avatar
+                        ? `url(${formData.avatar})`
+                        : "none",
                       backgroundSize: "cover",
                     }}
-                  ></button>
+                  >
+                    {!formData.avatar && (
+                      <i className="fa-regular fa-user fa-2xl text-white"></i>
+                    )}
+                  </button>
                 </div>
               </div>
 

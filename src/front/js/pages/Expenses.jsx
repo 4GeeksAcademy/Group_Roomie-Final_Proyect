@@ -95,7 +95,7 @@ const Expenses = () => {
         {expenses.map((expense) => (
           <div
             key={expense.id}
-            className="bg-white rounded-[50px] overflow-hidden shadow-xl transition-all mx-2 sm:mx-4 mb-4 p-12 md:p-8 w-full"
+            className="bg-white rounded-[50px] overflow-hidden shadow-xl transition-all mx-2 sm:mx-4 mb-4 p-12 md:p-8 w-full max-h-70vh overflow-y-auto"
           >
             <h1 className="text-xl md:text-2xl text-gray-700 font-bold mb-6 text-center">
               {expense.name}

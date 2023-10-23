@@ -14,6 +14,7 @@ import authFiles from "../services/authFiles";
 import authTasks from "../services/authTasks";
 
 import toast from "react-hot-toast";
+import authCalendar from "../services/authCalendar";
 
 const AppContext = createContext();
 
@@ -404,6 +405,19 @@ export const AppContextProvider = ({ children }) => {
     }
   };
 
+  const fetchCalendarData = async (roomie_id) => {
+    try {
+      const response = await authCalendar.fetchCalendarData(roomie_id);
+      if (!response) {
+        throw new Error("Error al obtener los datos del calendario");
+      }
+      return response;
+    } catch (error) {
+      console.error("Error en la solicitud de datos del calendario:", error);
+      return null;
+    }
+  };
+
   const store = {
     token,
     roomie_id,
@@ -441,6 +455,7 @@ export const AppContextProvider = ({ children }) => {
     updateTaskDate,
     markTaskAsDone,
     deleteTask,
+    fetchCalendarData,
   };
 
   return (

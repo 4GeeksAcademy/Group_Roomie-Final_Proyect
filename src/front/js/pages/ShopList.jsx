@@ -103,7 +103,7 @@ const ShopList = () => {
     <>
       {!hasNoHomeId ? (
         <div className="flex items-center justify-center min-h-screen bg-gray-100">
-          <div className="bg-white rounded-[50px] p-6 md:p-12 w-full md:max-w-xl">
+          <div className="bg-white rounded-[50px] p-6 md:p-12 w-full md:max-w-xl max-h-70vh overflow-y-auto">
             <h1 className="text-2xl text-gray-700 font-bold mb-6 text-center">
               {shopList.name}
             </h1>

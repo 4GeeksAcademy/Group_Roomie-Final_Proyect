@@ -33,14 +33,15 @@ const Profile = () => {
                 <div
                   className="bg-gray-300 hover:bg-gray-400 py-2 px-4 rounded-full mt-2 shadow h-20 w-20 flex items-center justify-center"
                   style={{
-                    backgroundImage: roomieData.avatar ? (
-                      `url(${roomieData.avatar})`
-                    ) : (
-                      <i className="fa-regular fa-user fa-2xl"></i>
-                    ),
-                    backgroundSize: "cover",
+                    backgroundImage: roomieData.avatar
+                      ? `url(${roomieData.avatar})`
+                      : "none",
                   }}
-                ></div>
+                >
+                  {!roomieData.avatar && (
+                    <i className="fa-regular fa-user fa-2xl text-white"></i>
+                  )}
+                </div>
               </div>
 
               <div className="flex flex-col items-start">
