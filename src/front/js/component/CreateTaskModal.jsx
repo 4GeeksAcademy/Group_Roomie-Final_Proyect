@@ -13,9 +13,7 @@ const CreateTaskModal = ({ onClose, handleTaskUpdate }) => {
   useEffect(() => {
     const fetchRoomies = async () => {
       try {
-        const response = await actions.getRoomiesByHomeId(
-          localStorage.getItem("home_id")
-        );
+        const response = await actions.getRoomiesByHomeId(home_id);
         if (response) {
           setRoomies(response);
         }
@@ -88,6 +86,7 @@ const CreateTaskModal = ({ onClose, handleTaskUpdate }) => {
                 onChange={(e) => setSelectedRoomie(e.target.value)}
                 className="border border-gray-300 focus:border-gray-300 rounded-lg p-3 w-full"
               >
+                <option value="">Elige un roomie</option>
                 {roomies.map((roomie) => (
                   <option key={roomie.id} value={roomie.id}>
                     {roomie.first_name}{" "}

@@ -296,13 +296,16 @@ def get_tasks_by_roomie_id(roomie_id):
 
 @api.route('/task/home/<int:home_id>', methods=['GET'])
 def get_tasks_by_home_id(home_id):
-    onlyPendingTasks = request.args.get('only_pending_tasks', default=False, type=bool)
+    only_pending_tasks = request.args.get('only_pending_tasks', default=False, type=bool)
     tasks = Task.query.join(Roomie).filter(Roomie.home_id == home_id).all()
     task_list = []
-    if onlyPendingTasks:
-        task_list = [task.serialize() for task in tasks if task.date_done is None]
-    else:
-        task_list = [task.serialize() for task in tasks]
+    for task in tasks:
+        roomie_data = task.roomie.serialize()
+        serialized_task = task.serialize()
+        serialized_task['roomie'] = roomie_data
+        task_list.append(serialized_task)
+    if only_pending_tasks:
+        task_list = [task for task in task_list if task['date_done'] == "None"]
     return jsonify(task_list), 200
 
 @api.route('/task', methods=['POST'])
@@ -362,7 +365,10 @@ def mark_task_as_done(task_id):
     db.session.commit()
     return jsonify({'message': 'Tarea completada'}), 200
 
-@api.route('/task/<int:task_id>', methods=['PUT'])
+from flask import jsonify
+import json
+
+@api.route('/task/date/<int:task_id>', methods=['PUT'])
 def update_task_date(task_id):
     task = Task.query.get(task_id)
     if task is None:
@@ -385,9 +391,10 @@ def update_task_date(task_id):
         task.date_assigned = new_date_assigned
         db.session.add(new_blog)
         db.session.commit()
-        return jsonify({'message': 'Fecha de tarea actualizada correctamente'}), 200
+        return jsonify(task.serialize()), 200
     except ValueError:
         return jsonify({'error': 'Formato de fecha inválido. Utilice el formato DD-MM-YYYY'}), 400
+
 
 @api.route('/task/<int:task_id>', methods=['DELETE'])
 def delete_task(task_id):

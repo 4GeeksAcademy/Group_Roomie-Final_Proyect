@@ -10,12 +10,12 @@ const getTasksByHomeId = async (home_id, onlyPendingTasks) => {
       }
     );
     if (!response.ok) {
-      throw new Error("Error al obtener las tareas por ID de hogar");
+      throw new Error("Error al obtener las tareas por ID de vivienda");
     }
     const data = await response.json();
     return data;
   } catch (error) {
-    console.error("Error al obtener las tareas por ID de hogar:", error);
+    console.error("Error al obtener las tareas por ID de vivienda:", error);
     throw error;
   }
 };
@@ -71,7 +71,7 @@ const updateTaskDate = async (task_id, new_date_assigned) => {
   try {
     const formattedDate = formatDate(new_date_assigned);
     const response = await fetch(
-      `${process.env.REACT_APP_URL}/api/task/${task_id}`,
+      `${process.env.REACT_APP_URL}/api/task/date/${task_id}`,
       {
         method: "PUT",
         headers: {

@@ -1,53 +1,56 @@
 import React, { useState, useEffect } from "react";
-
 import useAppContext from "../contexts/AppContext.jsx";
 import CreateTaskModal from "../component/CreateTaskModal.jsx";
 
 const Task = () => {
   const [tasks, setTasks] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [dateAssigned, setDateAssigned] = useState("");
+  const [dateAssignedMap, setDateAssignedMap] = useState({});
   const home_id = localStorage.getItem("home_id");
   const { actions } = useAppContext();
 
   useEffect(() => {
-    const fetchTasks = async () => {
-      const fetchedTasks = await actions.getTasksByHomeId(home_id, true);
-      setTasks(fetchedTasks);
-    };
-    fetchTasks();
-  }, []);
-
-  useEffect(() => {
-    const fetchUpdatedTasks = async () => {
+    const fetchTasksAndRoomieNames = async () => {
       try {
-        const updatedTasks = await actions.getTasksByHomeId(home_id, true);
-        setTasks(updatedTasks);
+        const fetchedTasks = await actions.getTasksByHomeId(home_id, true);
+        setTasks(fetchedTasks);
       } catch (error) {
-        console.error("Error al actualizar la lista de tareas:", error);
+        console.error("Error al cargar tareas y nombres de roomies:", error);
       }
     };
-    fetchUpdatedTasks();
-  }, [actions]);
+    fetchTasksAndRoomieNames();
+  }, [actions, home_id]);
 
   const handleTaskUpdate = async () => {
-    const updatedTasks = await actions.getTasksByHomeId(home_id, true);
-    setTasks(updatedTasks);
+    try {
+      const updatedTasks = await actions.getTasksByHomeId(home_id, true);
+      setTasks(updatedTasks);
+    } catch (error) {
+      console.error("Error al actualizar las tareas:", error);
+    }
   };
 
-  const handleDateUpdate = async (taskId, newDate) => {
+  const handleDateUpdate = async (taskId) => {
     try {
+      const newDate = dateAssignedMap[taskId];
       const response = await actions.updateTaskDate(taskId, newDate);
       if (!response) {
         throw new Error("Error al actualizar la fecha de la tarea");
       }
       const updatedTasks = tasks.map((task) =>
-        task.id === taskId ? { ...task, date_assigned: newDate } : task
+        task.id === taskId
+          ? { ...task, date_assigned: newDate, date_done: null }
+          : task
       );
       setTasks(updatedTasks);
+      updateDateAssignedMap(taskId, "");
     } catch (error) {
       console.error("Error al actualizar la fecha de la tarea:", error);
     }
+  };
+
+  const updateDateAssignedMap = (taskId, value) => {
+    setDateAssignedMap((prevMap) => ({ ...prevMap, [taskId]: value }));
   };
 
   const handleTaskComplete = async (taskId) => {
@@ -80,11 +83,6 @@ const Task = () => {
     setIsModalOpen(!isModalOpen);
   };
 
-  const getRoomieNameById = (roomieId) => {
-    const roomie = actions.getRoomieById(roomieId);
-    return roomie ? roomie.first_name : "Nombre no encontrado";
-  };
-
   const formatDate = (date) => {
     const options = { year: "numeric", month: "long", day: "numeric" };
     return new Date(date).toLocaleDateString(undefined, options);
@@ -92,50 +90,50 @@ const Task = () => {
 
   return (
     <div className="flex items-center justify-center h-screen">
-      <div className="bg-white rounded-[50px] p-8 w-full sm:w-3/4 md:w-3/5 lg:w-3/7 xl:w-3/7">
+      <div className="bg-white rounded-[50px] p-8 max-h-70vh w-full sm:w-3/4 md:w-3/5 lg:w-3/7 xl:w-3/7 overflow-y-auto">
         <h2 className="text-2xl font-bold text-center mb-6">Lista de tareas</h2>
         <ul className="space-y-4">
           {tasks.map((task) => (
             <li
               key={task.id}
-              className="flex items-center justify-between border-b pb-2"
+              className="flex flex-col sm:flex-row items-center justify-between border-b pb-2"
             >
-              <div>
+              <div className="mb-4 sm:mb-0 sm:mr-4">
                 <p className="text-gray-800">Tarea: {task.name}</p>
                 <p className="text-gray-600">
                   Fecha asignada: {formatDate(task.date_assigned)}
                 </p>
                 <p className="text-gray-600">
-                  Asignado a: {getRoomieNameById(task.roomie_id)}
+                  Asignada a: {task.roomie.first_name}
                 </p>
-                <div className="flex items-center">
+                <div className="flex items-center pt-1">
                   <button
-                    className="bg-indigo-300 hover:bg-indigo-500 text-white font-bold py-2 px-4 rounded-xl mr-2"
-                    onClick={() =>
-                      handleDateUpdate(task.id, new Date().toISOString())
-                    }
+                    className="bg-indigo-300 hover:bg-indigo-500 text-white font-bold py-2 px-4 rounded-xl mr-2 mb-2 sm:mb-0 sm:mr-2"
+                    onClick={() => handleDateUpdate(task.id)}
                   >
                     Modificar Fecha
                   </button>
                   <input
                     className="shadow appearance-none border rounded-lg py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                    id="dateAssigned"
+                    id={`dateAssigned_${task.id}`}
                     type="date"
-                    value={dateAssigned}
-                    onChange={(e) => setDateAssigned(e.target.value)}
+                    value={dateAssignedMap[task.id] || ""}
+                    onChange={(e) =>
+                      updateDateAssignedMap(task.id, e.target.value)
+                    }
                   />
                 </div>
               </div>
 
-              <div>
+              <div className="flex">
                 <button
-                  className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-xl mr-2"
+                  className="bg-green-300 hover:bg-green-500 text-white font-bold py-2 px-4 rounded-xl mr-2 mb-2 sm:mb-0 sm:mr-2"
                   onClick={() => handleTaskComplete(task.id)}
                 >
                   Completada
                 </button>
                 <button
-                  className="bg-red-300 hover:bg-red-500 text-gray-600 font-bold py-2 px-4 rounded-xl"
+                  className="bg-red-300 hover:bg-red-500 text-gray-600 font-bold py-2 px-4 rounded-xl mb-2 sm:mb-0"
                   onClick={() => handleTaskDelete(task.id)}
                 >
                   Eliminar
