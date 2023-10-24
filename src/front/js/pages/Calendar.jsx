@@ -68,6 +68,7 @@ const CalendarView = () => {
               date: "Fecha",
               time: "Hora",
               event: "Evento",
+              noEventsInRange: "No hay eventos para estas fechas.",
             }}
           />
         </div>

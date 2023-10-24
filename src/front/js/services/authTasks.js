@@ -132,6 +132,26 @@ const deleteTask = async (task_id) => {
   }
 };
 
+const getTasksbyRoomieId = async (roomie_id, onlyPendingTasks) => {
+  try {
+    const response = await fetch(
+      `${process.env.REACT_APP_URL}/api/task/roomie/${roomie_id}?only_pending_tasks=${onlyPendingTasks}`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    if (!response.ok) {
+      throw new Error("Error al obtener la tarea por ID");
+    }
+    return response.json();
+  } catch (error) {
+    console.error("Error al obtener las tareas:", error);
+  }
+};
+
 const formatDate = (inputDate) => {
   const dateObj = new Date(inputDate);
   const day = String(dateObj.getDate()).padStart(2, "0");
@@ -148,6 +168,7 @@ const authTasks = {
   updateTaskDate,
   markTaskAsDone,
   deleteTask,
+  getTasksbyRoomieId,
 };
 
 export default authTasks;

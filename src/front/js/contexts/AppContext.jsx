@@ -25,6 +25,7 @@ export const AppContextProvider = ({ children }) => {
   const home_id = localStorage.getItem("home_id");
   const [authenticated, setAuthenticated] = useState(false);
   const [roomieData, setRoomieData] = useState({});
+  const [homeData, setHomeData] = useState({});
   const cloudinaryRef = useRef();
   const widgetRef = useRef();
   const [filesInfo, setFilesInfo] = useState([]);
@@ -172,6 +173,16 @@ export const AppContextProvider = ({ children }) => {
       });
     } catch (error) {
       console.error("Error al actualizar datos del Roomie:", error);
+    }
+  };
+
+  const fetchHomeData = async () => {
+    try {
+      const response = await authProfile.fetchHomeData(home_id);
+      setHomeData(response);
+      return response;
+    } catch (error) {
+      console.error("Error al obtener datos de la vivienda:", error);
     }
   };
 
@@ -341,6 +352,19 @@ export const AppContextProvider = ({ children }) => {
     }
   };
 
+  const getTasksbyRoomieId = async (roomie_id, onlyPendingTasks) => {
+    try {
+      const response = await authTasks.getTasksbyRoomieId(
+        roomie_id,
+        onlyPendingTasks
+      );
+      return response;
+    } catch (error) {
+      console.error("Error al obtener las tareas:", error);
+      throw error;
+    }
+  };
+
   const getTaskById = async (task_id) => {
     try {
       const response = await authTasks.getTaskById(task_id);
@@ -424,6 +448,7 @@ export const AppContextProvider = ({ children }) => {
     is_admin,
     home_id,
     roomieData,
+    homeData,
     authenticated,
     filesInfo,
     setFilesInfo,
@@ -456,6 +481,8 @@ export const AppContextProvider = ({ children }) => {
     markTaskAsDone,
     deleteTask,
     fetchCalendarData,
+    fetchHomeData,
+    getTasksbyRoomieId,
   };
 
   return (

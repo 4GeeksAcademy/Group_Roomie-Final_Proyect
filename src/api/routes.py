@@ -290,8 +290,14 @@ def get_one_task(task_id):
 
 @api.route('/task/roomie/<int:roomie_id>', methods=['GET'])
 def get_tasks_by_roomie_id(roomie_id):
+    only_pending_tasks = request.args.get('only_pending_tasks', default=False, type=bool)
     tasks = Task.query.filter_by(roomie_id=roomie_id).all()
-    task_list = [task.serialize() for task in tasks]
+    task_list = []
+    for task in tasks:
+        serialized_task = task.serialize()
+        task_list.append(serialized_task)
+    if only_pending_tasks:
+        task_list = [task for task in task_list if task['date_done'] == "None"]
     return jsonify(task_list), 200
 
 @api.route('/task/home/<int:home_id>', methods=['GET'])

@@ -120,6 +120,24 @@ const getRoomieById = async (roomie_id) => {
   }
 };
 
+const fetchHomeData = async (home_id) => {
+  try {
+    const response = await fetch(`${process.env.REACT_APP_URL}/api/home/${home_id}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+    if (!response.ok) {
+      throw new Error('Error al obtener datos de la vivienda');
+    }
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error al obtener datos de la vivienda:', error);
+  }
+};
+
 const getCurrentRoomie = () => {
   return JSON.parse(localStorage.getItem("roomie"));
 };
@@ -131,6 +149,7 @@ const authProfile = {
   getRoomieData,
   updateRoomie,
   getRoomieById,
+  fetchHomeData,
 };
 
 export default authProfile;
