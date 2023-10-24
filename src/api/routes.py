@@ -785,7 +785,6 @@ def get_blogs_by_home(home_id):
     serialized_blogs = [blog.serialize() for blog in blogs]
     return jsonify(serialized_blogs), 200
 
-
 #Rutas para calendario
 @api.route('/calendar/<int:roomie_id>', methods=['GET'])
 def calendar_view(roomie_id):

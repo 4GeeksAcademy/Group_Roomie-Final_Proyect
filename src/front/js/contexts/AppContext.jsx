@@ -15,6 +15,7 @@ import authTasks from "../services/authTasks";
 
 import toast from "react-hot-toast";
 import authCalendar from "../services/authCalendar";
+import authBlog from "../services/authBlog";
 
 const AppContext = createContext();
 
@@ -442,6 +443,16 @@ export const AppContextProvider = ({ children }) => {
     }
   };
 
+  const getAllBlogsByHome = async (home_id) => {
+    try {
+      const response = await authBlog.getBlogsByHome(home_id);
+      return response;
+    } catch (error) {
+      console.error("Error al obtener las entradas del blog:", error);
+      return [];
+    }
+  };
+
   const store = {
     token,
     roomie_id,
@@ -483,6 +494,7 @@ export const AppContextProvider = ({ children }) => {
     fetchCalendarData,
     fetchHomeData,
     getTasksbyRoomieId,
+    getAllBlogsByHome,
   };
 
   return (

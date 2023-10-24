@@ -8,6 +8,7 @@ const Home = () => {
   const [shoppingList, setShoppingList] = useState([]);
   const [shopList, setShopList] = useState({});
   const [tasks, setTasks] = useState([]);
+  const [blogEntries, setBlogEntries] = useState([]);
   const { actions, store } = useAppContext();
   const { roomieData, homeData } = store;
 
@@ -35,16 +36,24 @@ const Home = () => {
         } else {
           console.error("La lista de tareas no es un array:", tasksResponse);
         }
-      } catch (error) {
-        console.error(
-          "Error al obtener los roomies o la lista de ítems:",
-          error
+        const blogEntriesResponse = await actions.getAllBlogsByHome(
+          homeData.id
         );
+        if (Array.isArray(blogEntriesResponse)) {
+          setBlogEntries(blogEntriesResponse.slice(0, 4));
+        } else {
+          console.error(
+            "La lista de entradas del blog no es un array:",
+            blogEntriesResponse
+          );
+        }
+      } catch (error) {
+        console.error("Error al obtener las entradas del blog:", error);
       }
     };
 
     fetchData();
-  }, [actions]);
+  }, [actions, homeData.id]);
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 p-6 sm:mt-20 lg:ms-72">
@@ -101,10 +110,27 @@ const Home = () => {
       </div>
 
       {/* Contenedor de Últimas Entradas del Blog */}
-      <div className="bg-white rounded-[50px] p-6 mb-4">
+      <div className="bg-white rounded-[50px] p-6 mb-4 h-[380px] relative">
         <h2 className="text-xl md:text-2xl text-gray-600 font-bold mb-2 md:mb-6">
           Actualizaciones
         </h2>
+        <ul className="list-none list-inside">
+          {blogEntries.map((entry, index) => (
+            <li
+              key={index}
+              className="text-gray-800 border-b border-indigo-300 py-2 flex items-center"
+            >
+              {entry.text}
+            </li>
+          ))}
+        </ul>
+        <div className="absolute bottom-4 right-4">
+          <Link to="/blog">
+            <button className="w-12 h-12 rounded-full bg-orange-600 hover:bg-orange-300 flex items-center justify-center">
+              <span className="text-white text-4xl font-bold pb-2">+</span>
+            </button>
+          </Link>
+        </div>
       </div>
 
       {/* Contenedor de Roomies */}
