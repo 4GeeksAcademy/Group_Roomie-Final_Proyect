@@ -13,7 +13,7 @@ const ErrorPage = () => {
           Lo sentimos, no pudimos encontrar la página que estás buscando.
         </p>
         <div className="mt-10">
-          <Link to="/">
+          <Link to="/home">
             <button
               type="button"
               className="rounded-full bg-indigo-800 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
