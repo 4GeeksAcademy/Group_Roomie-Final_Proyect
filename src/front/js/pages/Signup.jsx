@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 
 import useAppContext from "../contexts/AppContext.jsx";
 
-import bgregister from "../../img/bgregister.png";
+import bgregister from "../../img/bgregister .png";
 
 const Signup = () => {
   const navigate = useNavigate();

@@ -75,4 +75,3 @@ const getShopList = (home_id) => {
   };
   
   export default authShop;
-w  

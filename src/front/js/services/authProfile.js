@@ -141,4 +141,3 @@ const signup = (email, password, first_name) => {
   };
   
   export default authProfile;
-  

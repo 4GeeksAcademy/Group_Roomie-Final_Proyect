@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import authBlog from "./authBlog";
+import authBlog from "../services/authBlog";
 
 const Blog = () => {
   const [notifications, setNotifications] = useState([]);
@@ -24,6 +24,24 @@ const Blog = () => {
     return new Date(date).toLocaleDateString(undefined, options);
   };
 
+  const markNotificationAsRead = async (notificationId) => {
+    // Agrega la lógica para marcar una notificación como leída
+    try {
+      const response = await authBlog.markNotificationAsRead(notificationId);
+      if (response) {
+        // Actualizar el estado de la notificación como leída
+        const updatedNotifications = notifications.map((notification) =>
+          notification.id === notificationId
+            ? { ...notification, isRead: true }
+            : notification
+        );
+        setNotifications(updatedNotifications);
+      }
+    } catch (error) {
+      console.error("Error al marcar la notificación como leída:", error);
+    }
+  };
+
   return (
     <div className="flex items-center justify-center h-screen">
       <div className="w-full sm:w-70 p-4 bg-white rounded-lg overflow-y-scroll">
@@ -32,23 +50,44 @@ const Blog = () => {
           {notifications.map((notification) => (
             <li
               key={notification.id}
-              className="flex items-center justify-between border-b pb-2 p-4 bg-white bg-opacity-70 rounded-lg"
+              className={`${
+                notification.isCurrentUser
+                  ? "bg-green-100"
+                  : "bg-white"
+              } border-b pb-2 p-4 bg-opacity-70 rounded-lg cursor-pointer`}
+              onClick={() => markNotificationAsRead(notification.id)}
             >
               <div>
-                <p className="text-gray-800">
+                <p
+                  className={`text-gray-800 ${
+                    notification.isCurrentUser ? "text-green-500" : ""
+                  }`}
+                >
                   Notificación: {notification.text}
                 </p>
-                <p className="text-gray-600">
+                <p
+                  className={`text-gray-600 ${
+                    notification.isCurrentUser ? "text-green-500" : ""
+                  }`}
+                >
                   Fecha: {formatDate(notification.date)}
                 </p>
-                <p className="text-gray-600">
+                <p
+                  className={`text-gray-600 ${
+                    notification.isCurrentUser ? "text-green-500" : ""
+                  }`}
+                >
                   Asignado a: {notification.roomie_name}
                 </p>
               </div>
               <div>
                 {notification.isExpired ? (
                   <p className="text-gray-400 line-through">Caducada</p>
-                ) : null}
+                ) : notification.isRead ? (
+                  <p className="text-gray-400">Leída</p>
+                ) : (
+                  <p className="text-blue-500">Pendiente</p>
+                )}
               </div>
             </li>
           ))}
