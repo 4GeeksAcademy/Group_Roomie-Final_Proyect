@@ -11,7 +11,7 @@ import authShop from "../services/authShop";
 import authExpenses from "../services/authExpenses";
 import authDebts from "../services/authDebts";
 
-import authHome from "../services/authHome";
+import * as authHome from "../services/authHome";
 
 
 import toast from "react-hot-toast";

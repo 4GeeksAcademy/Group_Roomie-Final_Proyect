@@ -1,14 +1,20 @@
 import React, { Fragment, useRef, useState } from 'react';
 import { Dialog, Transition } from '@headlessui/react';
 import toast from 'react-hot-toast';
-import { handleCreateHome } from '../services/authHome'; 
+import useAppContext from '../contexts/AppContext'; 
 
-export default function CreateHomeModal({ open, onClose, isAdmin, homeName }) {
+export default function CreateHomeModal({ 
+  open, 
+  onClose, 
+  isAdmin, 
+  homeName,
+ }) {
   const cancelButtonRef = useRef();
   const [homeNameInput, setHomeNameInput] = useState('');
+  const { actions } = useAppContext(); 
 
   const handleCreateHomeClick = () => {
-    handleCreateHome(homeNameInput) 
+    actions.createHome(homeNameInput) 
       .then((data) => {
         toast.success('El Home se creó exitosamente');
         onClose();

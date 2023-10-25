@@ -5,33 +5,32 @@ import CreateHomeModal from "../component/CreateHomeModal.jsx";
 import useAppContext from "../contexts/AppContext.jsx";
 
 function Roomies() {
-  const { actions } = useAppContext();
+  const { actions, is_admin, home_id } = useAppContext();
 
   const [showModal, setShowModal] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
   const [showCreateHomeModal, setShowCreateHomeModal] = useState(false);
+  const [roomies, setRoomies] = useState([]);
 
-  const isAdmin = localStorage.getItem("is_admin") === "true";
-  const homeName = localStorage.getItem("home_name");
+  const handleEliminarClick = () => {
+    setModalOpen(true);
+  };
 
-  const adminHomeId = localStorage.getItem("home_id") || "";
+  const handleOpenModal = () => {
+    setShowModal(true);
+  };
 
-  const allRoomies = JSON.parse(localStorage.getItem("roomie_id")) || [];
-
-  const roomies = allRoomies.filter((roomie) => roomie.home_id === adminHomeId);
-
-  const handleCreateHomeClick = () => {
-    setShowCreateHomeModal(true);
+  const handleCloseModal = () => {
+    setModalOpen(false);
+    setShowModal(false);
   };
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const roomiesData = await actions.getRoomiesByHomeId();
+        const roomiesData = await actions.getRoomiesByHomeId(home_id);
         if (roomiesData) {
-          // Actualizar la lista de roomies
-          const updatedRoomies = allRoomies.filter((roomie) => roomie.home_id === adminHomeId);
-          setRoomies(updatedRoomies);
+          setRoomies(roomiesData);
         }
       } catch (error) {
         console.error("Error al cargar datos:", error);
@@ -39,8 +38,19 @@ function Roomies() {
     };
 
     fetchData();
-  }, [actions, adminHomeId, allRoomies]);
+  }, [actions, home_id]);
 
+  const handleCreateHomeClick = async () => {
+    try {
+      const homeNameInput = "Nuevo Home"; 
+      const response = await actions.createHome(homeNameInput);
+      console.log("Respuesta de createHome:", response);
+      setShowCreateHomeModal(false); 
+    } catch (error) {
+      console.error("Error al crear el Home:", error);
+    }
+  }
+  
 
   return (
     <section className="lg:ms-[256px] mx-auto sm:px-6 lg:px-3 py-12">
@@ -51,7 +61,7 @@ function Roomies() {
       </div>
 
       <div>
-        {isAdmin ? (
+        {is_admin ? (
           <p> {homeName}</p>
         ) : (
           <button
@@ -80,10 +90,10 @@ function Roomies() {
               <p className="text-xl text-gray-600 font-bold mb-2">
                 {roomie.first_name} {roomie.last_name}
               </p>
-              {isAdmin ? (
+              {is_admin ? (
                 <p className="text-base text-gray-400 font-normal">Admin</p>
               ) : null}
-              {isAdmin ? (
+              {is_admin ? (
                 <>
                   <button
                     onClick={handleEliminarClick}
@@ -123,7 +133,7 @@ function Roomies() {
           open={showCreateHomeModal}
           onClose={() => setShowCreateHomeModal(false)}
           createHome={createHome}
-          isAdmin={isAdmin}
+          is_admin={is_admin}
           homeName={homeName}
         />
       )}
