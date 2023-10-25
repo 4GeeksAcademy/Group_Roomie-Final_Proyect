@@ -1,18 +1,15 @@
-import React, { Fragment, useRef, useState, useEffect } from 'react';
+import React, { Fragment, useRef, useState } from 'react';
 import { Dialog, Transition } from '@headlessui/react';
 import toast from 'react-hot-toast';
-import  handleCreateHome  from '../services/handleCreateHome';
+import { handleCreateHome } from '../services/authHome'; 
 
-export default function CreateHomeModal({ open, onClose, createHome, isAdmin, homeName }) {
+export default function CreateHomeModal({ open, onClose, isAdmin, homeName }) {
   const cancelButtonRef = useRef();
-  const [homeNameInput, setHomeNameInput] = useState("");
+  const [homeNameInput, setHomeNameInput] = useState('');
 
   const handleCreateHomeClick = () => {
-    handleCreateHome(homeNameInput)
+    handleCreateHome(homeNameInput) 
       .then((data) => {
-        if (data && data.is_admin) {
-          setIsAdmin(true);
-        }
         toast.success('El Home se creó exitosamente');
         onClose();
       })
@@ -37,9 +34,9 @@ export default function CreateHomeModal({ open, onClose, createHome, isAdmin, ho
               leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
             >
               <Dialog.Panel className="relative transform px-3 py-4 overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg">
-                <div className="bg-white px-5 pb-8 pt-6 sm:p-6 sm:pb-4 ">
+                <div className="bg-white px-5 pb-8 pt-6 sm:p-6 sm:pb-4">
                   <div className="mb-4">
-                  {isAdmin ? (
+                    {isAdmin ? (
                       <div>
                         <p>Ya eres administrador del Home:</p>
                         <p className="font-bold text-indigo-600">{homeName}</p>
@@ -69,10 +66,10 @@ export default function CreateHomeModal({ open, onClose, createHome, isAdmin, ho
                     </button>
                   ) : (
                     <button
-                   type="button"
-                  className="inline-flex w-full justify-center rounded-md bg-blue-600 px-3 py-2 text-sm font-bold text-white shadow-sm hover-bg-blue-500 sm:ml-3 sm:w-auto"
-                  onClick={handleCreateHomeClick}
-                   >
+                      type="button"
+                      className="inline-flex w-full justify-center rounded-md bg-blue-600 px-3 py-2 text-sm font-bold text-white shadow-sm hover-bg-blue-500 sm:ml-3 sm:w-auto"
+                      onClick={handleCreateHomeClick}
+                    >
                       Crear Home
                     </button>
                   )}

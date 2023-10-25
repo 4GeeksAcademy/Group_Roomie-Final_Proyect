@@ -11,8 +11,7 @@ import authShop from "../services/authShop";
 import authExpenses from "../services/authExpenses";
 import authDebts from "../services/authDebts";
 
-import handleCreateHome from "../services/handleCreateHome";
-
+import authHome from "../services/authHome";
 
 
 import toast from "react-hot-toast";
@@ -354,16 +353,16 @@ export const AppContextProvider = ({ children }) => {
     }
   };
 
-  const createHome = async () => {
+  const createHome = async (homeName) => {
     try {
-      const data = await handleCreateHome();
-      if (data && data.is_admin) {
-        setIsAdmin(true);
-      }
+      const response = await authHome.handleCreateHome(homeName);
+      const data = await response;
+      return data;
     } catch (error) {
-      setError("Ocurrió un error al crear el Home. Por favor, inténtalo de nuevo.");
+      console.error("Error al crear el home", error);
     }
   };
+  
 
   const [currentUser, setCurrentUser] = useState({
     createdHome: false,

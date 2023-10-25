@@ -800,4 +800,3 @@ def calendar_view():
             }
             calendar_data.append(calendar_event)
     return jsonify(calendar_data)
-

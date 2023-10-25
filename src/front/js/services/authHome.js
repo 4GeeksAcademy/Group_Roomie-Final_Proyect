@@ -1,36 +1,56 @@
-import { useEffect, useState } from "react";
-import fetchRoomies from "../services/getRoomies";
-import handleCreateHome from "../services/handleCreateHome";
+export const handleCreateHome = async (homeName) => {
+  try {
+    const token = localStorage.getItem("token");
+    const userId = localStorage.getItem("roomie_id");
+    console.log("Token:", token);
+    console.log("User ID:", userId);
 
-const useAuthHome = (currentUser) => {
-  const [roomies, setRoomies] = useState([]);
-  const [error, setError] = useState(null);
-  const [isAdmin, setIsAdmin] = useState(false);
+    const fetchRoomies = await fetch(`${process.env.REACT_APP_URL}/api/roomie`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+    });
 
-  useEffect(() => {
-    fetchRoomies()
-      .then((data) => {
-        setRoomies(data);
-      })
-      .catch((error) => {
-        setError("Ocurrió un error al obtener la lista de roomies. Por favor, inténtalo de nuevo.");
+    if (fetchRoomies.ok) {
+      const roomies = await fetchRoomies.json();
+      const user = roomies.find((roomie) => {
+        return Number(userId) === Number(roomie.id);
       });
-  }, []);
+      console.log("User:", user);
 
-  const createHome = async () => {
-    try {
-      const data = await handleCreateHome();
-      if (data && data.is_admin) {
-        setIsAdmin(true);
-      } else if (currentUser) {
-        setIsAdmin(currentUser.createdHome);
+      if (user.home_id !== null) {
+        throw new Error('Ya tienes un home asignado.');
       }
-    } catch (error) {
-      setError("Ocurrió un error al crear el Home. Por favor, inténtalo de nuevo.");
+    } else {
+      const errorMessage = await fetchRoomies.text();
+      throw new Error(`Error al verificar el home existente: ${errorMessage}`);
     }
-  };
 
-  return { roomies, isAdmin, error, createHome };
+    const createHomeResponse = await fetch(`${process.env.REACT_APP_URL}/api/home`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+      body: JSON.stringify({ name: homeName }),
+    });
+
+    if (!createHomeResponse.ok) {
+      const errorMessage = await createHomeResponse.text();
+      throw new Error(`Error al crear el Home: ${errorMessage}`);
+    }
+
+    const data = await createHomeResponse.json();
+    console.log("Data:", data);
+
+    if (user) {
+      user.home_id = data.home_id;
+      console.log("User con home_id actualizado:", user);
+    }
+
+    return data;
+  } catch (error) {
+    throw new Error(`Error en la solicitud: ${error.message}`);
+  }
 };
-
-export default useAuthHome;
