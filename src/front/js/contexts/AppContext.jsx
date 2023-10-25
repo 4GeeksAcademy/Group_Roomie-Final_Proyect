@@ -258,7 +258,7 @@ export const AppContextProvider = ({ children }) => {
     }
   };
 
-  const getRoomiesByHomeId = async (home_id) => {
+  const getRoomiesByHomeId = async () => {
     try {
       const response = await authDebts.getRoomiesByHomeId(home_id);
       if (!response) {
@@ -443,7 +443,7 @@ export const AppContextProvider = ({ children }) => {
     }
   };
 
-  const getAllBlogsByHome = async (home_id) => {
+  const getAllBlogsByHome = async () => {
     try {
       const response = await authBlog.getBlogsByHome(home_id);
       return response;

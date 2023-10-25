@@ -19,7 +19,6 @@ const ProfileModal = ({ isOpen, onClose }) => {
     const fetchAvatar = async () => {
       try {
         const roomieData = await actions.getRoomieData(roomie_id);
-        console.log(roomieData);
         setFormData((prevData) => ({
           ...prevData,
           avatar: roomieData.avatar,
@@ -67,7 +66,7 @@ const ProfileModal = ({ isOpen, onClose }) => {
     }
     const { repeat_password, ...updatedData } = formData;
     if (store.filesInfo.length > 0) {
-      updatedData.avatar == store.filesInfo[0].url;
+      updatedData.avatar = store.filesInfo[0].url;
     }
     await actions.updateRoomieData(updatedData, () => {
       onClose();

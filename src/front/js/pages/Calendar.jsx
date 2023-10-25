@@ -48,7 +48,7 @@ const CalendarView = () => {
   }, [actions]);
 
   return (
-    <div className="flex items-center justify-center h-screen">
+    <div className="flex items-center justify-center h-screen z-0 mx-2">
       <div className="bg-white rounded-[50px] p-6 md:p-12 w-full max-w-5xl h-4/5">
         <div className="w-full h-full">
           <Calendar

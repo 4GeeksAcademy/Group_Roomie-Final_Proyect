@@ -90,77 +90,74 @@ const Expenses = () => {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen px-10 py-10">
-      <div className="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 gap-4 max-w-6xl p-4">
-        {expenses.map((expense) => (
-          <div
-            key={expense.id}
-            className="bg-white rounded-[50px] overflow-hidden shadow-xl transition-all mx-2 sm:mx-4 mb-4 p-12 md:p-8 w-full max-h-70vh overflow-y-auto"
-          >
-            <h1 className="text-xl md:text-2xl text-gray-700 font-bold mb-6 text-center">
-              {expense.name}
-            </h1>
-            <div className="flex justify-center">
-              <button
-                type="button"
-                className="bg-orange-600 hover:bg-orange-300 text-white font-bold py-2 px-4 rounded-xl"
-                onClick={() => handleOpenModalCreateDebt(expense.id)}
-              >
-                Crear Deuda
-              </button>
-            </div>
+    <div className="masonry md:masonry-lg xl:masonry-xl z-0 mt-5 sm:mt-10 md:mt-10 lg:mt-20 lg:ms-72">
+      {expenses.map((expense) => (
+        <div
+          key={expense.id}
+          className="bg-white rounded-[50px] shadow-xl transition-all mx-2 sm:mx-4 mb-4 p-6 sm:p-8 md:p-8 break-inside"
+        >
+          <h1 className="text-lg md:text-xl text-gray-700 font-bold mb-4 md:mb-6 text-center">
+            {expense.name}
+          </h1>
+          <div className="flex justify-center">
+            <button
+              type="button"
+              className="bg-orange-600 hover:bg-orange-300 text-white font-bold py-2 px-4 rounded-xl"
+              onClick={() => handleOpenModalCreateDebt(expense.id)}
+            >
+              Crear Deuda
+            </button>
           </div>
-        ))}
-        {debtsDebtor.map((debt) => (
-          <div
-            key={debt.id}
-            className="bg-white rounded-[50px] overflow-hidden shadow-xl transition-all mx-2 sm:mx-4 mb-4 p-12 md:p-8 w-full"
-          >
-            <h1 className="text-xl md:text-2xl text-gray-700 font-bold mb-6 text-center">
-              {debt.name}
-            </h1>
-            <div className="flex flex-col items-center">
-              <p className="border border-gray-300 rounded-lg p-3 w-11/12">
-                Debes {parseFloat(debt.amount).toFixed(2)}€ a{" "}
-                {
-                  payers.find((payer) => payer.id === debt.roomie_paying_id)
-                    ?.first_name
-                }
-              </p>
-            </div>
-            <div className="flex justify-center pt-4">
-              <button
-                type="button"
-                className="bg-orange-600 hover:bg-orange-300 text-white font-bold py-2 px-4 rounded-xl"
-                onClick={() =>
-                  handleOpenModalLiquidateDebt(debt.id, debt.amount)
-                }
-              >
-                Liquidar Deuda
-              </button>
-            </div>
+        </div>
+      ))}
+      {debtsDebtor.map((debt) => (
+        <div
+          key={debt.id}
+          className="bg-white rounded-[50px] overflow-hidden shadow-xl transition-all mx-2 sm:mx-4 mb-4 p-6 sm:p-8 md:p-8 break-inside"
+        >
+          <h1 className="text-lg md:text-xl text-gray-700 font-bold mb-4 md:mb-6 text-center">
+            {debt.name}
+          </h1>
+          <div className="flex flex-col items-center">
+            <p className="border border-gray-300 rounded-lg p-2 md:p-3 w-full md:w-11/12">
+              Debes {parseFloat(debt.amount).toFixed(2)}€ a{" "}
+              {
+                payers.find((payer) => payer.id === debt.roomie_paying_id)
+                  ?.first_name
+              }
+            </p>
           </div>
-        ))}
-        {debtsPayer.map((debt) => (
-          <div
-            key={debt.id}
-            className="bg-white rounded-[50px] overflow-hidden shadow-xl transition-all mx-2 sm:mx-4 mb-4 p-12 md:p-8 w-full"
-          >
-            <h1 className="text-xl md:text-2xl text-gray-700 font-bold mb-6 text-center">
-              {debt.name}
-            </h1>
-            <div className="flex flex-col items-center">
-              <p className="border border-indigo-300 rounded-lg p-3 w-11/12">
-                {
-                  debtors.find((debtor) => debtor.id === debt.roomie_debtor_id)
-                    ?.first_name
-                }{" "}
-                te debe {parseFloat(debt.amount).toFixed(2)}€
-              </p>
-            </div>
+          <div className="flex justify-center pt-3 md:pt-4">
+            <button
+              type="button"
+              className="bg-orange-600 hover:bg-orange-300 text-white font-bold py-2 px-4 rounded-xl"
+              onClick={() => handleOpenModalLiquidateDebt(debt.id, debt.amount)}
+            >
+              Liquidar Deuda
+            </button>
           </div>
-        ))}
-      </div>
+        </div>
+      ))}
+      {debtsPayer.map((debt) => (
+        <div
+          key={debt.id}
+          className="bg-white rounded-[50px] overflow-hidden shadow-xl transition-all mx-2 sm:mx-4 mb-4 p-6 sm:p-8 md:p-8 break-inside"
+        >
+          <h1 className="text-lg md:text-xl text-gray-700 font-bold mb-4 md:mb-6 text-center">
+            {debt.name}
+          </h1>
+          <div className="flex flex-col items-center">
+            <p className="border border-indigo-300 rounded-lg p-2 md:p-3 w-full md:w-11/12">
+              {
+                debtors.find((debtor) => debtor.id === debt.roomie_debtor_id)
+                  ?.first_name
+              }{" "}
+              te debe {parseFloat(debt.amount).toFixed(2)}€
+            </p>
+          </div>
+        </div>
+      ))}
+
       {isCreateModalOpen && (
         <CreateDebtModal
           isOpen={isCreateModalOpen}

@@ -16,8 +16,8 @@ const Files = () => {
   }, [actions]);
 
   return (
-    <div className="flex items-center justify-center min-h-screen">
-      <div className="max-h-70vh w-full sm:w-3/4 md:w-3/5 lg:w-3/7 xl:w-3/7 overflow-y-auto">
+    <div className="flex items-center justify-center h-screen z-0 mx-2">
+      <div className="w-full sm:w-3/4 md:w-3/5 lg:w-3/7 xl:w-3/7">
         <div className="bg-white rounded-[50px] p-8">
           <h2 className="text-2xl font-bold text-center mb-6">
             Lista de archivos

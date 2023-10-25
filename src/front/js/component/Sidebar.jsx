@@ -125,7 +125,7 @@ const Sidebar = () => {
   }
   if (isSmallScreen) {
     return (
-      <nav className="bg-white rounded-b-xl h-14">
+      <nav className="bg-white rounded-b-xl h-14 sticky top-0 z-50">
         <div className="container mx-auto flex items-center justify-between p-2">
           <button onClick={toggleMenu} className="p-2 text-gray-600 ml-2">
             {isMenuVisible ? (
@@ -142,6 +142,7 @@ const Sidebar = () => {
           className={`sidebar-content transition-transform transform duration-300 ${
             isMenuVisible ? "translate-x-0" : "-translate-x-full"
           }`}
+          style={{ zIndex: 50 }}
         >
           <ul className="space-y-4 ps-6 mt-2 bg-white w-1/2 rounded-xl">
             <li>
@@ -241,10 +242,10 @@ const Sidebar = () => {
   }
   if (isMediumScreen) {
     return (
-      <div className="fixed top-0 w-full bg-white">
+      <div className="w-full sticky z-50">
         <button
           onClick={toggleMenu}
-          className="p-2 text-gray-600 absolute top-4 left-4"
+          className="p-2 ms-2 text-gray-600 top-10 left-10"
         >
           {isMenuVisible ? (
             <i className="fa-solid fa-xmark" />

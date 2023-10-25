@@ -22,24 +22,23 @@ const Profile = () => {
 
   return (
     <>
-      <div className="flex items-center justify-center sm:mt-8 h-screen bg-gray-100">
-        <div className="bg-white rounded-[50px] p-6 md:p-12 max-w-lg w-full max-h-70vh overflow-y-auto">
+      <div className="flex items-center justify-center h-screen z-0 mx-2">
+        <div className="bg-white rounded-[50px] p-6 md:p-12 max-w-lg w-full">
           <h1 className="text-2xl text-gray-700 font-bold mb-4 text-center">
             Mis datos
           </h1>
           {roomieData && (
             <div className="flex flex-col space-y-4">
               <div className="mb-4 flex justify-center">
-                <div
-                  className="bg-gray-300 hover:bg-gray-400 py-2 px-4 rounded-full mt-2 shadow h-20 w-20 flex items-center justify-center"
-                  style={{
-                    backgroundImage: roomieData.avatar
-                      ? `url(${roomieData.avatar})`
-                      : "none",
-                  }}
-                >
-                  {!roomieData.avatar && (
-                    <i className="fa-regular fa-user fa-2xl text-white"></i>
+                <div className="bg-gray-300 rounded-full shadow flex items-center justify-center w-20 h-20 lg:w-24 lg:h-24">
+                  {roomieData.avatar ? (
+                    <img
+                      className="rounded-full w-full h-full object-cover"
+                      src={roomieData.avatar}
+                      alt=""
+                    />
+                  ) : (
+                    <i className="fa-regular fa-user fa-lg md:fa-2xl text-white"></i>
                   )}
                 </div>
               </div>
