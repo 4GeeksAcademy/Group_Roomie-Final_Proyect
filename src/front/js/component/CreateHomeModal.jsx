@@ -13,18 +13,25 @@ export default function CreateHomeModal({
   const [homeNameInput, setHomeNameInput] = useState('');
   const { actions } = useAppContext(); 
 
-  const handleCreateHomeClick = () => {
-    actions.createHome(homeNameInput) 
-      .then((data) => {
-        toast.success('El Home se creó exitosamente');
-        onClose();
-      })
-      .catch((error) => {
-        console.error('Error al crear el Home:', error);
-        toast.error('Hubo un error al crear el Home');
-      });
+  const handleCreateHomeClick = async () => {
+    try {
+      const homeNameInput = "El nombre de tu nuevo Home"; // Esto es solo un ejemplo
+      const user = roomies.find((roomie) => Number(localStorage.getItem("roomie_id")) === Number(roomie.id));
+  
+      if (user.home_id !== null) {
+        // El usuario ya tiene un home asignado, muestra un mensaje de error o toma la acción apropiada.
+        console.error('El usuario ya tiene un home asignado.');
+      } else {
+        // Llama a la función para crear el home.
+        const response = await createHome(homeNameInput);
+        console.log("Respuesta de createHome:", response);
+        setShowCreateHomeModal(false);
+      }
+    } catch (error) {
+      console.error("Error al crear el Home:", error);
+    }
   };
-
+  
   return (
     <Transition.Root show={open} as={Fragment}>
       <Dialog as="div" className="relative z-10" initialFocus={cancelButtonRef} onClose={onClose}>
