@@ -1,3 +1,5 @@
+const token = localStorage.getItem("token");
+
 const signup = (email, password, first_name) => {
   return fetch(`${process.env.REACT_APP_URL}/api/signup`, {
     method: "POST",
@@ -120,21 +122,47 @@ const getRoomieById = async (roomie_id) => {
   }
 };
 
-const fetchHomeData = async (home_id) => {
+const deactivateRoomie = async (roomie_id) => {
   try {
-    const response = await fetch(`${process.env.REACT_APP_URL}/api/home/${home_id}`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
+    const response = await fetch(
+      `${process.env.REACT_APP_URL}/api/roomie/${roomie_id}`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
     if (!response.ok) {
-      throw new Error('Error al obtener datos de la vivienda');
+      throw new Error("Error al desactivar la cuenta del roomie");
     }
     const data = await response.json();
     return data;
   } catch (error) {
-    console.error('Error al obtener datos de la vivienda:', error);
+    console.error("Error al desactivar la cuenta del roomie:", error);
+  }
+};
+
+
+const fetchHomeData = async (home_id) => {
+  try {
+    const response = await fetch(
+      `${process.env.REACT_APP_URL}/api/home/${home_id}`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    if (!response.ok) {
+      throw new Error("Error al obtener datos de la vivienda");
+    }
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error al obtener datos de la vivienda:", error);
   }
 };
 

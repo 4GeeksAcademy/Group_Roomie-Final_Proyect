@@ -5,6 +5,7 @@ import "react-big-calendar/lib/css/react-big-calendar.css";
 import "moment/locale/es";
 
 import useAppContext from "../contexts/AppContext.jsx";
+import Loader from "../component/Loader.jsx";
 
 moment.locale("es");
 const localizer = momentLocalizer(moment);
@@ -23,13 +24,14 @@ const eventStyleGetter = (event) => {
 
 const CalendarView = () => {
   const [events, setEvents] = useState([]);
-  const { actions } = useAppContext();
+  const [loading, setLoading] = useState(true);
+  const { actions, store } = useAppContext();
 
   useEffect(() => {
-    const roomie_id = localStorage.getItem("roomie_id");
     const fetchCalendarData = async () => {
       try {
-        const data = await actions.fetchCalendarData(roomie_id);
+        setLoading(true);
+        const data = await actions.fetchCalendarData(store.roomie_id);
         if (data) {
           const formattedData = data.map((event) => {
             return {
@@ -39,41 +41,57 @@ const CalendarView = () => {
             };
           });
           setEvents(formattedData);
+          setLoading(false);
         }
       } catch (error) {
         console.error("Error al obtener los datos del calendario:", error);
+        setLoading(false); 
       }
     };
     fetchCalendarData();
   }, [actions]);
 
+  if (loading) {
+    return <Loader />;
+  }
+
   return (
-    <div className="flex items-center justify-center h-screen z-0 mx-2">
-      <div className="bg-white rounded-[50px] p-6 md:p-12 w-full max-w-5xl h-4/5">
-        <div className="w-full h-full">
-          <Calendar
-            localizer={localizer}
-            events={events}
-            startAccessor="start"
-            endAccessor="end"
-            eventPropGetter={eventStyleGetter}
-            style={{ height: "100%", width: "100%", marginBottom: "20px" }}
-            messages={{
-              next: "Sig",
-              previous: "Ant",
-              today: "Hoy",
-              month: "Mes",
-              week: "Semana",
-              day: "Día",
-              date: "Fecha",
-              time: "Hora",
-              event: "Evento",
-              noEventsInRange: "No hay eventos para estas fechas.",
-            }}
-          />
+    <>
+      {store.home_id !== "null" ? (
+        <div className="flex items-center justify-center h-screen z-0 mx-2">
+          <div className="bg-white rounded-[50px] p-6 md:p-12 w-full max-w-5xl h-4/5">
+            <div className="w-full h-full">
+              <Calendar
+                localizer={localizer}
+                events={events}
+                startAccessor="start"
+                endAccessor="end"
+                eventPropGetter={eventStyleGetter}
+                style={{ height: "100%", width: "100%", marginBottom: "20px" }}
+                messages={{
+                  next: "Sig",
+                  previous: "Ant",
+                  today: "Hoy",
+                  month: "Mes",
+                  week: "Semana",
+                  day: "Día",
+                  date: "Fecha",
+                  time: "Hora",
+                  event: "Evento",
+                  noEventsInRange: "No hay eventos para estas fechas.",
+                }}
+              />
+            </div>
+          </div>
         </div>
-      </div>
-    </div>
+      ) : (
+        <h1 className="min-h-screen flex items-center justify-center text-center text-2xl font-bold tracking-tight text-gray-600 sm:text-4xl sm:p-4">
+          No estás vinculado a ninguna vivienda.
+          <br />
+          Crea una o pide a un administrador que te añada
+        </h1>
+      )}
+    </>
   );
 };
 

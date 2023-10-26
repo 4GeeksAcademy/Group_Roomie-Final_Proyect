@@ -7,6 +7,7 @@ from api.utils import generate_sitemap, APIException
 from flask_jwt_extended import create_access_token, get_jwt_identity, jwt_required
 from datetime import datetime, timedelta
 from api.custom_bcrypt import bcrypt
+from sqlalchemy import desc
 
 api = Blueprint('api', __name__)
 
@@ -181,7 +182,8 @@ def create_home():
             'roomie_id': roomie_id,
             'is_admin': is_admin
         })
-    return jsonify({'message': 'Vivienda creada correctamente', 'access_token': updated_access_token, 'roomie_id': roomie.id, 'is_admin': roomie.is_admin, 'shopping_list_name': shopping_list_name}), 200
+    return jsonify({'message': 'Vivienda creada correctamente', 'access_token': updated_access_token, 'roomie_id': roomie.id, 'is_admin': roomie.is_admin, 'shopping_list_name': shopping_list_name, 'home_id': new_home.id}), 200
+
 
 @api.route('/home/<int:home_id>', methods=['POST'])
 @jwt_required()
@@ -678,7 +680,7 @@ def pay_debt(debt_id):
         return jsonify({'message': 'La deuda ya está pagada'}), 200
     debt.status = 'Pagada'
     db.session.commit()
-    payment_text = f'{debt.roomie_debtor.first_name} ha pagado {debt.amount} a {debt.roomie_paying.first_name}'
+    payment_text = f'{debt.roomie_debtor.first_name} ha pagado {debt.amount}€ a {debt.roomie_paying.first_name}'
     new_blog = Blog(
         home_id=debt.expense.home_id,
         text=payment_text,
@@ -774,11 +776,12 @@ def get_all_blogs():
 
 @api.route('/blog/home/<int:home_id>', methods=['GET'])
 def get_blogs_by_home(home_id):
-    blogs = Blog.query.filter_by(home_id=home_id).all()
+    blogs = Blog.query.filter_by(home_id=home_id).order_by(desc(Blog.date)).limit(15).all()
     if not blogs:
         return jsonify({'error': 'No hay actualizaciones para esta vivienda'}), 400
     serialized_blogs = [blog.serialize() for blog in blogs]
     return jsonify(serialized_blogs), 200
+
 
 #Rutas para calendario
 @api.route('/calendar/<int:roomie_id>', methods=['GET'])
@@ -787,14 +790,14 @@ def calendar_view(roomie_id):
         ((Debts.roomie_debtor_id == roomie_id) | (Debts.roomie_paying_id == roomie_id))
     ).all()
     all_tasks = Task.query.filter(
-        (Task.date_assigned.isnot(None))
+        (Task.date_assigned.isnot(None) & (Task.roomie_id == roomie_id))
     ).all()
     calendar_data = []
     for debt in all_debts:
         if debt.roomie_debtor_id == roomie_id:
-            title = f"Debes a {debt.roomie_paying.first_name}: {debt.amount} €"
+            title = f"Debes a {debt.roomie_paying.first_name}: {debt.amount}€"
         else:
-            title = f"Pago de {debt.roomie_debtor.first_name}: {debt.amount} €"
+            title = f"Pago de {debt.roomie_debtor.first_name}: {debt.amount}€"
         calendar_event = {
             "id": debt.id,
             "title": title,

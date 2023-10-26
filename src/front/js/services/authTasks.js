@@ -9,9 +9,6 @@ const getTasksByHomeId = async (home_id, onlyPendingTasks) => {
         },
       }
     );
-    if (!response.ok) {
-      throw new Error("Error al obtener las tareas por ID de vivienda");
-    }
     const data = await response.json();
     return data;
   } catch (error) {
