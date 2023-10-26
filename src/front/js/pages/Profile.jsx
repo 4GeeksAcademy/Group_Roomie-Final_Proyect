@@ -79,14 +79,6 @@ const Profile = () => {
                   ********
                 </p>
               </div>
-              <div className="flex flex-col items-start">
-                <span className="text-gray-700 text-base md:text-lg lg:text-base mb-1 w-11/12">
-                  PayPal ID
-                </span>
-                <p className="border border-gray-300 rounded-lg p-3 w-11/12">
-                  {roomieData.paypal_id}
-                </p>
-              </div>
             </div>
           )}
           <div className="flex justify-end mt-5">

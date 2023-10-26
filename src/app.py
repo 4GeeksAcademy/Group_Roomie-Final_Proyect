@@ -16,6 +16,8 @@ from datetime import datetime, timedelta
 from api.custom_bcrypt import bcrypt
 from flask_mail import Mail, Message
 from apscheduler.schedulers.background import BackgroundScheduler
+import base64
+import requests
 
 #from models import Person
 
@@ -111,6 +113,7 @@ def send_daily_emails():
 scheduler = BackgroundScheduler()
 scheduler.add_job(send_daily_emails, 'cron', hour=16, minute=30)
 scheduler.start()
+
 
 
 # Ejecuta la aplicación Flask

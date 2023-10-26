@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 
 import useAppContext from "../contexts/AppContext.jsx";
+import Paypal from "./Paypal.jsx";
 
 const LiquidateDebtModal = ({
   isOpen,
@@ -11,22 +12,7 @@ const LiquidateDebtModal = ({
 }) => {
   const [selectedDate, setSelectedDate] = useState(new Date());
   const { actions } = useAppContext();
-
-  const handlePaymentPaypal = async () => {
-    const paypalWindow = window.open("https://www.paypal.com/signin", "_blank");
-    setTimeout(async () => {
-      try {
-        await actions.payDebt(selectedDebtId);
-        handleDebtPaidUpdate();
-        onClose();
-      } catch (error) {
-        console.error("Error al realizar el pago de la deuda:", error);
-      }
-      if (paypalWindow) {
-        paypalWindow.close();
-      }
-    }, 10000);
-  };
+  const [checkout, setCheckout] = useState(false);
 
   const handlePaymentCash = async () => {
     try {
@@ -73,13 +59,7 @@ const LiquidateDebtModal = ({
           >
             Cerrar
           </button>
-          <button
-            type="button"
-            className="bg-indigo-100 hover:bg-indigo-300 text-gray-600 font-bold py-2 px-4 rounded-xl"
-            onClick={handlePaymentPaypal}
-          >
-            Pago con PayPal
-          </button>
+          <Paypal amountToPay={debtAmount} />
           <button
             type="button"
             className="bg-orange-600 hover:bg-orange-300 text-white font-bold py-2 px-4 rounded-xl"

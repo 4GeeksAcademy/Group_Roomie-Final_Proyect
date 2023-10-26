@@ -35,7 +35,6 @@ def create_roomie():
     first_name = data.get('first_name')
     last_name = data.get('last_name')
     avatar = data.get('avatar')
-    paypal_id = data.get('paypal_id')
     existing_email_roomie = Roomie.query.filter_by(email=email).first()
     if existing_email_roomie:
         return jsonify({'error': 'Este roomie ya existe'}), 400
@@ -46,7 +45,6 @@ def create_roomie():
         first_name=first_name,
         last_name=last_name,
         avatar=avatar,
-        paypal_id=paypal_id
     )
     db.session.add(new_roomie)
     db.session.commit()
@@ -113,8 +111,6 @@ def updated_roomie(roomie_id):
         chosen_roomie.last_name = request_body_roomie.get('last_name')
     if 'avatar' in request_body_roomie:
         chosen_roomie.avatar = request_body_roomie.get('avatar')
-    if 'paypal_id' in request_body_roomie:
-        chosen_roomie.paypal_id = request_body_roomie.get('paypal_id')
     db.session.commit()
     return jsonify(chosen_roomie.serialize()), 200
 
@@ -134,7 +130,6 @@ def inactivate_roomie(roomie_id):
     roomie.first_name = f'roomieeliminado{roomie.id}'
     roomie.last_name = f'roomieeliminado{roomie.id}'
     roomie.avatar = f'roomieeliminado{roomie.id}'
-    roomie.paypal_id = f'roomieeliminado{roomie.id}'
     roomie.is_active = False
     db.session.commit()
     return jsonify({'message': 'Roomie eliminado correctamente'}), 200

@@ -605,8 +605,8 @@ video {
   left: 0px;
 }
 
-.left-4 {
-  left: 1rem;
+.left-10 {
+  left: 2.5rem;
 }
 
 .right-0 {
@@ -629,28 +629,12 @@ video {
   top: 50%;
 }
 
-.top-20 {
-  top: 5rem;
-}
-
-.top-4 {
-  top: 1rem;
-}
-
-.top-6 {
-  top: 1.5rem;
-}
-
-.left-6 {
-  left: 1.5rem;
-}
-
 .top-10 {
   top: 2.5rem;
 }
 
-.left-10 {
-  left: 2.5rem;
+.top-20 {
+  top: 5rem;
 }
 
 .z-0 {
@@ -758,6 +742,10 @@ video {
   margin-right: 1rem;
 }
 
+.ms-2 {
+  margin-inline-start: 0.5rem;
+}
+
 .mt-1 {
   margin-top: 0.25rem;
 }
@@ -784,14 +772,6 @@ video {
 
 .mt-8 {
   margin-top: 2rem;
-}
-
-.mt-20 {
-  margin-top: 5rem;
-}
-
-.ms-2 {
-  margin-inline-start: 0.5rem;
 }
 
 .block {
@@ -993,10 +973,6 @@ video {
   grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
-.grid-cols-1 {
-  grid-template-columns: repeat(1, minmax(0, 1fr));
-}
-
 .flex-col {
   flex-direction: column;
 }
@@ -1041,6 +1017,12 @@ video {
   margin-left: calc(1rem * calc(1 - var(--tw-space-x-reverse)));
 }
 
+.space-y-2 > :not([hidden]) ~ :not([hidden]) {
+  --tw-space-y-reverse: 0;
+  margin-top: calc(0.5rem * calc(1 - var(--tw-space-y-reverse)));
+  margin-bottom: calc(0.5rem * var(--tw-space-y-reverse));
+}
+
 .space-y-3 > :not([hidden]) ~ :not([hidden]) {
   --tw-space-y-reverse: 0;
   margin-top: calc(0.75rem * calc(1 - var(--tw-space-y-reverse)));
@@ -1057,12 +1039,6 @@ video {
   --tw-space-y-reverse: 0;
   margin-top: calc(1.5rem * calc(1 - var(--tw-space-y-reverse)));
   margin-bottom: calc(1.5rem * var(--tw-space-y-reverse));
-}
-
-.space-y-2 > :not([hidden]) ~ :not([hidden]) {
-  --tw-space-y-reverse: 0;
-  margin-top: calc(0.5rem * calc(1 - var(--tw-space-y-reverse)));
-  margin-bottom: calc(0.5rem * var(--tw-space-y-reverse));
 }
 
 .overflow-hidden {
@@ -1230,10 +1206,6 @@ video {
   padding: 0px;
 }
 
-.p-12 {
-  padding: 3rem;
-}
-
 .p-2 {
   padding: 0.5rem;
 }
@@ -1252,6 +1224,11 @@ video {
 
 .p-8 {
   padding: 2rem;
+}
+
+.px-2 {
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
 }
 
 .px-3 {
@@ -1292,11 +1269,6 @@ video {
 .py-3 {
   padding-top: 0.75rem;
   padding-bottom: 0.75rem;
-}
-
-.px-2 {
-  padding-left: 0.5rem;
-  padding-right: 0.5rem;
 }
 
 .pb-1 {
@@ -1677,16 +1649,12 @@ video {
     margin-right: 1rem;
   }
 
-  .sm\:mt-20 {
-    margin-top: 5rem;
-  }
-
-  .sm\:mt-8 {
-    margin-top: 2rem;
-  }
-
   .sm\:mt-10 {
     margin-top: 2.5rem;
+  }
+
+  .sm\:mt-20 {
+    margin-top: 5rem;
   }
 
   .sm\:h-20 {
@@ -1739,20 +1707,20 @@ video {
     margin-bottom: 1.5rem;
   }
 
-  .md\:ms-6 {
-    margin-inline-start: 1.5rem;
+  .md\:mr-2 {
+    margin-right: 0.5rem;
   }
 
-  .md\:mt-20 {
-    margin-top: 5rem;
+  .md\:ms-6 {
+    margin-inline-start: 1.5rem;
   }
 
   .md\:mt-10 {
     margin-top: 2.5rem;
   }
 
-  .md\:mr-2 {
-    margin-right: 0.5rem;
+  .md\:mt-20 {
+    margin-top: 5rem;
   }
 
   .md\:mt-6 {
@@ -1767,6 +1735,14 @@ video {
     width: 50%;
   }
 
+  .md\:w-11\/12 {
+    width: 91.666667%;
+  }
+
+  .md\:w-3\/4 {
+    width: 75%;
+  }
+
   .md\:w-3\/5 {
     width: 60%;
   }
@@ -1775,20 +1751,8 @@ video {
     width: auto;
   }
 
-  .md\:w-3\/4 {
-    width: 75%;
-  }
-
-  .md\:w-11\/12 {
-    width: 91.666667%;
-  }
-
   .md\:max-w-xl {
     max-width: 36rem;
-  }
-
-  .md\:grid-cols-2 {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .md\:justify-start {
@@ -1805,12 +1769,12 @@ video {
     padding: 3rem;
   }
 
-  .md\:p-8 {
-    padding: 2rem;
-  }
-
   .md\:p-3 {
     padding: 0.75rem;
+  }
+
+  .md\:p-8 {
+    padding: 2rem;
   }
 
   .md\:px-24 {
@@ -1837,12 +1801,12 @@ video {
     padding-top: 0px;
   }
 
-  .md\:pt-8 {
-    padding-top: 2rem;
-  }
-
   .md\:pt-4 {
     padding-top: 1rem;
+  }
+
+  .md\:pt-8 {
+    padding-top: 2rem;
   }
 
   .md\:text-left {
@@ -1859,14 +1823,14 @@ video {
     line-height: 2.5rem;
   }
 
-  .md\:text-lg {
-    font-size: 1.125rem;
-    line-height: 1.75rem;
-  }
-
   .md\:text-base {
     font-size: 1rem;
     line-height: 1.5rem;
+  }
+
+  .md\:text-lg {
+    font-size: 1.125rem;
+    line-height: 1.75rem;
   }
 
   .md\:text-sm {
@@ -1895,10 +1859,6 @@ video {
 }
 
 @media (min-width: 1024px) {
-  .lg\:me-10 {
-    margin-inline-end: 2.5rem;
-  }
-
   .lg\:me-5 {
     margin-inline-end: 1.25rem;
   }
