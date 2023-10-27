@@ -1,5 +1,3 @@
-
-
 const getRoomiesByHomeId = async (home_id) => {
   try {
     const response = await fetch(
@@ -44,21 +42,18 @@ const getDebtsByRoomieId = async (roomie_id) => {
 const createDebt = async (expense_id, debtor_ids, total_amount) => {
   const token = localStorage.getItem("token");
   try {
-    const response = await fetch(
-      `${process.env.REACT_APP_URL}/api/debts`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          expense_id: expense_id,
-          debtor_ids: debtor_ids,
-          total_amount: total_amount,
-        }),
-      }
-    );
+    const response = await fetch(`${process.env.REACT_APP_URL}/api/debts`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        expense_id: expense_id,
+        debtor_ids: debtor_ids,
+        total_amount: total_amount,
+      }),
+    });
     if (!response.ok) {
       const errorData = await response.json();
       throw new Error(

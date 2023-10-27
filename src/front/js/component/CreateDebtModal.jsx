@@ -1,12 +1,19 @@
 import React, { useState, useEffect } from "react";
+
 import useAppContext from "../contexts/AppContext.jsx";
 
-const CreateDebtModal = ({ isOpen, onClose, selectedExpenseId }) => {
+const CreateDebtModal = ({
+  isOpen,
+  onClose,
+  selectedExpenseId,
+  handleCreateDebtUpdate,
+}) => {
   const [roomies, setRoomies] = useState([]);
   const [selectedRoomies, setSelectedRoomies] = useState([]);
   const [amount, setAmount] = useState("");
   const [selectedDate, setSelectedDate] = useState(new Date());
-  const { actions } = useAppContext();
+  const { actions, store } = useAppContext();
+  const { widgetRef } = store;
 
   useEffect(() => {
     const fetchRoomies = async () => {
@@ -37,18 +44,19 @@ const CreateDebtModal = ({ isOpen, onClose, selectedExpenseId }) => {
 
   const handleCreateDebt = async () => {
     try {
+      const home_id = localStorage.getItem("home_id");
       const expense_id = selectedExpenseId;
       const debtor_ids = selectedRoomies;
       const total_amount = parseFloat(amount);
-      console.log(expense_id);
-      console.log(debtor_ids);
-      console.log(total_amount);
+      store.filesInfo.forEach(async (file) => {
+        await actions.uploadFile(file.name, file.url, home_id, expense_id);
+      });
       const responseData = await actions.createDebt(
         expense_id,
         debtor_ids,
         total_amount
       );
-      console.log(responseData);
+      handleCreateDebtUpdate();
       onClose();
     } catch (error) {
       console.error("Error al crear la deuda:", error);
@@ -60,11 +68,15 @@ const CreateDebtModal = ({ isOpen, onClose, selectedExpenseId }) => {
     return new Date(date).toLocaleDateString(undefined, options);
   };
 
+  const handleUpload = () => {
+    widgetRef.current.open();
+  };
+
   if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-3xl p-8 m-2 max-w-md w-full">
+      <div className="bg-white rounded-[50px] p-8 m-2 max-w-md w-full">
         <h2 className="text-2xl font-bold text-center mb-4">Crear Deuda</h2>
         <div className="mb-4" style={{ maxHeight: "200px", overflowY: "auto" }}>
           <label className="block text-gray-700 text-base md:text-lg lg:text-base mb-2">
@@ -112,7 +124,10 @@ const CreateDebtModal = ({ isOpen, onClose, selectedExpenseId }) => {
             {formatDate(selectedDate)}
           </p>
         </div>
-        <button className="bg-gray-200 hover:bg-gray-300 text-gray-600 font-bold py-2 px-4 rounded-xl mr-2">
+        <button
+          className="bg-gray-200 hover:bg-gray-300 text-gray-600 font-bold py-2 px-4 rounded-xl mr-2"
+          onClick={handleUpload}
+        >
           Adjuntar imagen
         </button>
         <div className="flex justify-end mt-5">

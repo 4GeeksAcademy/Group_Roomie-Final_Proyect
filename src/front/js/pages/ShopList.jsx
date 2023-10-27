@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 
 import useAppContext from "../contexts/AppContext.jsx";
 import ExpensesModal from "../component/ExpensesModal.jsx";
+import Loader from "../component/Loader.jsx";
 
 import toast from "react-hot-toast";
 
@@ -11,12 +12,13 @@ const ShopList = () => {
   const [shopList, setShopList] = useState({});
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [hasNoHomeId, setHasNoHomeId] = useState(false);
-  const { actions } = useAppContext();
+  const [loading, setLoading] = useState(true);
+  const { actions, store } = useAppContext();
 
   useEffect(() => {
-    const homeId = localStorage.getItem("home_id");
-    if (homeId === "null") {
+    if (store.home_id === "null") {
       setHasNoHomeId(true);
+      setLoading(false);
     } else {
       const fetchData = async () => {
         try {
@@ -29,8 +31,10 @@ const ShopList = () => {
             );
             setItems(itemsResponse);
           }
+          setLoading(false);
         } catch (error) {
           console.error("Error al obtener los datos", error);
+          setLoading(false);
         }
       };
       fetchData();
@@ -41,12 +45,14 @@ const ShopList = () => {
     if (newItem.trim() !== "") {
       const isDuplicate = items.some((item) => item.name === newItem.trim());
       if (!isDuplicate) {
-        const newItemObject = { name: newItem.trim(), completed: false };
-        const updatedItems = [...items, newItemObject];
-        setItems(updatedItems);
-        setNewItem("");
         try {
-          await actions.createNewItem(newItem.trim(), shopList.id);
+          const newItemObject = await actions.createNewItem(
+            newItem.trim(),
+            shopList.id
+          );
+          const updatedItems = [...items, newItemObject];
+          setItems(updatedItems);
+          setNewItem("");
         } catch (error) {
           console.error("Error al añadir nuevo item:", error);
         }
@@ -99,9 +105,11 @@ const ShopList = () => {
 
   return (
     <>
-      {!hasNoHomeId ? (
-        <div className="flex items-center justify-center min-h-screen bg-gray-100">
-          <div className="bg-white rounded-[50px] p-6 md:p-12 w-full md:max-w-xl">
+      {loading ? (
+        <Loader />
+      ) : !hasNoHomeId ? (
+        <div className="flex items-center justify-center mt-5 sm:mt-20 md:mt-20 mx-2">
+          <div className="bg-white rounded-[50px] p-6 md:p-12 w-full md:max-w-xl max-h-70vh overflow-y-auto">
             <h1 className="text-2xl text-gray-700 font-bold mb-6 text-center">
               {shopList.name}
             </h1>
@@ -177,7 +185,7 @@ const ShopList = () => {
         <h1 className="min-h-screen flex items-center justify-center text-center text-2xl font-bold tracking-tight text-gray-600 sm:text-4xl sm:p-4">
           No estás vinculado a ninguna vivienda.
           <br />
-          Crea una o pide a un administrador que te añada.
+          Crea una o pide a un administrador que te añada
         </h1>
       )}
     </>

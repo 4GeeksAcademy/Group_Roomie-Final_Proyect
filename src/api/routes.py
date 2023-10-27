@@ -7,6 +7,7 @@ from api.utils import generate_sitemap, APIException
 from flask_jwt_extended import create_access_token, get_jwt_identity, jwt_required
 from datetime import datetime, timedelta
 from api.custom_bcrypt import bcrypt
+from sqlalchemy import desc
 
 api = Blueprint('api', __name__)
 
@@ -18,8 +19,14 @@ def create_token():
     roomie = Roomie.query.filter_by(email=email).first()
     if roomie is None or not bcrypt.check_password_hash(roomie.password, password):
         return jsonify({'message': 'El email o la contraseña no son correctos'}), 401
-    access_token = create_access_token(identity={'roomie_id': roomie.id, 'is_admin': roomie.is_admin, 'home_id': roomie.home_id})
-    return jsonify({'token': access_token, 'roomie_id': roomie.id, 'is_admin': roomie.is_admin, 'home_id': roomie.home_id})
+    home = Home.query.filter(
+        (Home.id == roomie.home_id) & (Home.is_active == True)
+    ).first()
+    if home is not None:
+        access_token = create_access_token(identity={'roomie_id': roomie.id, 'is_admin': roomie.is_admin, 'home_id': roomie.home_id})
+    else:
+        access_token = create_access_token(identity={'roomie_id': roomie.id, 'is_admin': roomie.is_admin, 'home_id': None})
+    return jsonify({'token': access_token, 'roomie_id': roomie.id, 'is_admin': roomie.is_admin, 'home_id': roomie.home_id}), 200
 
 
 #Ruta para registrar nuevo roomie
@@ -35,7 +42,6 @@ def create_roomie():
     first_name = data.get('first_name')
     last_name = data.get('last_name')
     avatar = data.get('avatar')
-    paypal_id = data.get('paypal_id')
     existing_email_roomie = Roomie.query.filter_by(email=email).first()
     if existing_email_roomie:
         return jsonify({'error': 'Este roomie ya existe'}), 400
@@ -46,7 +52,6 @@ def create_roomie():
         first_name=first_name,
         last_name=last_name,
         avatar=avatar,
-        paypal_id=paypal_id
     )
     db.session.add(new_roomie)
     db.session.commit()
@@ -113,31 +118,28 @@ def updated_roomie(roomie_id):
         chosen_roomie.last_name = request_body_roomie.get('last_name')
     if 'avatar' in request_body_roomie:
         chosen_roomie.avatar = request_body_roomie.get('avatar')
-    if 'paypal_id' in request_body_roomie:
-        chosen_roomie.paypal_id = request_body_roomie.get('paypal_id')
     db.session.commit()
     return jsonify(chosen_roomie.serialize()), 200
 
-@api.route('/roomie/<int:roomie_id>', methods=['PUT'])
-@jwt_required()
+@api.route('/roomie/delete/<int:roomie_id>', methods=['PUT'])
 def inactivate_roomie(roomie_id):
-    current_roomie_id = get_jwt_identity().get('roomie_id')
     roomie = Roomie.query.get(roomie_id)
     if roomie is None:
         return jsonify({'error': 'Roomie no encontrado'}), 404
-    if roomie_id != current_roomie_id:
-        return jsonify({'error': 'No tienes permiso para desactivar a este roomie'}), 403
-    if roomie.home_id is not None:
-        return jsonify({'error': 'No puedes desactivar a un roomie asociado a una vivienda'}), 403
+    if not roomie.home_id is None:
+        home = Home.query.filter(
+            (Home.id == roomie.home_id) & (Home.is_active == True)
+        ).first()
+        if home is not None:
+            return jsonify({'error': 'No puedes desactivar a un roomie asociado a una vivienda'}), 403
     roomie.email = f'roomieeliminado{roomie.id}@roomieconnect.com'
     roomie.password = f'roomieeliminado{roomie.id}'
     roomie.first_name = f'roomieeliminado{roomie.id}'
     roomie.last_name = f'roomieeliminado{roomie.id}'
     roomie.avatar = f'roomieeliminado{roomie.id}'
-    roomie.paypal_id = f'roomieeliminado{roomie.id}'
     roomie.is_active = False
     db.session.commit()
-    return jsonify({'message': 'Roomie eliminado correctamente'}), 200
+    return jsonify(roomie.serialize()), 200
 
 
 #Rutas para home
@@ -163,30 +165,24 @@ def create_home():
     if 'name' not in request_body_home:
         return jsonify({'error': 'Es necesario introducir un nombre para la vivienda'}), 400
     roomie_id = get_jwt_identity().get('roomie_id')
-    is_admin = get_jwt_identity().get('is_admin')
     name = request_body_home['name']
     new_home = Home(name=name, is_active=True)
     roomie = Roomie.query.get(roomie_id)
-    if roomie:
-        new_home.roomies.append(roomie)
+    if not roomie:
+        return jsonify({'error': 'el usuario no existe'}), 403
+    new_home.roomies.append(roomie)
     shopping_list_name = f"Lista de la compra de {name}"
     shopping_list = List(name=shopping_list_name)
     new_home.shopping_list = shopping_list
     db.session.add(new_home)
+    roomie.is_admin = True
     db.session.commit()
-    if roomie and not is_admin:
-        roomie.is_admin = True
-        db.session.commit()
-        updated_access_token = create_access_token(identity={
-            'roomie_id': roomie_id,
-            'is_admin': True
-        })
-    else:
-        updated_access_token = create_access_token(identity={
-            'roomie_id': roomie_id,
-            'is_admin': is_admin
-        })
-    return jsonify({'message': 'Vivienda creada correctamente', 'access_token': updated_access_token, 'roomie_id': roomie.id, 'is_admin': roomie.is_admin, 'shopping_list_name': shopping_list_name}), 200
+    updated_access_token = create_access_token(identity={
+        'roomie_id': roomie_id,
+        'is_admin': True
+    })
+    return jsonify({'message': 'Vivienda creada correctamente', 'access_token': updated_access_token, 'roomie_id': roomie.id, 'is_admin': roomie.is_admin, 'shopping_list_name': shopping_list_name, 'home_id': new_home.id}), 200
+
 
 @api.route('/home/<int:home_id>', methods=['POST'])
 @jwt_required()
@@ -207,6 +203,8 @@ def add_roomie_to_home_by_email(home_id):
         return jsonify({'error': 'No se encontró el roomie con el correo electrónico proporcionado'}), 400
     if roomie in home.roomies:
         return jsonify({'error': 'Este roomie ya está en la vivienda'}), 400
+    if not roomie.home_id is None:
+        return jsonify({'error': 'Este roomie ya tiene otra vivienda'}), 400
     home.roomies.append(roomie)
     current_roomie = Roomie.query.filter_by(id=current_roomie_id).first()
     new_blog = Blog(
@@ -253,23 +251,25 @@ def delete_roomie_from_home(home_id, roomie_id):
 @api.route('/home/<int:home_id>', methods=['PUT'])
 @jwt_required()
 def inactive_home(home_id):
-    current_roomie_id = get_jwt_identity().get('roomie_id')
-    current_roomie_is_admin = get_jwt_identity().get('is_admin')
-    chosen_home = Home.query.get(home_id)
-    if chosen_home is None:
-        return jsonify({'error': 'Esta vivienda no existe'}), 404
-    if not current_roomie_is_admin:
-        return jsonify({'error': 'No tienes permiso para desactivar esta vivienda'}), 403
-    roomies_in_home = Roomie.query.filter_by(home_id=home_id, is_admin=False).all()
-    for roomie in roomies_in_home:
-        roomie.home_id = None
-    chosen_home.is_active = False
-    if current_roomie_id in [roomie.id for roomie in roomies_in_home]:
-        current_roomie = Roomie.query.get(current_roomie_id)
-        current_roomie.home_id = None
-        current_roomie.is_admin = False
-    db.session.commit()
-    return jsonify({'message': 'Vivienda desactivada correctamente'}), 200
+    try:
+        current_roomie_id = get_jwt_identity().get('roomie_id')
+        current_roomie_is_admin = get_jwt_identity().get('is_admin')
+        chosen_home = Home.query.get(home_id)
+        if not current_roomie_id:
+            return jsonify({'error': 'El usuario no existe'}), 403
+        if not current_roomie_is_admin:
+            return jsonify({'error': 'No tienes permiso para desactivar esta vivienda'}), 403
+        if chosen_home is None:
+            return jsonify({'error': 'Esta vivienda no existe'}), 403
+        roomies_in_home = Roomie.query.filter_by(home_id=home_id).all()
+        for roomie in roomies_in_home:
+            roomie.home_id = None
+            roomie.is_admin = False
+        chosen_home.is_active = False
+        db.session.commit()
+        return jsonify(chosen_home.serialize()), 200
+    except :
+        return jsonify("error al procesar la petición"), 500
 
 
 #Rutas para tasks
@@ -290,8 +290,28 @@ def get_one_task(task_id):
 
 @api.route('/task/roomie/<int:roomie_id>', methods=['GET'])
 def get_tasks_by_roomie_id(roomie_id):
+    only_pending_tasks = request.args.get('only_pending_tasks', default=False, type=bool)
     tasks = Task.query.filter_by(roomie_id=roomie_id).all()
-    task_list = [task.serialize() for task in tasks]
+    task_list = []
+    for task in tasks:
+        serialized_task = task.serialize()
+        task_list.append(serialized_task)
+    if only_pending_tasks:
+        task_list = [task for task in task_list if task['date_done'] == "None"]
+    return jsonify(task_list), 200
+
+@api.route('/task/home/<int:home_id>', methods=['GET'])
+def get_tasks_by_home_id(home_id):
+    only_pending_tasks = request.args.get('only_pending_tasks', default=False, type=bool)
+    tasks = Task.query.join(Roomie).filter(Roomie.home_id == home_id).all()
+    task_list = []
+    for task in tasks:
+        roomie_data = task.roomie.serialize()
+        serialized_task = task.serialize()
+        serialized_task['roomie'] = roomie_data
+        task_list.append(serialized_task)
+    if only_pending_tasks:
+        task_list = [task for task in task_list if task['date_done'] == "None"]
     return jsonify(task_list), 200
 
 @api.route('/task', methods=['POST'])
@@ -301,7 +321,7 @@ def create_task():
     name = request_data.get('name')
     date_assigned_str = request_data.get('date_assigned')
     roomie_id = request_data.get('roomie_id', None)
-    date_done = request_data.get('date_done', None)
+    date_done = None
     if roomie_id is None or name is None or date_assigned_str is None:
         return jsonify({'error': 'Faltan campos por completar'}), 400
     try:
@@ -329,7 +349,7 @@ def create_task():
         )
         db.session.add(new_blog)
     db.session.commit()
-    return jsonify({'message': 'Nueva tarea añadida correctamente'}), 200
+    return jsonify(new_task.serialize()), 200
 
 @api.route('/task/<int:task_id>', methods=['PUT'])
 def mark_task_as_done(task_id):
@@ -351,7 +371,10 @@ def mark_task_as_done(task_id):
     db.session.commit()
     return jsonify({'message': 'Tarea completada'}), 200
 
-@api.route('/task/<int:task_id>', methods=['PUT'])
+from flask import jsonify
+import json
+
+@api.route('/task/date/<int:task_id>', methods=['PUT'])
 def update_task_date(task_id):
     task = Task.query.get(task_id)
     if task is None:
@@ -374,7 +397,7 @@ def update_task_date(task_id):
         task.date_assigned = new_date_assigned
         db.session.add(new_blog)
         db.session.commit()
-        return jsonify({'message': 'Fecha de tarea actualizada correctamente'}), 200
+        return jsonify(task.serialize()), 200
     except ValueError:
         return jsonify({'error': 'Formato de fecha inválido. Utilice el formato DD-MM-YYYY'}), 400
 
@@ -475,7 +498,7 @@ def create_item():
     )
     db.session.add(new_blog)
     db.session.commit()
-    return jsonify({'message': 'Nuevo elemento añadido correctamente'}), 200
+    return jsonify(new_item.serialize()), 200
 
 @api.route('/item/<int:item_id>', methods=['DELETE'])
 @jwt_required()
@@ -522,8 +545,9 @@ def get_one_expense(expense_id):
 
 @api.route('/expense/roomie/<int:roomie_id>', methods=['GET'])
 def get_expenses_by_roomie_id(roomie_id):
-    # expenses = Expenses.query.filter_by(roomie_id=roomie_id, debt_generated=False).all()
-    expenses = Expenses.query.filter_by(roomie_id=roomie_id).all()
+    expenses = Expenses.query.filter(
+        (Expenses.roomie_id == roomie_id) & (Expenses.debt_generated == False)
+    ).all()
     expenses_list = [item.serialize() for item in expenses]
     return jsonify(expenses_list), 200
 
@@ -597,10 +621,6 @@ def get_debts_by_roomie_id(roomie_id):
     ).all()
 
     debts = debts_debtor + debts_payer
-    # for debt in debts:
-    #     setattr(debt, name, debt.expense.name)
-
-
     debts_list = [item.serialize() for item in debts]
     return jsonify(debts_list), 200
 
@@ -630,6 +650,7 @@ def generate_debt():
         debt_text = f'{current_roomie.first_name} te debe {individual_debt_amount}€'
         debt = Debts(
             amount=individual_debt_amount,
+            name=expense.name,
             status='Pendiente',
             date=datetime.now().date(),
             roomie_debtor_id=debtor_id,
@@ -662,7 +683,7 @@ def pay_debt(debt_id):
         return jsonify({'message': 'La deuda ya está pagada'}), 200
     debt.status = 'Pagada'
     db.session.commit()
-    payment_text = f'{debt.roomie_debtor.first_name} ha pagado {debt.amount} a {debt.roomie_paying.first_name}'
+    payment_text = f'{debt.roomie_debtor.first_name} ha pagado {debt.amount}€ a {debt.roomie_paying.first_name}'
     new_blog = Blog(
         home_id=debt.expense.home_id,
         text=payment_text,
@@ -704,6 +725,8 @@ def get_files_by_home_id(home_id):
 @jwt_required()
 def upload_file():
     request_data = request.get_json()
+    if request_data is None:
+        return jsonify({'error': 'Faltan campos por completar'}), 400
     file_name = request_data.get('name')
     file_url = request_data.get('url')
     home_id = request_data.get('home_id')
@@ -733,7 +756,7 @@ def upload_file():
     )
     db.session.add(new_blog)
     db.session.commit()
-    return jsonify({'message': 'Archivo subido correctamente'}), 200
+    return jsonify(new_file.serialize()), 200
 
 @api.route('/file/<int:file_id>', methods=['DELETE'])
 def delete_file(file_id):
@@ -756,7 +779,7 @@ def get_all_blogs():
 
 @api.route('/blog/home/<int:home_id>', methods=['GET'])
 def get_blogs_by_home(home_id):
-    blogs = Blog.query.filter_by(home_id=home_id).all()
+    blogs = Blog.query.filter_by(home_id=home_id).order_by(desc(Blog.date)).limit(15).all()
     if not blogs:
         return jsonify({'error': 'No hay actualizaciones para esta vivienda'}), 400
     serialized_blogs = [blog.serialize() for blog in blogs]
@@ -764,38 +787,37 @@ def get_blogs_by_home(home_id):
 
 
 #Rutas para calendario
-@api.route('/calendar', methods=['GET'])
-@jwt_required()
-def calendar_view():
-    current_roomie_id = get_jwt_identity().get('roomie_id')
-    current_month = int(request.args.get('month'))
+@api.route('/calendar/<int:roomie_id>', methods=['GET'])
+def calendar_view(roomie_id):
     all_debts = Debts.query.filter(
-        (Debts.roomie_debtor_id == current_roomie_id) | (Debts.roomie_paying_id == current_roomie_id)
+        ((Debts.roomie_debtor_id == roomie_id) | (Debts.roomie_paying_id == roomie_id))
     ).all()
-    all_tasks = Task.query.filter(Task.date_assigned.isnot(None)).all()
+    all_tasks = Task.query.filter(
+        (Task.date_assigned.isnot(None) & (Task.roomie_id == roomie_id))
+    ).all()
     calendar_data = []
     for debt in all_debts:
-        if debt.date.month == current_month:
-            if debt.roomie_debtor_id == current_roomie_id:
-                title = f"Debes a {debt.roomie_paying.first_name}: {debt.amount} €"
-            else:
-                title = f"Pago de {debt.roomie_debtor.first_name}: {debt.amount} €"
-            calendar_event = {
-                "id": debt.id,
-                "title": title,
-                "start": debt.date.strftime('%d-%m-%Y'),
-                "type": "debt"
-            }
-            calendar_data.append(calendar_event)
+        if debt.roomie_debtor_id == roomie_id:
+            title = f"Debes a {debt.roomie_paying.first_name}: {debt.amount}€"
+        else:
+            title = f"Pago de {debt.roomie_debtor.first_name}: {debt.amount}€"
+        calendar_event = {
+            "id": debt.id,
+            "title": title,
+            "start": debt.date.isoformat(),
+            "end": debt.date.isoformat(),
+            "type": "debt"
+        }
+        calendar_data.append(calendar_event)
     for task in all_tasks:
-        if task.date_assigned.month == current_month:
-            calendar_event = {
-                "id": task.id,
-                "title": task.name,
-                "start": task.date_assigned.strftime('%d-%m-%Y'),
-                "end": task.date_done.strftime('%Y-%m-%d') if task.date_done else None,
-                "type": "task"
-            }
-            calendar_data.append(calendar_event)
+        calendar_event = {
+            "id": task.id,
+            "title": task.name,
+            "start": task.date_assigned.isoformat(),
+            "end": task.date_assigned.isoformat(),
+            "type": "task"
+        }
+        calendar_data.append(calendar_event)
     return jsonify(calendar_data)
+
 

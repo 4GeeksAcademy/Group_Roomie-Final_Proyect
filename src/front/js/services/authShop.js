@@ -43,7 +43,6 @@ const createNewItem = async (name, shopping_list_id) => {
       body: JSON.stringify({ name, shopping_list_id }),
     });
     const data = await response.json();
-    console.log(data);
     return data;
   } catch (error) {
     console.error("Error al añadir nuevo item:", error);

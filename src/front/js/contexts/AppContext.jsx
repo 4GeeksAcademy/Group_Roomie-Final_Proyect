@@ -1,11 +1,21 @@
-import React, { createContext, useContext, useState, useEffect } from "react";
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  useRef,
+} from "react";
 
 import authProfile from "../services/authProfile";
 import authShop from "../services/authShop";
 import authExpenses from "../services/authExpenses";
 import authDebts from "../services/authDebts";
+import authFiles from "../services/authFiles";
+import authTasks from "../services/authTasks";
 
 import toast from "react-hot-toast";
+import authCalendar from "../services/authCalendar";
+import authBlog from "../services/authBlog";
 
 const AppContext = createContext();
 
@@ -16,6 +26,10 @@ export const AppContextProvider = ({ children }) => {
   const home_id = localStorage.getItem("home_id");
   const [authenticated, setAuthenticated] = useState(false);
   const [roomieData, setRoomieData] = useState({});
+  const [homeData, setHomeData] = useState({});
+  const cloudinaryRef = useRef();
+  const widgetRef = useRef();
+  const [filesInfo, setFilesInfo] = useState([]);
 
   useEffect(() => {
     if (token && token !== "" && token !== undefined) {
@@ -23,6 +37,26 @@ export const AppContextProvider = ({ children }) => {
       getRoomieData();
     }
   }, [token]);
+
+  useEffect(() => {
+    cloudinaryRef.current = window.cloudinary;
+    widgetRef.current = cloudinaryRef.current.createUploadWidget(
+      {
+        cloudName: "dewjikwun",
+        uploadPreset: "roomie_connect",
+      },
+      function (error, result) {
+        if (!error && result && result.event === "success") {
+          console.log("Listo! Estos son los datos del archivo: ", result.info);
+          const file = {
+            name: result.info.original_filename,
+            url: result.info.url,
+          };
+          setFilesInfo([...filesInfo, file]);
+        }
+      }
+    );
+  }, [filesInfo]);
 
   const login = async (email, password, navigate) => {
     try {
@@ -106,6 +140,7 @@ export const AppContextProvider = ({ children }) => {
     try {
       const profile_data = await authProfile.getRoomieData(roomie_id);
       setRoomieData(profile_data);
+      return profile_data;
     } catch (error) {
       console.error("Error al obtener los datos del Roomie:", error);
     }
@@ -139,6 +174,39 @@ export const AppContextProvider = ({ children }) => {
       });
     } catch (error) {
       console.error("Error al actualizar datos del Roomie:", error);
+    }
+  };
+
+  const desactivateRoomie = async (roomie_id) => {
+    const token = localStorage.getItem("token");
+    try {
+      const response = await fetch(
+        `${process.env.REACT_APP_URL}/api/roomie/delete/${roomie_id}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      if (!response.ok) {
+        throw new Error("Error al desactivar la cuenta del roomie");
+      }
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error("Error al desactivar la cuenta del roomie:", error);
+    }
+  };
+
+  const fetchHomeData = async () => {
+    try {
+      const response = await authProfile.fetchHomeData(home_id);
+      setHomeData(response);
+      return response;
+    } catch (error) {
+      console.error("Error al obtener datos de la vivienda:", error);
     }
   };
 
@@ -213,7 +281,7 @@ export const AppContextProvider = ({ children }) => {
     }
   };
 
-  const getRoomiesByHomeId = async (home_id) => {
+  const getRoomiesByHomeId = async () => {
     try {
       const response = await authDebts.getRoomiesByHomeId(home_id);
       if (!response) {
@@ -260,13 +328,166 @@ export const AppContextProvider = ({ children }) => {
     }
   };
 
+  const getRoomieById = async (roomie_id) => {
+    try {
+      const response = await authProfile.getRoomieById(roomie_id);
+      return response;
+    } catch (error) {
+      console.error("Error al obtener el roomie por ID:", error);
+      return null;
+    }
+  };
+
+  const getFiles = async (home_id) => {
+    try {
+      const response = await authFiles.getFiles(home_id);
+      const data = await response;
+      return data;
+    } catch (error) {
+      console.error("Error al obtener los archivos:", error);
+    }
+  };
+
+  const uploadFile = async (name, url, home_id, expense_id) => {
+    try {
+      const response = await authFiles.uploadFile(
+        name,
+        url,
+        home_id,
+        expense_id
+      );
+      const data = await response;
+      return data;
+    } catch (error) {
+      console.error("Error al subir el archivo:", error);
+      throw error;
+    }
+  };
+
+  const getTasksByHomeId = async (home_id, onlyPendingTasks) => {
+    try {
+      const response = await authTasks.getTasksByHomeId(
+        home_id,
+        onlyPendingTasks
+      );
+      return response;
+    } catch (error) {
+      console.error("Error al obtener las tareas:", error);
+    }
+  };
+
+  const getTasksbyRoomieId = async (roomie_id, onlyPendingTasks) => {
+    try {
+      const response = await authTasks.getTasksbyRoomieId(
+        roomie_id,
+        onlyPendingTasks
+      );
+      return response;
+    } catch (error) {
+      console.error("Error al obtener las tareas:", error);
+      throw error;
+    }
+  };
+
+  const getTaskById = async (task_id) => {
+    try {
+      const response = await authTasks.getTaskById(task_id);
+      if (!response.ok) {
+        throw new Error("Error al obtener la tarea por ID");
+      }
+      return response;
+    } catch (error) {
+      console.error("Ocurrió un error al obtener la tarea por ID:", error);
+      return null;
+    }
+  };
+
+  const createNewTask = async (roomie_id, name, date_assigned) => {
+    try {
+      const response = await authTasks.createNewTask(
+        roomie_id,
+        name,
+        date_assigned
+      );
+      const data = await response;
+      return data;
+    } catch (error) {
+      console.error("Error al crear la nueva tarea:", error);
+      throw error;
+    }
+  };
+
+  const updateTaskDate = async (task_id, new_date_assigned) => {
+    try {
+      const response = await authTasks.updateTaskDate(
+        task_id,
+        new_date_assigned
+      );
+      const data = await response;
+      return data;
+    } catch (error) {
+      console.error("Error al actualizar la fecha de la tarea:", error);
+    }
+  };
+
+  const markTaskAsDone = async (task_id) => {
+    try {
+      const response = await authTasks.markTaskAsDone(task_id);
+      return response;
+    } catch (error) {
+      console.error("Error al marcar la tarea como completada:", error);
+    }
+  };
+
+  const deleteTask = async (task_id) => {
+    try {
+      const response = await authTasks.deleteTask(task_id);
+      if (response && response.message === "Tarea eliminada correctamente") {
+        return response;
+      } else {
+        throw new Error(response.error || "Error al eliminar la tarea");
+      }
+    } catch (error) {
+      console.error("Error al eliminar la tarea:", error);
+      throw error;
+    }
+  };
+
+  const fetchCalendarData = async (roomie_id) => {
+    try {
+      const response = await authCalendar.fetchCalendarData(roomie_id);
+      if (!response) {
+        throw new Error("Error al obtener los datos del calendario");
+      }
+      return response;
+    } catch (error) {
+      console.error("Error en la solicitud de datos del calendario:", error);
+      return null;
+    }
+  };
+
+  const getAllBlogsByHome = async () => {
+    try {
+      const response = await authBlog.getBlogsByHome(home_id);
+      return response;
+    } catch (error) {
+      console.error("Error al obtener las entradas del blog:", error);
+      return [];
+    }
+  };
+
   const store = {
     token,
     roomie_id,
     is_admin,
     home_id,
     roomieData,
+    homeData,
     authenticated,
+    filesInfo,
+    setFilesInfo,
+    cloudinaryRef,
+    widgetRef,
   };
   const actions = {
     login,
@@ -284,6 +505,20 @@ export const AppContextProvider = ({ children }) => {
     createDebt,
     getDebtsByRoomieId,
     payDebt,
+    getRoomieById,
+    getFiles,
+    uploadFile,
+    getTasksByHomeId,
+    getTaskById,
+    createNewTask,
+    updateTaskDate,
+    markTaskAsDone,
+    deleteTask,
+    fetchCalendarData,
+    fetchHomeData,
+    getTasksbyRoomieId,
+    getAllBlogsByHome,
+    desactivateRoomie,
   };
 
   return (

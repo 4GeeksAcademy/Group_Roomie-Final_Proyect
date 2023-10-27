@@ -1,18 +1,17 @@
+const token = localStorage.getItem("token");
+
 const signup = (email, password, first_name) => {
-  return fetch(
-    `${process.env.REACT_APP_URL}/api/signup`,
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        email: email,
-        password: password,
-        first_name: first_name,
-      }),
-    }
-  ).then((response) => {
+  return fetch(`${process.env.REACT_APP_URL}/api/signup`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      email: email,
+      password: password,
+      first_name: first_name,
+    }),
+  }).then((response) => {
     if (response.ok) {
       return response.json();
     } else {
@@ -22,19 +21,16 @@ const signup = (email, password, first_name) => {
 };
 
 const login = (email, password) => {
-  return fetch(
-    `${process.env.REACT_APP_URL}/api/login`,
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        email: email,
-        password: password,
-      }),
-    }
-  ).then((response) => {
+  return fetch(`${process.env.REACT_APP_URL}/api/login`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      email: email,
+      password: password,
+    }),
+  }).then((response) => {
     if (response.ok) {
       return response.json().then((data) => {
         if (data.access_token) {
@@ -67,7 +63,10 @@ const getRoomieData = async (roomie_id) => {
     const data = await response.json();
     return data;
   } catch (error) {
-    console.error("Error al obtener los datos del Roomie:", error);
+    console.error(
+      "Error al obtener los datos del Roomie " + roomie_id + ":",
+      error
+    );
     throw error;
   }
 };
@@ -86,22 +85,85 @@ const updateRoomie = (
   if (password) updateData.password = password;
   if (paypal_id) updateData.paypal_id = paypal_id;
   if (avatar) updateData.avatar = avatar;
-  return fetch(
-    `${process.env.REACT_APP_URL}/api/roomie/${roomie_id}`,
-    {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(updateData),
-    }
-  ).then((response) => {
+  return fetch(`${process.env.REACT_APP_URL}/api/roomie/${roomie_id}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(updateData),
+  }).then((response) => {
     if (response.ok) {
       return response.json();
     } else {
       throw new Error("Error al actualizar el roomie:", response.status);
     }
   });
+};
+
+const getRoomieById = async (roomie_id) => {
+  try {
+    const response = await fetch(
+      `${process.env.REACT_APP_URL}/api/roomie/${roomie_id}`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    if (!response.ok) {
+      throw new Error("Error al obtener el roomie por ID");
+    }
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error al obtener el roomie por ID:", error);
+    return null;
+  }
+};
+
+const desactivateRoomie = async (roomie_id) => {
+  const token = localStorage.getItem("token");
+  try {
+    const response = await fetch(
+      `${process.env.REACT_APP_URL}/api/roomie/delete/${roomie_id}`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    if (!response.ok) {
+      throw new Error("Error al desactivar la cuenta del roomie");
+    }
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error al desactivar la cuenta del roomie:", error);
+  }
+};
+
+const fetchHomeData = async (home_id) => {
+  try {
+    const response = await fetch(
+      `${process.env.REACT_APP_URL}/api/home/${home_id}`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    if (!response.ok) {
+      throw new Error(response);
+    }
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error al obtener datos de la vivienda:", error);
+  }
 };
 
 const getCurrentRoomie = () => {
@@ -114,6 +176,9 @@ const authProfile = {
   getCurrentRoomie,
   getRoomieData,
   updateRoomie,
+  getRoomieById,
+  fetchHomeData,
+  desactivateRoomie,
 };
 
 export default authProfile;
