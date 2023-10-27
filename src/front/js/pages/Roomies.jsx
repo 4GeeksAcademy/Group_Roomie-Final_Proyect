@@ -7,6 +7,8 @@ import ModalBuscar from "../component/ModalBuscar.jsx";
 import authHome from "../services/authHome.js";
 import Loader from "../component/Loader.jsx";
 
+import toast from "react-hot-toast";
+
 const Roomies = () => {
   const [showModalCreate, setShowModalCreate] = useState(false);
   const [showModalAdd, setShowModalAdd] = useState(false);
@@ -45,10 +47,13 @@ const Roomies = () => {
 
   const handleDeactivateHome = async () => {
     try {
-      await authHome.desactivateHome(store.home_id);
-      localStorage.setItem("home_id", null);
-      localStorage.setItem("is_admin", false);
-      fetchRoomies();
+      const response = await authHome.desactivateHome(store.home_id);
+      if (response.is_active == false) {
+        localStorage.setItem("home_id", null);
+        localStorage.setItem("is_admin", false);
+      } else {
+        fetchRoomies();
+      }
       navigate("/home");
       toast.success("Vivienda desactivada correctamente", {
         duration: 3000,
@@ -109,14 +114,24 @@ const Roomies = () => {
         <CreateHomeModal
           onClose={() => setShowModalCreate(false)}
           onSubmit={authHome.createHome}
+          fetchRoomies={fetchRoomies}
         />
       )}
 
       {isAdmin && (
         <button
+          onClick={handleDeactivateHome}
+          className="bg-indigo-300 hover:bg-indigo-400 text-gray-600 font-bold py-2 px-4 rounded-xl mt-4"
+          style={{ position: "fixed", bottom: "2rem", right: "12rem" }}
+        >
+          Desactivar Vivienda
+        </button>
+      )}
+      {isAdmin && (
+        <button
           onClick={() => setShowModalAdd(true)}
           className="bg-orange-600 hover:bg-orange-300 text-white font-bold py-2 px-4 rounded-xl mt-4"
-          style={{ position: "fixed", bottom: "2rem", right: "15rem" }}
+          style={{ position: "fixed", bottom: "2rem", right: "2rem" }}
         >
           Añadir Roomie
         </button>
@@ -126,15 +141,6 @@ const Roomies = () => {
           onClose={() => setShowModalAdd(false)}
           onSubmit={authHome.addRoomieToHomeByEmail}
         />
-      )}
-      {isAdmin && (
-        <button
-          onClick={handleDeactivateHome}
-          className="bg-red-600 hover:bg-red-300 text-white font-bold py-2 px-4 rounded-xl mt-4"
-          style={{ position: "fixed", bottom: "2rem", right: "2rem" }}
-        >
-          Desactivar Vivienda
-        </button>
       )}
     </>
   );

@@ -122,10 +122,11 @@ const getRoomieById = async (roomie_id) => {
   }
 };
 
-const deactivateRoomie = async (roomie_id) => {
+const desactivateRoomie = async (roomie_id) => {
+  const token = localStorage.getItem("token");
   try {
     const response = await fetch(
-      `${process.env.REACT_APP_URL}/api/roomie/${roomie_id}`,
+      `${process.env.REACT_APP_URL}/api/roomie/delete/${roomie_id}`,
       {
         method: "PUT",
         headers: {
@@ -144,7 +145,6 @@ const deactivateRoomie = async (roomie_id) => {
   }
 };
 
-
 const fetchHomeData = async (home_id) => {
   try {
     const response = await fetch(
@@ -157,7 +157,7 @@ const fetchHomeData = async (home_id) => {
       }
     );
     if (!response.ok) {
-      throw new Error("Error al obtener datos de la vivienda");
+      throw new Error(response);
     }
     const data = await response.json();
     return data;
@@ -178,6 +178,7 @@ const authProfile = {
   updateRoomie,
   getRoomieById,
   fetchHomeData,
+  desactivateRoomie,
 };
 
 export default authProfile;

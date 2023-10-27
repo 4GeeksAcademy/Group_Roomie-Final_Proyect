@@ -177,6 +177,29 @@ export const AppContextProvider = ({ children }) => {
     }
   };
 
+  const desactivateRoomie = async (roomie_id) => {
+    const token = localStorage.getItem("token");
+    try {
+      const response = await fetch(
+        `${process.env.REACT_APP_URL}/api/roomie/delete/${roomie_id}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      if (!response.ok) {
+        throw new Error("Error al desactivar la cuenta del roomie");
+      }
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error("Error al desactivar la cuenta del roomie:", error);
+    }
+  };
+
   const fetchHomeData = async () => {
     try {
       const response = await authProfile.fetchHomeData(home_id);
@@ -495,6 +518,7 @@ export const AppContextProvider = ({ children }) => {
     fetchHomeData,
     getTasksbyRoomieId,
     getAllBlogsByHome,
+    desactivateRoomie,
   };
 
   return (

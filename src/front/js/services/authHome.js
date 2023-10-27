@@ -46,6 +46,7 @@ const addRoomieToHomeByEmail = async (email) => {
     return data;
   } catch (error) {
     console.error("Error al agregar al compañero de vivienda:", error);
+    throw error;
   }
 };
 
@@ -79,6 +80,7 @@ const deleteRoomieFromHome = async (home_id, roomie_id) => {
 
 const desactivateHome = async (home_id) => {
   const token = localStorage.getItem("token");
+  console.log(home_id);
   try {
     const response = await fetch(
       `${process.env.REACT_APP_URL}/api/home/${home_id}`,
@@ -91,7 +93,7 @@ const desactivateHome = async (home_id) => {
       }
     );
     if (!response.ok) {
-      throw new Error("Error al desactivar la vivienda");
+      throw new Error(response);
     }
     const data = await response.json();
     return data;

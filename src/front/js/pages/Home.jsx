@@ -261,17 +261,25 @@ const Home = () => {
               <h2 className="text-xl md:text-2xl text-gray-600 font-bold mb-2 md:mb-6">
                 Lista de la compra
               </h2>
-              <ul className="list-none list-inside">
-                {shoppingList.map((item, index) => (
-                  <li
-                    key={index}
-                    className="text-gray-800 border-b border-indigo-300 py-2 flex items-center"
-                  >
+              {shoppingList.length > 0 ? (
+                <ul className="list-none list-inside">
+                  {shoppingList.map((item, index) => (
+                    <li
+                      key={index}
+                      className="text-gray-800 border-b border-indigo-300 py-2 flex items-center"
+                    >
+                      <i className="fa-regular fa-square mr-2"></i>
+                      {item.name}
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <ul className="list-none list-inside">
+                  <li className="text-gray-800 border-b border-indigo-300 py-2 flex items-center">
                     <i className="fa-regular fa-square mr-2"></i>
-                    {item.name}
                   </li>
-                ))}
-              </ul>
+                </ul>
+              )}
               <div className="bottom-4 right-4 mt-2 flex justify-end">
                 <Link to="/shoplist">
                   <button className="w-12 h-12 rounded-full bg-orange-600 hover:bg-orange-300 flex items-center justify-center">

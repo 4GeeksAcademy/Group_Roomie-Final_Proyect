@@ -17,6 +17,12 @@ const ModalBuscar = ({ onClose, onSubmit }) => {
       });
     } catch (error) {
       console.error("Error al añadir el roomie:", error);
+      toast.error(
+        "No es posible añadir este roomie a la vivienda. Revisa los datos introducidos",
+        {
+          duration: 3000,
+        }
+      );
     }
   };
 

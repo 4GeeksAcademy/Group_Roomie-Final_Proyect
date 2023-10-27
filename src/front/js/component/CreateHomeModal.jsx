@@ -1,21 +1,23 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
 
-const CreateHomeModal = ({ onClose, onSubmit }) => {
+import toast from "react-hot-toast";
+
+const CreateHomeModal = ({ onClose, onSubmit, fetchRoomies }) => {
   const [homeName, setHomeName] = useState("");
-  const navigate = useNavigate();
 
   const handleCreateHome = async () => {
     try {
       const response = await onSubmit(homeName);
       if (response && response.access_token) {
         const { access_token, is_admin, home_id } = response;
+        const updatedIsAdmin = is_admin === true ? "true" : "false";
         localStorage.setItem("token", access_token);
-        localStorage.setItem("is_admin", is_admin);
+        localStorage.setItem("is_admin", updatedIsAdmin);
         localStorage.setItem("home_id", home_id);
       }
+      window.location.reload();
+      fetchRoomies();
       onClose();
-      navigate("/home");
       toast.success("Nueva vivienda creada correctamente", {
         duration: 3000,
       });
@@ -55,13 +57,13 @@ const CreateHomeModal = ({ onClose, onSubmit }) => {
             <div className="flex justify-end mt-5">
               <button
                 onClick={onClose}
-                className="bg-orange-600 hover:bg-orange-300 text-white font-bold py-2 px-4 rounded-xl mr-2"
+                className="bg-indigo-100 hover:bg-indigo-300 text-gray-600 font-bold py-2 px-4 rounded-xl mr-2"
               >
                 Cerrar
               </button>
               <button
                 onClick={handleCreateHome}
-                className="bg-indigo-100 hover:bg-indigo-300 text-gray-600 font-bold py-2 px-4 rounded-xl"
+                className="bg-orange-600 hover:bg-orange-300 text-white font-bold py-2 px-4 rounded-xl"
               >
                 Crear
               </button>

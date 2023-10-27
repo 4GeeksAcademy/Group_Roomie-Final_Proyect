@@ -19,8 +19,14 @@ def create_token():
     roomie = Roomie.query.filter_by(email=email).first()
     if roomie is None or not bcrypt.check_password_hash(roomie.password, password):
         return jsonify({'message': 'El email o la contraseña no son correctos'}), 401
-    access_token = create_access_token(identity={'roomie_id': roomie.id, 'is_admin': roomie.is_admin, 'home_id': roomie.home_id})
-    return jsonify({'token': access_token, 'roomie_id': roomie.id, 'is_admin': roomie.is_admin, 'home_id': roomie.home_id})
+    home = Home.query.filter(
+        (Home.id == roomie.home_id) & (Home.is_active == True)
+    ).first()
+    if home is not None:
+        access_token = create_access_token(identity={'roomie_id': roomie.id, 'is_admin': roomie.is_admin, 'home_id': roomie.home_id})
+    else:
+        access_token = create_access_token(identity={'roomie_id': roomie.id, 'is_admin': roomie.is_admin, 'home_id': None})
+    return jsonify({'token': access_token, 'roomie_id': roomie.id, 'is_admin': roomie.is_admin, 'home_id': roomie.home_id}), 200
 
 
 #Ruta para registrar nuevo roomie
@@ -115,17 +121,17 @@ def updated_roomie(roomie_id):
     db.session.commit()
     return jsonify(chosen_roomie.serialize()), 200
 
-@api.route('/roomie/<int:roomie_id>', methods=['PUT'])
-@jwt_required()
+@api.route('/roomie/delete/<int:roomie_id>', methods=['PUT'])
 def inactivate_roomie(roomie_id):
-    current_roomie_id = get_jwt_identity().get('roomie_id')
     roomie = Roomie.query.get(roomie_id)
     if roomie is None:
         return jsonify({'error': 'Roomie no encontrado'}), 404
-    if roomie_id != current_roomie_id:
-        return jsonify({'error': 'No tienes permiso para desactivar a este roomie'}), 403
-    if roomie.home_id is not None:
-        return jsonify({'error': 'No puedes desactivar a un roomie asociado a una vivienda'}), 403
+    if not roomie.home_id is None:
+        home = Home.query.filter(
+            (Home.id == roomie.home_id) & (Home.is_active == True)
+        ).first()
+        if home is not None:
+            return jsonify({'error': 'No puedes desactivar a un roomie asociado a una vivienda'}), 403
     roomie.email = f'roomieeliminado{roomie.id}@roomieconnect.com'
     roomie.password = f'roomieeliminado{roomie.id}'
     roomie.first_name = f'roomieeliminado{roomie.id}'
@@ -133,7 +139,7 @@ def inactivate_roomie(roomie_id):
     roomie.avatar = f'roomieeliminado{roomie.id}'
     roomie.is_active = False
     db.session.commit()
-    return jsonify({'message': 'Roomie eliminado correctamente'}), 200
+    return jsonify(roomie.serialize()), 200
 
 
 #Rutas para home
@@ -159,29 +165,22 @@ def create_home():
     if 'name' not in request_body_home:
         return jsonify({'error': 'Es necesario introducir un nombre para la vivienda'}), 400
     roomie_id = get_jwt_identity().get('roomie_id')
-    is_admin = get_jwt_identity().get('is_admin')
     name = request_body_home['name']
     new_home = Home(name=name, is_active=True)
     roomie = Roomie.query.get(roomie_id)
-    if roomie:
-        new_home.roomies.append(roomie)
+    if not roomie:
+        return jsonify({'error': 'el usuario no existe'}), 403
+    new_home.roomies.append(roomie)
     shopping_list_name = f"Lista de la compra de {name}"
     shopping_list = List(name=shopping_list_name)
     new_home.shopping_list = shopping_list
     db.session.add(new_home)
+    roomie.is_admin = True
     db.session.commit()
-    if roomie and not is_admin:
-        roomie.is_admin = True
-        db.session.commit()
-        updated_access_token = create_access_token(identity={
-            'roomie_id': roomie_id,
-            'is_admin': True
-        })
-    else:
-        updated_access_token = create_access_token(identity={
-            'roomie_id': roomie_id,
-            'is_admin': is_admin
-        })
+    updated_access_token = create_access_token(identity={
+        'roomie_id': roomie_id,
+        'is_admin': True
+    })
     return jsonify({'message': 'Vivienda creada correctamente', 'access_token': updated_access_token, 'roomie_id': roomie.id, 'is_admin': roomie.is_admin, 'shopping_list_name': shopping_list_name, 'home_id': new_home.id}), 200
 
 
@@ -204,6 +203,8 @@ def add_roomie_to_home_by_email(home_id):
         return jsonify({'error': 'No se encontró el roomie con el correo electrónico proporcionado'}), 400
     if roomie in home.roomies:
         return jsonify({'error': 'Este roomie ya está en la vivienda'}), 400
+    if not roomie.home_id is None:
+        return jsonify({'error': 'Este roomie ya tiene otra vivienda'}), 400
     home.roomies.append(roomie)
     current_roomie = Roomie.query.filter_by(id=current_roomie_id).first()
     new_blog = Blog(
@@ -250,23 +251,25 @@ def delete_roomie_from_home(home_id, roomie_id):
 @api.route('/home/<int:home_id>', methods=['PUT'])
 @jwt_required()
 def inactive_home(home_id):
-    current_roomie_id = get_jwt_identity().get('roomie_id')
-    current_roomie_is_admin = get_jwt_identity().get('is_admin')
-    chosen_home = Home.query.get(home_id)
-    if chosen_home is None:
-        return jsonify({'error': 'Esta vivienda no existe'}), 404
-    if not current_roomie_is_admin:
-        return jsonify({'error': 'No tienes permiso para desactivar esta vivienda'}), 403
-    roomies_in_home = Roomie.query.filter_by(home_id=home_id, is_admin=False).all()
-    for roomie in roomies_in_home:
-        roomie.home_id = None
-    chosen_home.is_active = False
-    if current_roomie_id in [roomie.id for roomie in roomies_in_home]:
-        current_roomie = Roomie.query.get(current_roomie_id)
-        current_roomie.home_id = None
-        current_roomie.is_admin = False
-    db.session.commit()
-    return jsonify({'message': 'Vivienda desactivada correctamente'}), 200
+    try:
+        current_roomie_id = get_jwt_identity().get('roomie_id')
+        current_roomie_is_admin = get_jwt_identity().get('is_admin')
+        chosen_home = Home.query.get(home_id)
+        if not current_roomie_id:
+            return jsonify({'error': 'El usuario no existe'}), 403
+        if not current_roomie_is_admin:
+            return jsonify({'error': 'No tienes permiso para desactivar esta vivienda'}), 403
+        if chosen_home is None:
+            return jsonify({'error': 'Esta vivienda no existe'}), 403
+        roomies_in_home = Roomie.query.filter_by(home_id=home_id).all()
+        for roomie in roomies_in_home:
+            roomie.home_id = None
+            roomie.is_admin = False
+        chosen_home.is_active = False
+        db.session.commit()
+        return jsonify(chosen_home.serialize()), 200
+    except :
+        return jsonify("error al procesar la petición"), 500
 
 
 #Rutas para tasks

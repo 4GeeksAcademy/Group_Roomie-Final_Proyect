@@ -1,12 +1,16 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 import useAppContext from "../contexts/AppContext.jsx";
 import ProfileModal from "../component/ProfileModal.jsx";
+
+import toast from "react-hot-toast";
 
 const Profile = () => {
   const { actions, store } = useAppContext();
   const { roomieData } = store;
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const navigate = useNavigate();
 
   const handleOpenModal = () => {
     setIsModalOpen(true);
@@ -14,6 +18,22 @@ const Profile = () => {
 
   const handleCloseModal = () => {
     setIsModalOpen(false);
+  };
+
+  const handleDeleteAccount = async () => {
+    try {
+      await actions.desactivateRoomie(store.roomie_id);
+      localStorage.removeItem("token");
+      localStorage.removeItem("roomie_id");
+      localStorage.removeItem("is_admin");
+      localStorage.removeItem("home_id");
+      navigate("/");
+      toast.success("Cuenta eliminada correctamente", {
+        duration: 3000,
+      });
+    } catch (error) {
+      console.error("Error al desactivar la cuenta del roomie:", error);
+    }
   };
 
   useEffect(() => {
@@ -82,6 +102,12 @@ const Profile = () => {
             </div>
           )}
           <div className="flex justify-end mt-5">
+            <button
+              className="bg-indigo-100 hover:bg-indigo-300 text-gray-600 font-bold py-2 px-4 rounded-xl mr-2"
+              onClick={handleDeleteAccount}
+            >
+              Eliminar cuenta
+            </button>
             <button
               className="bg-orange-600 hover:bg-orange-300 text-white font-bold py-2 px-4 rounded-xl"
               onClick={handleOpenModal}
