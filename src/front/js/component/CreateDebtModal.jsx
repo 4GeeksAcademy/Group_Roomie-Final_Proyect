@@ -76,7 +76,7 @@ const CreateDebtModal = ({
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-3xl p-8 m-2 max-w-md w-full">
+      <div className="bg-white rounded-[50px] p-8 m-2 max-w-md w-full">
         <h2 className="text-2xl font-bold text-center mb-4">Crear Deuda</h2>
         <div className="mb-4" style={{ maxHeight: "200px", overflowY: "auto" }}>
           <label className="block text-gray-700 text-base md:text-lg lg:text-base mb-2">

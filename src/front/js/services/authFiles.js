@@ -9,9 +9,6 @@ const getFiles = async (home_id) => {
         },
       }
     );
-    if (!response.ok) {
-      throw new Error("No se pudo obtener la lista de archivos");
-    }
     const data = await response.json();
     return data;
   } catch (error) {
