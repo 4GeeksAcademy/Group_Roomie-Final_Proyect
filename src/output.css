@@ -1361,6 +1361,10 @@ video {
   text-align: right;
 }
 
+.text-end {
+  text-align: end;
+}
+
 .align-middle {
   vertical-align: middle;
 }
@@ -1495,6 +1499,10 @@ video {
 
 .line-through {
   text-decoration-line: line-through;
+}
+
+.decoration-wavy {
+  text-decoration-style: wavy;
 }
 
 .opacity-75 {

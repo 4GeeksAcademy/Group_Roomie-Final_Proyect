@@ -144,7 +144,7 @@ const ShopList = () => {
                 <li
                   key={index}
                   className={`flex justify-between items-center p-2 ${
-                    item.completed ? "line-through" : ""
+                    item.completed ? "bg-indigo-100 rounded-xl" : ""
                   }`}
                   style={{ borderBottom: "1px solid #D1D5DB" }}
                 >

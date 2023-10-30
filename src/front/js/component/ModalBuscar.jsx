@@ -1,17 +1,15 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
 
 import toast from "react-hot-toast";
 
 const ModalBuscar = ({ onClose, onSubmit }) => {
   const [email, setEmail] = useState("");
-  const navigate = useNavigate();
 
   const handleAddRoomie = async () => {
     try {
       await onSubmit(email);
+      window.location.reload();
       onClose();
-      navigate("/home");
       toast.success("Nuevo roomie añadido a la vivienda", {
         duration: 3000,
       });
