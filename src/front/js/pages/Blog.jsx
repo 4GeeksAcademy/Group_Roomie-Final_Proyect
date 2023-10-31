@@ -36,7 +36,7 @@ const Blog = () => {
       ) : store.home_id !== "null" ? (
         <>
           {Array.isArray(notifications) && notifications.length > 0 ? (
-            <div className="flex items-center justify-center mt-5 sm:mt-20 md:mt-20 mx-2">
+            <div className="flex items-center justify-center h-70vh overflow-y-auto z-0 mx-2 mt-5 sm:mt-10 md:mt-10 lg:mt-20">
               <div className="bg-white rounded-[50px] p-4 md:p-8 w-full md:w-3/4 lg:w-3/5 xl:w-3/7">
                 <h2 className="text-lg md:text-2xl text-gray-700 font-bold text-center mb-4 md:mb-6">
                   Últimas noticias en tu vivienda

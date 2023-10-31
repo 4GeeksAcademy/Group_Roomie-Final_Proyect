@@ -779,7 +779,7 @@ def get_all_blogs():
 
 @api.route('/blog/home/<int:home_id>', methods=['GET'])
 def get_blogs_by_home(home_id):
-    blogs = Blog.query.filter_by(home_id=home_id).order_by(desc(Blog.date)).limit(15).all()
+    blogs = Blog.query.filter_by(home_id=home_id).order_by(desc(Blog.date)).limit(10).all()
     if not blogs:
         return jsonify({'error': 'No hay actualizaciones para esta vivienda'}), 400
     serialized_blogs = [blog.serialize() for blog in blogs]

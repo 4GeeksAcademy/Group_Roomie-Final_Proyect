@@ -65,7 +65,7 @@ const Roomies = () => {
 
   return (
     <>
-      <div className="masonry md:masonry-lg xl:masonry-xl z-0 mt-5 sm:mt-10 md:mt-10 lg:mt-20 lg:ms-72 me-5">
+      <div className="masonry md:masonry-lg xl:masonry-xl z-0 mt-5 sm:mt-10 md:mt-10 lg:mt-20 lg:ms-72 mx-2">
         {roomies.map((roomie) => (
           <div
             key={roomie.id}
