@@ -719,10 +719,6 @@ video {
   margin-bottom: 1.5rem;
 }
 
-.me-5 {
-  margin-inline-end: 1.25rem;
-}
-
 .ml-2 {
   margin-left: 0.5rem;
 }
@@ -1361,6 +1357,10 @@ video {
   text-align: right;
 }
 
+.text-end {
+  text-align: end;
+}
+
 .align-middle {
   vertical-align: middle;
 }
@@ -1491,10 +1491,6 @@ video {
 
 .underline {
   text-decoration-line: underline;
-}
-
-.line-through {
-  text-decoration-line: line-through;
 }
 
 .opacity-75 {

@@ -29,7 +29,7 @@ const Files = () => {
         <Loader />
       ) : store.home_id !== "null" ? (
         files.length > 0 ? (
-          <div className="flex items-center justify-center h-screen z-0 mx-2">
+          <div className="flex items-center justify-center h-70vh overflow-y-auto z-0 mx-2 mt-5 sm:mt-10 md:mt-10 lg:mt-20">
             <div className="w-full sm:w-3/4 md:w-3/5 lg:w-3/7 xl:w-3/7">
               <div className="bg-white rounded-[50px] p-8">
                 <h2 className="text-2xl font-bold text-center mb-6">

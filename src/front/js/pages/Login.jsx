@@ -73,6 +73,9 @@ const Login = () => {
                   />
                 </button>
               </div>
+              <div className="text-end text-sm pb-2">
+                <a href="#">¿Olvidaste tu contraseña?</a>
+              </div>
             </div>
             <button
               type="submit"

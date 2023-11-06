@@ -206,20 +206,24 @@ const Home = () => {
             ) : (
               <div className="flex -space-x-2 overflow-hidden">
                 {roomies.map((roomie, index) => (
-                  <div
-                    key={index}
-                    className="bg-gray-300 hover:bg-gray-400 rounded-full ring-2 ring-white mt-2 shadow flex items-center justify-center"
-                    style={{ width: "5rem", height: "5rem" }}
-                  >
-                    {roomie.avatar ? (
-                      <img
-                        className="rounded-full w-full h-full object-cover"
-                        src={roomie.avatar}
-                        alt=""
-                      />
-                    ) : (
-                      <i className="fa-regular fa-user fa-lg md:fa-2xl text-white"></i>
-                    )}
+                  <div key={index} className="text-center">
+                    <div
+                      className="bg-gray-300 hover:bg-gray-400 rounded-full ring-2 ring-white mt-2 shadow flex items-center justify-center"
+                      style={{ width: "5rem", height: "5rem" }}
+                    >
+                      {roomie.avatar ? (
+                        <img
+                          className="rounded-full w-full h-full object-cover"
+                          src={roomie.avatar}
+                          alt=""
+                        />
+                      ) : (
+                        <i className="fa-regular fa-user fa-lg md:fa-2xl text-white"></i>
+                      )}
+                    </div>
+                    <p className="text-sm text-gray-600 mt-2">
+                      {roomie.first_name}
+                    </p>
                   </div>
                 ))}
               </div>

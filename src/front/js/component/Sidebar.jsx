@@ -144,7 +144,7 @@ const Sidebar = () => {
           }`}
           style={{ zIndex: 50 }}
         >
-          <ul className="space-y-4 ps-6 mt-2 bg-white w-1/2 rounded-xl">
+          <ul className="space-y-4 ps-6 mt-2 bg-white w-1/2 rounded-xl shadow-xl">
             <li>
               <Link
                 to="/home"
@@ -254,7 +254,7 @@ const Sidebar = () => {
           )}
         </button>
         <div
-          className={`w-64 fixed top-20 h-full bg-white rounded-tr-[50px] transition-all duration-300 ${
+          className={`w-64 fixed top-20 h-full bg-white rounded-tr-[50px] shadow-xl transition-all duration-300 ${
             isMenuVisible ? "" : "hidden"
           } transition-all duration-300`}
         >

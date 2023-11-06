@@ -131,7 +131,7 @@ const Expenses = () => {
                 {debt.name}
               </h1>
               <div className="flex flex-col items-center">
-                <p className="border border-gray-300 rounded-lg p-2 md:p-3 w-full md:w-11/12">
+                <p className="bg-red-200 rounded-lg p-2 md:p-3 w-full md:w-11/12">
                   Debes {parseFloat(debt.amount).toFixed(2)}€ a{" "}
                   {
                     payers.find((payer) => payer.id === debt.roomie_paying_id)
@@ -161,7 +161,7 @@ const Expenses = () => {
                 {debt.name}
               </h1>
               <div className="flex flex-col items-center">
-                <p className="border border-indigo-300 rounded-lg p-2 md:p-3 w-full md:w-11/12">
+                <p className="bg-green-200 rounded-lg p-2 md:p-3 w-full md:w-11/12">
                   {
                     debtors.find(
                       (debtor) => debtor.id === debt.roomie_debtor_id
