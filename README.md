@@ -20,9 +20,7 @@ Roomie Connect está en constante desarrollo y mejora para satisfacer las necesi
 
 ## Estado del Proyecto
 
-🚧 Proyecto en construcción 🚧
-
-Estamos trabajando arduamente para desarrollar todas las funciones y características que hacen que Roomie Connect sea una herramienta útil y práctica para la vida en compañía.
+Proyecto desplegado en Render: https://roomieconnect-ixr3.onrender.com
 
 ## Funcionalidades del proyecto
 
@@ -72,7 +70,6 @@ Revisar los anuncios y actualizaciones generados de temas importantes relacionad
 
 ✨ Este proyecto está siendo desarrollado por el equipo de Roomie Connect:
 
-- [Miguel Ángel Martínez](https://github.com/MPMiguel)
 - [Rémulo Castro](https://github.com/Remug)
 - [Johanna Alamo](https://github.com/johannaalamo)
 - [Sandra Rodríguez](https://github.com/srdgz)
